@@ -53,11 +53,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FakeEndPoint.cs" />
+    <Compile Include="FakeTransport.cs" />
+    <Compile Include="TestFromDifferentEndPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestFromSameEndpoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SpeedBallServer\SpeedBallServer.csproj">
+      <Project>{d3b7daf8-7cd7-4ffb-b58e-83b54d5131e7}</Project>
+      <Name>SpeedBallServer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

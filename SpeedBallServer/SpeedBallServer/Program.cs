@@ -10,6 +10,12 @@ namespace SpeedBallServer
     {
         static void Main(string[] args)
         {
+            GameTransportIPv4 transport = new GameTransportIPv4();
+            transport.Bind("127.0.0.1", 5000);
+
+            GameServer server = new GameServer(transport);
+
+            server.Run();
         }
     }
 }
