@@ -3,11 +3,10 @@
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMove : MonoBehaviour
 {
-    public float Speed;
-
     private Rigidbody2D rigidBody2D;
     private Vector2 direction;
     private Vector2 velocity;
+    private float speed;
     private string horizontalAxisName;
     private string verticalAxisName;
 
@@ -16,6 +15,7 @@ public class PlayerMove : MonoBehaviour
         rigidBody2D = GetComponentInParent<Rigidbody2D>();
         horizontalAxisName = "Horizontal";
         verticalAxisName = "Vertical";
+        speed = 400.0f;
     }
 
     void FixedUpdate()
@@ -26,6 +26,6 @@ public class PlayerMove : MonoBehaviour
     void Update()
     {
         direction = new Vector2(Input.GetAxis(horizontalAxisName), Input.GetAxis(verticalAxisName)).normalized;
-        velocity = direction * Speed * Time.deltaTime;
+        velocity = direction * speed * Time.deltaTime;
     }
 }

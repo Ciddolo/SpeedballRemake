@@ -721,7 +721,9 @@ GameObject:
   - component: {fileID: 912722692}
   - component: {fileID: 912722694}
   - component: {fileID: 912722696}
+  - component: {fileID: 912722697}
   - component: {fileID: 912722691}
+  - component: {fileID: 912722695}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -741,7 +743,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73af9244e8596fa478e527a81b0f2edf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 400
 --- !u!212 &912722692
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -825,6 +826,18 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &912722695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912722690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 842d1e295fb78f74eb7bef82f447a339, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!58 &912722696
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -841,6 +854,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.512
+--- !u!114 &912722697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912722690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7288c64b86ee8ab42bd0dfc6002c9ab0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &981241396
 GameObject:
   m_ObjectHideFlags: 0
@@ -1011,6 +1036,8 @@ GameObject:
   - component: {fileID: 1158477890}
   - component: {fileID: 1158477894}
   - component: {fileID: 1158477895}
+  - component: {fileID: 1158477893}
+  - component: {fileID: 1158477892}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Ball
@@ -1080,6 +1107,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1158477892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158477889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 844724c9d1f35ad4b8bb0bf6f84f0456, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1158477893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158477889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 545e6552baf418849b2b75a87cb5b751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!50 &1158477894
 Rigidbody2D:
   serializedVersion: 4
