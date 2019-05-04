@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.IO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new byte[] { 0x0 };
+            packet.data = new Packet(1).GetData();
             packet.endPoint = client;
 
             transport.ClientEnqueue(packet);
@@ -35,14 +36,14 @@ namespace SpeedBallServer.Test
 
             byte[] output = transport.ClientDequeue().data;
 
-            Assert.That(output[0], Is.EqualTo(0x2));
+            Assert.That(output[0], Is.EqualTo(0x1));
         }
 
         [Test]
         public void TestUnsuccessfullJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new byte[] { 0x50 };
+            packet.data = new Packet(0).GetData();
             packet.endPoint = client;
 
             transport.ClientEnqueue(packet);
@@ -50,5 +51,6 @@ namespace SpeedBallServer.Test
 
             Assert.That(transport.GetSendQueueCount(), Is.EqualTo(0));
         }
+
     }
 }

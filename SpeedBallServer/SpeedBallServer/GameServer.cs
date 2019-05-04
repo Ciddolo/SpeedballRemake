@@ -12,14 +12,14 @@ namespace SpeedBallServer
         private IGameTransport transport;
 
         private Dictionary<byte, GameCommand> commandsTable;
-        private delegate byte[] GameCommand(byte[] data, EndPoint sender);
+        private delegate void GameCommand(byte[] data, EndPoint sender);
         //private IMonotonicClock clock;
 
         public GameServer(IGameTransport gameTransport)
         {         
             transport = gameTransport;
             commandsTable = new Dictionary<byte, GameCommand>();
-            commandsTable[0] = Join;
+            commandsTable[1] = Join;
         }
 
         public void Run()
@@ -36,20 +36,24 @@ namespace SpeedBallServer
             EndPoint sender = transport.CreateEndPoint();
             byte[] dataReceived = transport.Recv(256, ref sender);
 
+            if (transport.BindedEndPoint.Equals(sender))
+            {
+                return;
+            }
+
             if (dataReceived != null)
             {
                 byte gameCommand = dataReceived[0];
 
                 if (commandsTable.ContainsKey(gameCommand))
                 {
-                    byte[] dataToSend = commandsTable[gameCommand](dataReceived, sender);
-                    Send(dataToSend, sender);
+                    commandsTable[gameCommand](dataReceived, sender);
                 }
             }
         }
 
         /// <summary>
-        /// Gives data to send and where to send it to the transport to sendt
+        /// Gives data and where to send it to the transport to send it
         /// </summary>
         /// <param name="data"></param>
         /// <param name="endPoint"></param>
@@ -59,17 +63,11 @@ namespace SpeedBallServer
             return transport.Send(data, endPoint);
         }
 
-        private byte[] Join(byte[] data, EndPoint sender)
+        private void Join(byte[] data, EndPoint sender)
         {
             //if the packet received is from my endpoint ignore it
-            if (!transport.BindedEndPoint.Equals(sender))
-            {               
-                return new byte[] { 0x1 };
-            }
-            else
-            {
-                return new byte[] { 0x2 };
-            }
+            Packet welcome = new Packet(1);
+            Send(welcome.GetData(), sender);
         }
     }
 }

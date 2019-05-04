@@ -13,6 +13,12 @@ namespace SpeedBallServer.Test
     {
         public FakeEndPoint endPoint;
         public byte[] data;
+
+        public FakeData(byte[] data, FakeEndPoint endPoint)
+        {
+            this.endPoint = endPoint;
+            this.data = data;
+        }
     }
 
     public class FakeQueueEmpty : Exception

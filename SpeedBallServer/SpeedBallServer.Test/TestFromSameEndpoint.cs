@@ -26,15 +26,13 @@ namespace SpeedBallServer.Test
         public void TestUnsuccessfullJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new byte[] { 0x0 };
+            packet.data = new Packet(0).GetData();
             packet.endPoint = client;
 
             transport.ClientEnqueue(packet);
             server.SingleStep();
 
-            byte[] output = transport.ClientDequeue().data;
-
-            Assert.That(output[0], Is.EqualTo(0x1));
+            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(0));
         }
 
     }
