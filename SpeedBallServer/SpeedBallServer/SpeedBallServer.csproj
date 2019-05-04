@@ -53,6 +53,8 @@
     <Compile Include="GameServer.cs" />
     <Compile Include="GameTransportIPv4.cs" />
     <Compile Include="IGameTransport.cs" />
+    <Compile Include="IMonotonicClock.cs" />
+    <Compile Include="MonotonicClock.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

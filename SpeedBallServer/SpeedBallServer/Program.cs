@@ -13,7 +13,9 @@ namespace SpeedBallServer
             GameTransportIPv4 transport = new GameTransportIPv4();
             transport.Bind("127.0.0.1", 5000);
 
-            GameServer server = new GameServer(transport);
+            MonotonicClock monotonicClock = new MonotonicClock();
+
+            GameServer server = new GameServer(transport, monotonicClock);
 
             server.Run();
         }

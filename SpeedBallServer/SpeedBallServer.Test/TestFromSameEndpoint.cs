@@ -10,6 +10,7 @@ namespace SpeedBallServer.Test
     class TestFromSameEndpoint
     {
         private GameServer server;
+        private FakeClock clock;
         private FakeTransport transport;
         private FakeEndPoint client;
 
@@ -17,7 +18,8 @@ namespace SpeedBallServer.Test
         public void SetUpTest()
         {
             transport = new FakeTransport();
-            server = new GameServer(transport);
+            clock = new FakeClock();
+            server = new GameServer(transport,clock);
             transport.Bind("client", 0);
             client = new FakeEndPoint("client", 0);
         }

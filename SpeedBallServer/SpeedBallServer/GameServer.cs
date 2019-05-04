@@ -9,15 +9,32 @@ namespace SpeedBallServer
 {
     public class GameServer
     {
+        private IMonotonicClock clock;
         private IGameTransport transport;
 
         private Dictionary<byte, GameCommand> commandsTable;
         private delegate void GameCommand(byte[] data, EndPoint sender);
-        //private IMonotonicClock clock;
 
-        public GameServer(IGameTransport gameTransport)
+        private float updateFrequency;
+        private float lastServerTickTimestamp;
+
+        //cached time value
+        private float currentNow;
+        public float Now
+        {
+            get
+            {
+                return currentNow;
+            }
+        }
+
+        public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1)
         {         
-            transport = gameTransport;
+            this.transport = gameTransport;
+            this.clock = clock;
+
+            updateFrequency = 1f/ticksAmount;
+
             commandsTable = new Dictionary<byte, GameCommand>();
             commandsTable[1] = Join;
         }
@@ -33,9 +50,12 @@ namespace SpeedBallServer
 
         public void SingleStep()
         {
+            currentNow = clock.GetNow();
+
             EndPoint sender = transport.CreateEndPoint();
             byte[] dataReceived = transport.Recv(256, ref sender);
 
+            //if the packet received is from my endpoint ignore it
             if (transport.BindedEndPoint.Equals(sender))
             {
                 return;
@@ -49,6 +69,14 @@ namespace SpeedBallServer
                 {
                     commandsTable[gameCommand](dataReceived, sender);
                 }
+            }
+
+            float timeSinceLasTick = currentNow - lastServerTickTimestamp;
+            if (timeSinceLasTick >= updateFrequency)
+            {
+                lastServerTickTimestamp = currentNow;
+                //to do
+                //tick game objects
             }
         }
 
@@ -65,7 +93,6 @@ namespace SpeedBallServer
 
         private void Join(byte[] data, EndPoint sender)
         {
-            //if the packet received is from my endpoint ignore it
             Packet welcome = new Packet(1);
             Send(welcome.GetData(), sender);
         }
