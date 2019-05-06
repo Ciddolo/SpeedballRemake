@@ -14,9 +14,33 @@ namespace SpeedBallServer
 
         private Dictionary<byte, GameCommand> commandsTable;
         private delegate void GameCommand(byte[] data, EndPoint sender);
+        private Dictionary<EndPoint, GameClient> clientsTable;
+
+        private int maxPlayers;
 
         private float updateFrequency;
         private float lastServerTickTimestamp;
+        private float maxTimeOfInactivity;
+
+        public int ClientsAmount
+        {
+            get
+            {
+                return clientsTable.Count;
+            }
+        }
+
+        private bool CheckIfClientJoined(EndPoint client)
+        {
+            return clientsTable.ContainsKey(client);
+        }
+
+        public int GetClientMalus(EndPoint client)
+        {
+            if (!CheckIfClientJoined(client))
+                return -1;
+            return (int)clientsTable[client].Malus;
+        }
 
         //cached time value
         private float currentNow;
@@ -32,9 +56,10 @@ namespace SpeedBallServer
         {         
             this.transport = gameTransport;
             this.clock = clock;
-
+            clientsTable = new Dictionary<EndPoint, GameClient>();
             updateFrequency = 1f/ticksAmount;
-
+            maxPlayers = 2;
+            maxTimeOfInactivity = 30f;
             commandsTable = new Dictionary<byte, GameCommand>();
             commandsTable[1] = Join;
         }
@@ -68,6 +93,10 @@ namespace SpeedBallServer
                 if (commandsTable.ContainsKey(gameCommand))
                 {
                     commandsTable[gameCommand](dataReceived, sender);
+                    if (CheckIfClientJoined(sender))
+                    {
+                        clientsTable[sender].LastPacketTimestamp = currentNow;
+                    }
                 }
             }
 
@@ -77,6 +106,28 @@ namespace SpeedBallServer
                 lastServerTickTimestamp = currentNow;
                 //to do
                 //tick game objects
+
+                List<EndPoint> deadClients=new List<EndPoint>();
+
+                foreach (GameClient client in clientsTable.Values)
+                {
+                    float timeSinceLastPacket = currentNow - client.LastPacketTimestamp;
+
+                    if (timeSinceLastPacket>maxTimeOfInactivity)
+                    {
+                        deadClients.Add(client.EndPoint);
+                    }
+                    else
+                    {
+                        client.Process();
+                    }
+                }
+
+                foreach (EndPoint deadClient in deadClients)
+                {
+                    clientsTable.Remove(deadClient);
+                }
+
             }
         }
 
@@ -91,10 +142,29 @@ namespace SpeedBallServer
             return transport.Send(data, endPoint);
         }
 
+        public bool Send(Packet data, EndPoint endPoint)
+        {
+            return this.Send(data.GetData(), endPoint);
+        }
+
         private void Join(byte[] data, EndPoint sender)
         {
+            // check if the client has already joined
+            if (CheckIfClientJoined(sender))
+            {
+                GameClient badClient = clientsTable[sender];
+                badClient.Malus++;
+                return;
+            }
+
+            if (ClientsAmount >= maxPlayers)
+                return;
+
+            GameClient newClient = new GameClient(this, sender);
+            clientsTable[sender] = newClient;
+
             Packet welcome = new Packet(1);
-            Send(welcome.GetData(), sender);
+            newClient.Enqueue(welcome);
         }
     }
 }
