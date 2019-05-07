@@ -51,6 +51,8 @@ public class PlayerShot : MonoBehaviour
         Ball.GetComponent<BallMove>().Direction = direction;
         Ball.GetComponent<BallMove>().Force = currentForce;
         Ball.GetComponent<BallBehaviour>().RemoveBall();
+        GetComponent<PlayerManager>().BallThrown();
         currentForce = 0.0f;
+        // to do: packet with direction and force for server
     }
 }
