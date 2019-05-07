@@ -32,7 +32,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoinResponse()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -41,17 +41,19 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             byte[] output = transport.ClientDequeue().data;
 
-            Assert.That(output[0], Is.EqualTo(2));
+            Assert.That(output[0], Is.EqualTo(1));
         }
 
         [Test]
         public void TestSuccessfullJoinClientAmount()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
             Assert.That(server.ClientsAmount, Is.EqualTo(1));
@@ -61,10 +63,12 @@ namespace SpeedBallServer.Test
         public void TestUnsuccessfullJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(0).GetData();
+            packet.data = new Packet(50).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
             Assert.That(transport.GetSendQueueCount(), Is.EqualTo(0));
@@ -74,7 +78,7 @@ namespace SpeedBallServer.Test
         public void CheckClientMalusAfterJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -87,7 +91,7 @@ namespace SpeedBallServer.Test
         public void CheckClientMalusAfterMultipleJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -103,7 +107,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoinClientsAmount()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -123,7 +127,7 @@ namespace SpeedBallServer.Test
         public void TestClientDisconnection()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -141,7 +145,7 @@ namespace SpeedBallServer.Test
         public void TestClientJoinAfterDisconnection()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -167,7 +171,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoinAcksAmount()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -190,7 +194,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoinAcksNeeded()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -210,7 +214,7 @@ namespace SpeedBallServer.Test
         public void TestSuccessfullJoinAckResponds()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(1).GetData();
+            packet.data = new Packet(0).GetData();
             packet.endPoint = FirstClient;
 
             transport.ClientEnqueue(packet);
@@ -225,12 +229,30 @@ namespace SpeedBallServer.Test
 
             packet.data = new Packet(255, false, packetId).GetData();
             Console.WriteLine(packetId);
-            
+
             transport.ClientEnqueue(packet);
             server.SingleStep();
             server.SingleStep();
 
             Assert.That(server.AcksIdsNeededFrom(FirstClient).Contains(packetId), Is.EqualTo(false));
+        }
+
+        [Test]
+        public void TestWelcomePacketSpawn()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(0).GetData();
+            packet.endPoint = FirstClient;
+
+            transport.ClientEnqueue(packet);
+
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] output = transport.ClientDequeue().data;
+
+            Assert.That(server.GameObjectsAmount, Is.EqualTo(1));
         }
     }
 }

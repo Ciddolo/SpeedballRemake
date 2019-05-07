@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Actors\Player.cs" />
+    <Compile Include="Engine\GameObject.cs" />
+    <Compile Include="Engine\IActivable.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="GameTransportIPv4.cs" />
@@ -62,5 +65,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

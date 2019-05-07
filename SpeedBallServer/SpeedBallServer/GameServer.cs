@@ -14,6 +14,7 @@ namespace SpeedBallServer
 
         private Dictionary<byte, GameCommand> commandsTable;
         private delegate void GameCommand(byte[] data, EndPoint sender);
+        private Dictionary<uint, GameObject> gameObjectsTable;
         private Dictionary<EndPoint, GameClient> clientsTable;
 
         private int maxPlayers;
@@ -30,6 +31,14 @@ namespace SpeedBallServer
             get
             {
                 return clientsTable.Count;
+            }
+        }
+
+        public int GameObjectsAmount
+        {
+            get
+            {
+                return gameObjectsTable.Count;
             }
         }
 
@@ -67,6 +76,7 @@ namespace SpeedBallServer
             this.transport = gameTransport;
             this.clock = clock;
             clientsTable = new Dictionary<EndPoint, GameClient>();
+            gameObjectsTable = new Dictionary<uint, GameObject>();
 
             UpdateFrequency = 1f/ticksAmount;
             maxPlayers = 2;
@@ -75,7 +85,7 @@ namespace SpeedBallServer
             SendAfterTimeForPackets = .1f;
 
             commandsTable = new Dictionary<byte, GameCommand>();
-            commandsTable[1] = Join;
+            commandsTable[0] = Join;
             commandsTable[255] = Ack;
         }
 
@@ -120,6 +130,8 @@ namespace SpeedBallServer
             {
                 LastServerTickTimestamp = currentNow;
                 //to do
+                //update game objects
+                //physics update
                 //tick game objects
 
                 List<EndPoint> deadClients=new List<EndPoint>();
@@ -177,9 +189,14 @@ namespace SpeedBallServer
 
             GameClient newClient = new GameClient(this, sender);
             clientsTable[sender] = newClient;
+            //to do spawn 5 players with one default and one gk
+            //spawning one instead for now
+            Player player = Spawn<Player>();
+            player.SetOwner(newClient);
+            Packet welcome = new Packet(1,true, player.ObjectType, player.Id);
 
-            Packet welcome = new Packet(2,true);
             newClient.Enqueue(welcome);
+
         }
 
         private void Ack(byte[] data, EndPoint sender)
@@ -193,6 +210,21 @@ namespace SpeedBallServer
             uint packetId = BitConverter.ToUInt32(data, 6);
 
             client.Ack(packetId);
+        }
+
+        public void RegisterGameObject(GameObject gameObject)
+        {
+            if (gameObjectsTable.ContainsKey(gameObject.Id))
+                throw new Exception("GameObject already registered");
+            gameObjectsTable[gameObject.Id] = gameObject;
+        }
+
+        public T Spawn<T>() where T : GameObject
+        {
+            object[] ctorParams = { this };
+            T newGameObject = Activator.CreateInstance(typeof(T), ctorParams) as T;
+            RegisterGameObject(newGameObject);
+            return newGameObject;
         }
     }
 }
