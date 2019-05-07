@@ -37,6 +37,7 @@ public class BallBehaviour : MonoBehaviour
         if (other.gameObject.tag == "Player")
         {
             Owner = other.gameObject;
+            Owner.GetComponent<PlayerManager>().BallReceived();
             transform.localScale = defaulSize;
             transform.parent = other.transform;
             Vector2 lastDirection = transform.position - Owner.transform.position;
@@ -45,8 +46,8 @@ public class BallBehaviour : MonoBehaviour
         }
         else if (other.gameObject.tag == "Wall")
         {
-            float deltaX = Mathf.Abs((transform.position - other.bounds.center).x) - other.bounds.extents.x;
-            float deltaY = Mathf.Abs((transform.position - other.bounds.center).y) - other.bounds.extents.y;
+            float deltaX = Mathf.Abs((transform.position - other.bounds.center).x) - (transform.localScale.x * 0.5f + other.bounds.extents.x);
+            float deltaY = Mathf.Abs((transform.position - other.bounds.center).y) - (transform.localScale.x * 0.5f + other.bounds.extents.y);
 
             if (deltaX > deltaY)
                 ballMove.Direction = new Vector2(-ballMove.Direction.x, ballMove.Direction.y);
