@@ -41,7 +41,7 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             byte[] output = transport.ClientDequeue().data;
 
-            Assert.That(output[0], Is.EqualTo(1));
+            Assert.That(output[0], Is.EqualTo(2));
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             server.SingleStep();
 
-            Assert.That(server.GetClientMalus(FirstClient), Is.EqualTo(1));
+            Assert.That(server.GetClientMalus(FirstClient), Is.EqualTo(100));
         }
 
         [Test]
@@ -161,6 +161,76 @@ namespace SpeedBallServer.Test
             server.SingleStep();
 
             Assert.That(server.ClientsAmount, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TestSuccessfullJoinAcksAmount()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(1).GetData();
+            packet.endPoint = FirstClient;
+
+            transport.ClientEnqueue(packet);
+
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+
+            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void TestSuccessfullJoinAcksNeeded()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(1).GetData();
+            packet.endPoint = FirstClient;
+
+            transport.ClientEnqueue(packet);
+
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] output = transport.ClientDequeue().data;
+
+            uint packetId = BitConverter.ToUInt32(output,1);
+
+            Assert.That(server.AcksIdsNeededFrom(FirstClient).Contains(packetId), Is.EqualTo(true));
+        }
+
+        [Test]
+        public void TestSuccessfullJoinAckResponds()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(1).GetData();
+            packet.endPoint = FirstClient;
+
+            transport.ClientEnqueue(packet);
+
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] output = transport.ClientDequeue().data;
+
+            uint packetId = BitConverter.ToUInt32(output, 1);
+
+            packet.data = new Packet(255, false, packetId).GetData();
+            Console.WriteLine(packetId);
+            
+            transport.ClientEnqueue(packet);
+            server.SingleStep();
+            server.SingleStep();
+
+            Assert.That(server.AcksIdsNeededFrom(FirstClient).Contains(packetId), Is.EqualTo(false));
         }
     }
 }

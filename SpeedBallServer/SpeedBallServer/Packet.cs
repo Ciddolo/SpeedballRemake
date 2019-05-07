@@ -14,6 +14,11 @@ namespace SpeedBallServer
 
         private static uint packetCounter;
 
+        public float SendAfter;
+        public bool OneShot;
+
+        public bool NeedAck;
+
         private uint id;
         public uint Id
         {
@@ -23,21 +28,47 @@ namespace SpeedBallServer
             }
         }
 
-
-        public Packet()
+        private float expires;
+        public bool IsExpired(float now)
         {
+            return expires < now;
+        }
+
+        public void SetExpire(float death)
+        {
+            expires = death;
+        }
+
+        private uint attempts;
+        public uint Attempts
+        {
+            get
+            {
+                return attempts;
+            }
+        }
+
+        public Packet(bool needAck=false)
+        {
+            NeedAck = needAck;
             stream = new MemoryStream();
             writer = new BinaryWriter(stream);
             id = ++packetCounter;
+            attempts = 0;
+            OneShot = false;
+            SendAfter = 0;
         }
 
-        public Packet(byte command, params object[] elements) : this()
+        public Packet(byte command,bool needAck=false, params object[] elements) : this(needAck)
         {
             // first element is always the command
             writer.Write(command);
 
             //second element is the packet id
             writer.Write(this.id);
+
+            //third element is needAck
+            writer.Write(needAck);
 
             foreach (object element in elements)
             {
@@ -65,6 +96,10 @@ namespace SpeedBallServer
                 {
                     writer.Write((bool)element);
                 }
+                else if (element is short)
+                {
+                    writer.Write((short)element);
+                }
                 else
                 {
                     throw new Exception("unknown type");
@@ -75,6 +110,11 @@ namespace SpeedBallServer
         public byte[] GetData()
         {
             return stream.ToArray();
+        }
+
+        public void IncreaseAttempts()
+        {
+            attempts++;
         }
     }
 }

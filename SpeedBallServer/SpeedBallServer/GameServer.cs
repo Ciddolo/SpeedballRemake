@@ -18,9 +18,12 @@ namespace SpeedBallServer
 
         private int maxPlayers;
 
-        private float updateFrequency;
-        private float lastServerTickTimestamp;
-        private float maxTimeOfInactivity;
+        public float UpdateFrequency;
+        public float LastServerTickTimestamp;
+        public float MaxTimeOfInactivity;
+
+        public float MaxAttemptsForPacket;
+        public float SendAfterTimeForPackets;
 
         public int ClientsAmount
         {
@@ -33,6 +36,13 @@ namespace SpeedBallServer
         private bool CheckIfClientJoined(EndPoint client)
         {
             return clientsTable.ContainsKey(client);
+        }
+
+        public List<uint> AcksIdsNeededFrom(EndPoint client)
+        {
+            if (!CheckIfClientJoined(client))
+                return null;
+            return clientsTable[client].AcksNedeedIds();
         }
 
         public int GetClientMalus(EndPoint client)
@@ -57,11 +67,16 @@ namespace SpeedBallServer
             this.transport = gameTransport;
             this.clock = clock;
             clientsTable = new Dictionary<EndPoint, GameClient>();
-            updateFrequency = 1f/ticksAmount;
+
+            UpdateFrequency = 1f/ticksAmount;
             maxPlayers = 2;
-            maxTimeOfInactivity = 30f;
+            MaxTimeOfInactivity = 30f;
+            MaxAttemptsForPacket = 3;
+            SendAfterTimeForPackets = .1f;
+
             commandsTable = new Dictionary<byte, GameCommand>();
             commandsTable[1] = Join;
+            commandsTable[255] = Ack;
         }
 
         public void Run()
@@ -100,10 +115,10 @@ namespace SpeedBallServer
                 }
             }
 
-            float timeSinceLasTick = currentNow - lastServerTickTimestamp;
-            if (timeSinceLasTick >= updateFrequency)
+            float timeSinceLasTick = currentNow - LastServerTickTimestamp;
+            if (timeSinceLasTick >= UpdateFrequency)
             {
-                lastServerTickTimestamp = currentNow;
+                LastServerTickTimestamp = currentNow;
                 //to do
                 //tick game objects
 
@@ -113,7 +128,7 @@ namespace SpeedBallServer
                 {
                     float timeSinceLastPacket = currentNow - client.LastPacketTimestamp;
 
-                    if (timeSinceLastPacket>maxTimeOfInactivity)
+                    if (timeSinceLastPacket>MaxTimeOfInactivity)
                     {
                         deadClients.Add(client.EndPoint);
                     }
@@ -153,7 +168,7 @@ namespace SpeedBallServer
             if (CheckIfClientJoined(sender))
             {
                 GameClient badClient = clientsTable[sender];
-                badClient.Malus++;
+                badClient.Malus+=100;
                 return;
             }
 
@@ -163,8 +178,21 @@ namespace SpeedBallServer
             GameClient newClient = new GameClient(this, sender);
             clientsTable[sender] = newClient;
 
-            Packet welcome = new Packet(1);
+            Packet welcome = new Packet(2,true);
             newClient.Enqueue(welcome);
+        }
+
+        private void Ack(byte[] data, EndPoint sender)
+        {
+            if (!CheckIfClientJoined(sender))
+            {
+                return;
+            }
+
+            GameClient client = clientsTable[sender];
+            uint packetId = BitConverter.ToUInt32(data, 6);
+
+            client.Ack(packetId);
         }
     }
 }
