@@ -7,20 +7,30 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    public class Player : GameObject
+    public enum PlayerState
     {
-        //private Vector2 lastUpdatePosition;
+        Idle,
+        Tackling,
+        Stunned
+    }
+
+    public class Player : GameObject, IUpdatable
+    {
         private Vector2 startingPosition;
+        public Vector2 LookingDirection;
+        private Vector2 lastUpdatePosition;
         public uint TeamId;
+        public PlayerState State;
 
         public Player(GameServer server)
             : base((int)InternalObjectsId.Player, server, 1, 1)
         {
-
+            this.Reset();
         }
 
         public void SetStartingPosition(Vector2 startingPos)
         {
+            lastUpdatePosition = startingPos;
             this.Position = startingPos;
             startingPosition = startingPos;
         }
@@ -30,17 +40,30 @@ namespace SpeedBallServer
             this.SetStartingPosition(new Vector2(x,y));
         }
 
+        public void SetLookingRotation(Vector2 newLookingRotation)
+        {
+            this.LookingDirection = newLookingRotation;
+        }
+
+        public void SetLookingRotation(float x, float y)
+        {
+            this.SetLookingRotation(new Vector2(x,y));
+        }
+
         public override Packet GetSpawnPacket()
         {
-            return new Packet((byte)PacketsCommands.Spawn, true, ObjectType, Id,X,Y, Height, Width,TeamId);
+            return new Packet((byte)PacketsCommands.Spawn, true,
+                ObjectType, Id, X, Y, Height, Width, TeamId);
         }
 
         public void Reset()
         {
-            this.Position=startingPosition;
+            this.Position = startingPosition;
+            State = PlayerState.Idle;
+            LookingDirection = Vector2.Zero;
         }
 
-        public override void Tick()
+        public void Tick()
         {
             throw new NotImplementedException();
         }
@@ -50,9 +73,16 @@ namespace SpeedBallServer
             throw new NotImplementedException();
         }
 
-        public override void Update()
+        public void Update()
         {
-            throw new NotImplementedException();
+            //to do
+            //update player logic
+        }
+
+        protected Packet GetUpdatePacket()
+        {
+            return new Packet((byte)PacketsCommands.Update, false, 
+                Id, X, Y, LookingDirection.X, LookingDirection.Y, (uint)State);
         }
     }
 }

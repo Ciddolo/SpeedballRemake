@@ -15,7 +15,7 @@ namespace SpeedBallServer
         Ball
     }
 
-    abstract public class GameObject
+    public abstract class GameObject: IActivable
     {
         public Vector2 Position;
 
@@ -87,9 +87,7 @@ namespace SpeedBallServer
         }
 
         public abstract Packet GetSpawnPacket();
-        public abstract void Tick();
         public abstract void Destroy();
-        public abstract void Update();
 
     }
 }

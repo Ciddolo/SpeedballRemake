@@ -24,14 +24,5 @@ namespace SpeedBallServer
             return new Packet((byte)PacketsCommands.Spawn, true,ObjectType, Id, X, Y, Height,Width);
         }
 
-        public override void Tick()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Update()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,9 +26,16 @@ namespace SpeedBallServer
 
         private Dictionary<byte, GameCommand> commandsTable;
         private delegate void GameCommand(byte[] data, EndPoint sender);
-        private Dictionary<uint, GameObject> gameObjectsTable;
         private Dictionary<EndPoint, GameClient> clientsTable;
         private GameLogic gameLogic;
+        private Dictionary<uint, GameObject> gameObjectsTable;
+        public Dictionary<uint, GameObject> GameObjectsTable
+        {
+            get
+            {
+                return gameObjectsTable;
+            }
+        }
 
         public GameState CurrentGameState()
         {
@@ -112,6 +120,7 @@ namespace SpeedBallServer
             commandsTable = new Dictionary<byte, GameCommand>();
             commandsTable[(byte)PacketsCommands.Join] = Join;
             commandsTable[(byte)PacketsCommands.Ack] = Ack;
+            commandsTable[(byte)PacketsCommands.Update] = Update;
 
             gameLogic = new GameLogic(this);
             gameLogic.SpawnLevel(startingLevel);
@@ -170,6 +179,8 @@ namespace SpeedBallServer
             {
                 LastServerTickTimestamp = currentNow;
 
+                gameLogic.Update();
+
                 List<EndPoint> deadClients=new List<EndPoint>();
 
                 foreach (GameClient client in clientsTable.Values)
@@ -200,12 +211,17 @@ namespace SpeedBallServer
         /// </summary>
         /// <param name="data"></param>
         /// <param name="endPoint"></param>
-        /// <returns></returns>
         public bool Send(byte[] data, EndPoint endPoint)
         {
             return transport.Send(data, endPoint);
         }
 
+        /// <summary>
+        /// Gives data and where to send it to the transport to send it
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="endPoint"></param>
+        /// <returns></returns>
         public bool Send(Packet data, EndPoint endPoint)
         {
             return this.Send(data.GetData(), endPoint);
@@ -239,6 +255,29 @@ namespace SpeedBallServer
             }
 
 
+        }
+
+        private void Update(byte[] data, EndPoint sender)
+        {
+
+            if (!clientsTable.ContainsKey(sender))
+            {
+                //Console.WriteLine("unknown client");
+                return;
+            }
+
+            GameClient client = clientsTable[sender];
+
+            uint netId = BitConverter.ToUInt32(data, 6);
+            if (gameObjectsTable.ContainsKey(netId))
+            {
+                //Console.WriteLine("object found");
+                gameLogic.ClientUpdate(data, client);
+            }
+            else
+            {
+                client.Malus++;
+            }
         }
 
         private void Ack(byte[] data, EndPoint sender)
