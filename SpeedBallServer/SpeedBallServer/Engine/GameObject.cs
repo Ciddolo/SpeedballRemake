@@ -11,10 +11,11 @@ namespace SpeedBallServer
     {
         Player=1,
         Obstacle,
-        Net
+        Net,
+        Ball
     }
 
-    public class GameObject
+    abstract public class GameObject
     {
         public Vector2 Position;
 
@@ -85,20 +86,10 @@ namespace SpeedBallServer
             this.Position = NewPos;
         }
 
-        public virtual void Update()
-        {
-
-        }
-
-        public virtual void Tick()
-        {
-
-        }
-
-        public virtual void Destroy()
-        {
-
-        }
+        public abstract Packet GetSpawnPacket();
+        public abstract void Tick();
+        public abstract void Destroy();
+        public abstract void Update();
 
     }
 }

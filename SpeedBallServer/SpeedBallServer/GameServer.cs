@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
+    public enum PacketsCommands
+    {
+        Join=0,
+        Welcome=1,
+        Spawn=2,
+        Update=3,
+        Input=4,
+        GameInfo=5,
+        Ack=255
+    }
+
     public class GameServer
     {
         private IMonotonicClock clock;
@@ -16,8 +27,22 @@ namespace SpeedBallServer
         private delegate void GameCommand(byte[] data, EndPoint sender);
         private Dictionary<uint, GameObject> gameObjectsTable;
         private Dictionary<EndPoint, GameClient> clientsTable;
+        private GameLogic gameLogic;
+
+        public GameState CurrentGameState()
+        {
+            return gameLogic.GameStatus;
+        }
 
         private int maxPlayers;
+
+        public int MaxPlayers
+        {
+            get
+            {
+                return maxPlayers;
+            }
+        }
 
         public float UpdateFrequency;
         public float LastServerTickTimestamp;
@@ -71,7 +96,7 @@ namespace SpeedBallServer
             }
         }
 
-        public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1)
+        public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1,string startingLevel=null)
         {         
             this.transport = gameTransport;
             this.clock = clock;
@@ -85,8 +110,23 @@ namespace SpeedBallServer
             SendAfterTimeForPackets = .1f;
 
             commandsTable = new Dictionary<byte, GameCommand>();
-            commandsTable[0] = Join;
-            commandsTable[255] = Ack;
+            commandsTable[(byte)PacketsCommands.Join] = Join;
+            commandsTable[(byte)PacketsCommands.Ack] = Ack;
+
+            gameLogic = new GameLogic(this);
+            gameLogic.SpawnLevel(startingLevel);
+
+        }
+
+        public bool CheckGameObjectOwner(uint id,EndPoint owner)
+        {
+            if (gameObjectsTable.ContainsKey(id))
+            {
+                if(gameObjectsTable[id].Owner!=null)
+                    return gameObjectsTable[id].Owner.EndPoint == owner;
+            }
+
+            return false;
         }
 
         public void Run()
@@ -129,10 +169,6 @@ namespace SpeedBallServer
             if (timeSinceLasTick >= UpdateFrequency)
             {
                 LastServerTickTimestamp = currentNow;
-                //to do
-                //update game objects
-                //physics update
-                //tick game objects
 
                 List<EndPoint> deadClients=new List<EndPoint>();
 
@@ -152,6 +188,7 @@ namespace SpeedBallServer
 
                 foreach (EndPoint deadClient in deadClients)
                 {
+                    gameLogic.RemovePlayer(clientsTable[deadClient]);
                     clientsTable.Remove(deadClient);
                 }
 
@@ -189,13 +226,18 @@ namespace SpeedBallServer
 
             GameClient newClient = new GameClient(this, sender);
             clientsTable[sender] = newClient;
-            //to do spawn 5 players with one default and one gk
-            //spawning one instead for now
-            Player player = Spawn<Player>();
-            player.SetOwner(newClient);
-            Packet welcome = new Packet(1,true, player.ObjectType, player.Id);
 
+            uint controlledPlayerId;
+            uint clientId = gameLogic.AddClient(newClient,out controlledPlayerId);
+
+            Packet welcome = new Packet((byte)PacketsCommands.Welcome, true,clientId, controlledPlayerId);
             newClient.Enqueue(welcome);
+
+            foreach (GameObject gameObject in gameObjectsTable.Values)
+            {
+                newClient.Enqueue(gameObject.GetSpawnPacket());
+            }
+
 
         }
 
@@ -219,10 +261,18 @@ namespace SpeedBallServer
             gameObjectsTable[gameObject.Id] = gameObject;
         }
 
-        public T Spawn<T>() where T : GameObject
+        public T Spawn<T>(params object[] additionalParams) where T : GameObject
         {
-            object[] ctorParams = { this };
-            T newGameObject = Activator.CreateInstance(typeof(T), ctorParams) as T;
+            List<object> ctorParamsList = new List<object>();
+
+            ctorParamsList.Add(this);
+
+            foreach (object param in additionalParams)
+            {
+                ctorParamsList.Add(param);
+            }
+
+            T newGameObject = Activator.CreateInstance(typeof(T), ctorParamsList.ToArray()) as T;
             RegisterGameObject(newGameObject);
             return newGameObject;
         }

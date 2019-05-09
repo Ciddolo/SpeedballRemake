@@ -39,12 +39,14 @@
     <Compile Include="Actors\Player.cs" />
     <Compile Include="Engine\GameObject.cs" />
     <Compile Include="Engine\IActivable.cs" />
+    <Compile Include="GameLogic.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="GameServer.cs" />
     <Compile Include="GameTransportIPv4.cs" />
     <Compile Include="IGameTransport.cs" />
     <Compile Include="IMonotonicClock.cs" />
     <Compile Include="MonotonicClock.cs" />
+    <Compile Include="Actors\Obstacle.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

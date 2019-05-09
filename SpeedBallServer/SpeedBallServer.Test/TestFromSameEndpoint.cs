@@ -28,7 +28,7 @@ namespace SpeedBallServer.Test
         public void TestUnsuccessfullJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet(0).GetData();
+            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
             packet.endPoint = client;
 
             transport.ClientEnqueue(packet);
