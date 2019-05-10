@@ -26,6 +26,9 @@ namespace SpeedBallServer
             : base((int)InternalObjectsId.Player, server, 1, 1)
         {
             this.Reset();
+
+            RigidBody.Type = (uint)ColliderType.Player;
+            RigidBody.AddCollision((uint)ColliderType.Obstacle);
         }
 
         public void SetStartingPosition(Vector2 startingPos)
@@ -77,6 +80,10 @@ namespace SpeedBallServer
         {
             //to do
             //update player logic
+            if (IsActive && RigidBody != null)
+            {
+                Position = RigidBody.Position;
+            }
         }
 
         protected Packet GetUpdatePacket()

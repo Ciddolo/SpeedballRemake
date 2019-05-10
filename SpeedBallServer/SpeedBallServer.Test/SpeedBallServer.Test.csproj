@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollisionTests.cs" />
     <Compile Include="FakeClock.cs" />
     <Compile Include="FakeEndPoint.cs" />
     <Compile Include="FakeTransport.cs" />

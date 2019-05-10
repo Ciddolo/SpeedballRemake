@@ -11,7 +11,7 @@ namespace SpeedBallServer
         public Obstacle(GameServer server, float Height, float Width )
             : base((int)InternalObjectsId.Obstacle, server, Height, Width)
         {
-
+            RigidBody.Type = (uint)ColliderType.Obstacle;
         }
 
         public override void Destroy()

@@ -17,7 +17,17 @@ namespace SpeedBallServer
 
     public abstract class GameObject: IActivable
     {
-        public Vector2 Position;
+        public Vector2 Position
+        {
+            get
+            {
+                { return RigidBody.Position; }
+            }
+            set
+            {
+                { RigidBody.Position = value; }
+            }
+        }
 
         public float X { get { return Position.X; } }
         public float Y { get { return Position.Y; } }
@@ -27,6 +37,9 @@ namespace SpeedBallServer
 
         protected GameClient owner;
         protected GameServer server;
+
+        public RigidBody RigidBody { get; protected set; }
+
 
         public GameClient Owner
         {
@@ -67,6 +80,7 @@ namespace SpeedBallServer
             this.Height = Height;
             this.Width = Width;
 
+            RigidBody = new RigidBody(Vector2.Zero, this);
             internalObjectType = objectType;
             IsActive = true;
 
