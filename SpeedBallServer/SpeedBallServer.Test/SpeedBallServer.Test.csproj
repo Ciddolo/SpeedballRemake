@@ -57,6 +57,7 @@
     <Compile Include="FakeClock.cs" />
     <Compile Include="FakeEndPoint.cs" />
     <Compile Include="FakeTransport.cs" />
+    <Compile Include="PhysicsHandlerTests.cs" />
     <Compile Include="TestFromDifferentEndPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFromSameEndpoint.cs" />

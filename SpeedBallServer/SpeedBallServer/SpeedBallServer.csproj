@@ -41,6 +41,7 @@
     <Compile Include="Engine\GameObject.cs" />
     <Compile Include="Engine\IActivable.cs" />
     <Compile Include="Engine\IUpdatable.cs" />
+    <Compile Include="Engine\PhysicsHandler.cs" />
     <Compile Include="Engine\Rect.cs" />
     <Compile Include="Engine\RigidBody.cs" />
     <Compile Include="GameLogic.cs" />

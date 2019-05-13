@@ -102,6 +102,6 @@ namespace SpeedBallServer
 
         public abstract Packet GetSpawnPacket();
         public abstract void Destroy();
-
+        public abstract void OnCollide(Collision collisionInfo);
     }
 }

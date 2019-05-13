@@ -24,5 +24,9 @@ namespace SpeedBallServer
             return new Packet((byte)PacketsCommands.Spawn, true,ObjectType, Id, X, Y, Height,Width);
         }
 
+        public override void OnCollide(Collision collisionInfo)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

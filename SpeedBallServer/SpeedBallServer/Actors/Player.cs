@@ -80,16 +80,39 @@ namespace SpeedBallServer
         {
             //to do
             //update player logic
-            if (IsActive && RigidBody != null)
-            {
-                Position = RigidBody.Position;
-            }
         }
 
         protected Packet GetUpdatePacket()
         {
             return new Packet((byte)PacketsCommands.Update, false, 
                 Id, X, Y, LookingDirection.X, LookingDirection.Y, (uint)State);
+        }
+
+        public override void OnCollide(Collision collisionInfo)
+        {
+            if (collisionInfo.Collider is Obstacle)
+            {
+                float deltaX = -collisionInfo.Delta.X;
+                float deltaY = -collisionInfo.Delta.Y;
+
+                if (deltaX < 0 && deltaY < 0)
+                {
+                    if (deltaX > deltaY)
+                    {
+                        if (this.Position.X < collisionInfo.Collider.Position.X)
+                            deltaX = -deltaX;
+
+                        this.Position -= new Vector2(deltaX, 0);
+                    }
+                    else
+                    {
+                        if (this.Position.Y < collisionInfo.Collider.Position.Y)
+                            deltaY = -deltaY;
+
+                        this.Position -= new Vector2(0, deltaY);
+                    }
+                }
+            }
         }
     }
 }

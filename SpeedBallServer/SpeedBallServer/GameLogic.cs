@@ -39,7 +39,7 @@ namespace SpeedBallServer
         public uint[] Score;
 
         private List<IUpdatable> UpdatableItems;
-
+        private PhysicsHandler physicsHandler;
         private List<Player>[] Teams;
         private List<Player> TeamOneControllablePlayers;
         private List<Player> TeamTwoControllablePlayers;
@@ -83,6 +83,7 @@ namespace SpeedBallServer
             controlledPlayerId = newClientInfo.ControlledPlayerId;
             return newClientInfo.TeamId;
         }
+
         public void RemovePlayer(GameClient clientToRemove)
         {
             foreach (Player player in Teams[clients[clientToRemove].TeamId])
@@ -98,6 +99,7 @@ namespace SpeedBallServer
         private void SpawnTestingLevel()
         {
             Obstacle myObstacle = server.Spawn<Obstacle>(1, 10);
+            physicsHandler.AddItem(myObstacle.RigidBody);
             myObstacle.SetPosition(0f, 3f);
 
             Player defPlayerTeamOne = server.Spawn<Player>();
@@ -106,11 +108,13 @@ namespace SpeedBallServer
             defPlayerTeamOne.TeamId = 0;
             TeamOneControllablePlayers.Add(defPlayerTeamOne);
             UpdatableItems.Add(defPlayerTeamOne);
+            physicsHandler.AddItem(defPlayerTeamOne.RigidBody);
 
             Player defAnotherPlayerTeamOne = server.Spawn<Player>();
             defAnotherPlayerTeamOne.SetStartingPosition(3f, 0f);
             defAnotherPlayerTeamOne.TeamId = 0;
             UpdatableItems.Add(defAnotherPlayerTeamOne);
+            physicsHandler.AddItem(defAnotherPlayerTeamOne.RigidBody);
 
             TeamOneControllablePlayers.Add(defAnotherPlayerTeamOne);
 
@@ -119,6 +123,7 @@ namespace SpeedBallServer
             defaultPlayerTeamTwoId = defPlayerTeamTwo.Id;
             defPlayerTeamTwo.TeamId = 1;
             TeamTwoControllablePlayers.Add(defPlayerTeamTwo);
+            physicsHandler.AddItem(defPlayerTeamTwo.RigidBody);
             UpdatableItems.Add(defPlayerTeamTwo);
 
             ResetPositions();
@@ -149,6 +154,7 @@ namespace SpeedBallServer
             TeamOneControllablePlayers = new List<Player>();
             TeamTwoControllablePlayers = new List<Player>();
             UpdatableItems = new List<IUpdatable>();
+            physicsHandler = new PhysicsHandler();
         }
 
         public void ClientUpdate(byte[] packetData,GameClient client)
@@ -184,10 +190,12 @@ namespace SpeedBallServer
 
         public void Update()
         {
+            physicsHandler.Update();
             foreach (IUpdatable item in UpdatableItems)
             {
                item.Update();
             }
+            physicsHandler.CheckCollisions();
         }
 
         public void ResetPositions()
