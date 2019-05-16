@@ -2,26 +2,40 @@
 
 public class PlayerManager : MonoBehaviour
 {
+    public TeamManager Team;
+
     public int Index { get; set; }
     public bool IsSelected { get; set; }
+    public GameObject Ball { get; set; }
 
-    private TeamManager teamManager;
     private PlayerMove move;
+    private GameObject selection;
 
     void Start()
     {
-        teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         move = gameObject.GetComponent<PlayerMove>();
+        selection = transform.GetChild(0).gameObject;
+    }
+
+    void Update()
+    {
+        selection.SetActive(IsSelected);
     }
 
     public void BallReceived()
     {
-        teamManager.SelectPlayer(gameObject);
-        teamManager.IsInBallPossession = true;
+        Team.SelectPlayer(gameObject);
+        Team.IsInBallPossession = true;
     }
 
     public void BallThrown()
     {
-        teamManager.IsInBallPossession = false;
+        Team.IsInBallPossession = false;
+    }
+
+    public void BallLost()
+    {
+        Team.IsInBallPossession = false;
+        Ball.GetComponent<BallBehaviour>().RemoveBall();
     }
 }
