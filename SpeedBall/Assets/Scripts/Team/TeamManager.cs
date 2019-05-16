@@ -1,12 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TeamManager : MonoBehaviour
 {
     private const int NUMBER_OF_PLAYERS = 5;
 
     public GameObject PlayerPrefab;
+    public GameObject TeamPositions;
+    public Color TeamColor;
 
     public bool IsInBallPossession { get; set; }
     public GameObject CurrentPlayer { get; set; }
@@ -17,34 +17,30 @@ public class TeamManager : MonoBehaviour
 
     void Awake()
     {
+        string color = "DEFAULT_";
+        if (TeamColor.r == 1)
+            color = "RED_";
+        else if (TeamColor.b == 1)
+            color = "BLUE_";
+
         cameraManager = Camera.main.GetComponent<CameraManager>();
         players = new GameObject[NUMBER_OF_PLAYERS];
-        GameObject RedTeamPositions = GameObject.Find("RedTeamPositions");
         for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
             GameObject player = Instantiate(PlayerPrefab, transform);
-            player.transform.localPosition = RedTeamPositions.transform.GetChild(i).transform.localPosition;
+            player.gameObject.GetComponent<PlayerManager>().Team = this;
+            player.gameObject.GetComponent<SpriteRenderer>().color = TeamColor;
+            player.transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
             player.GetComponent<PlayerManager>().Index = i;
             if (i == 0)
-                player.name = "GK";
+                player.name = color + "GK";
             else
-                player.name = "PLAYER" + i;
+                player.name = color + "PLAYER_" + i;
             AddPlayer(player);
         }
         CurrentPlayer = players[3];
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
-    }
-
-    void Update()
-    {
-        if (IsInBallPossession)
-            return;
-
-        if (Input.GetKeyDown(KeyCode.Q))
-            SelectPreviousPlayer();
-        if (Input.GetKeyDown(KeyCode.E))
-            SelectNextPlayer();
     }
 
     public GameObject SelectPlayer(int index)

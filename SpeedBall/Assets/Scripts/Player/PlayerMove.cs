@@ -6,20 +6,17 @@ public class PlayerMove : MonoBehaviour
 {
     private const float DEFAULT_SPEED = 400.0f;
 
+    public Vector2 Direction { get; set; }
+
     private PlayerManager playerManager;
     private Rigidbody2D rigidBody2D;
-    private Vector2 direction;
     private Vector2 velocity;
     private float speed;
-    private string horizontalAxisName;
-    private string verticalAxisName;
 
     void Start()
     {
         playerManager = gameObject.GetComponent<PlayerManager>();
         rigidBody2D = GetComponentInParent<Rigidbody2D>();
-        horizontalAxisName = "Horizontal";
-        verticalAxisName = "Vertical";
         speed = DEFAULT_SPEED;
     }
 
@@ -36,7 +33,6 @@ public class PlayerMove : MonoBehaviour
         if (!playerManager.IsSelected)
             return;
 
-        direction = new Vector2(Input.GetAxis(horizontalAxisName), Input.GetAxis(verticalAxisName)).normalized;
-        velocity = direction * speed * Time.deltaTime;
+        velocity = Direction * speed * Time.deltaTime;
     }
 }

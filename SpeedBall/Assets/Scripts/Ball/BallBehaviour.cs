@@ -6,6 +6,7 @@ public class BallBehaviour : MonoBehaviour
 {
     private const float MAGNIFY_VALUE = 10.0f;
     private const float DEMAGNIFY_VALUE = 5.0f;
+    private const float MAGNIFY_FORCE = 800.0f;
 
     public GameObject Owner { get; set; }
 
@@ -23,7 +24,7 @@ public class BallBehaviour : MonoBehaviour
         if (Owner != null)
             return;
 
-        if (ballMove.Force >= 800.0f)
+        if (ballMove.Force >= MAGNIFY_FORCE)
             transform.localScale = Vector3.Lerp(transform.localScale, maxSize, MAGNIFY_VALUE * Time.deltaTime);
         else
             transform.localScale = Vector3.Lerp(transform.localScale, defaulSize, DEMAGNIFY_VALUE * Time.deltaTime);
@@ -36,13 +37,7 @@ public class BallBehaviour : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            Owner = other.gameObject;
-            Owner.GetComponent<PlayerManager>().BallReceived();
-            transform.localScale = defaulSize;
-            transform.parent = other.transform;
-            Vector2 lastDirection = transform.position - Owner.transform.position;
-            Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
-            other.GetComponent<PlayerShot>().Ball = gameObject;
+            AttachBall(other.gameObject);
         }
         else if (other.gameObject.tag == "Wall")
         {
@@ -56,9 +51,20 @@ public class BallBehaviour : MonoBehaviour
         }
     }
 
+    public void AttachBall(GameObject target)
+    {
+        Owner = target;
+        Owner.GetComponent<PlayerManager>().BallReceived();
+        transform.localScale = defaulSize;
+        transform.parent = target.transform;
+        Vector2 lastDirection = transform.position - Owner.transform.position;
+        Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
+        target.GetComponent<PlayerManager>().Ball = gameObject;
+    }
+
     public void RemoveBall()
     {
-        Owner.GetComponent<PlayerShot>().Ball = null;
+        Owner.GetComponent<PlayerManager>().Ball = null;
         Owner = null;
         transform.parent = null;
     }

@@ -14,9 +14,6 @@ public class CameraManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C))
-            IncreaseIndex();
-
         if (index == 0)
             BallMode();
         else if (index == 1)
@@ -28,14 +25,14 @@ public class CameraManager : MonoBehaviour
         if (target.y < -21.0f)
             newPosition = new Vector3(transform.position.x, -21.0f, transform.position.z);
         else if (target.y > 21.0f)
-            newPosition = new Vector3(transform.position.x, -21.0f, transform.position.z);
+            newPosition = new Vector3(transform.position.x, 21.0f, transform.position.z);
         else
             newPosition = new Vector3(transform.position.x, target.y, transform.position.z);
 
         gameObject.transform.position = Vector3.Lerp(transform.position, newPosition, Speed * Time.deltaTime);
     }
 
-    private void IncreaseIndex()
+    public void IncreaseIndex()
     {
         if (++index > 2)
             index = 0;

@@ -736,6 +736,53 @@ Transform:
   m_Father: {fileID: 1411824153}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &800644819
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 800644820}
+  - component: {fileID: 800644821}
+  m_Layer: 0
+  m_Name: BlueTeamPlayers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &800644820
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800644819}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1605359807}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &800644821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800644819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1ce713dd06067b45a4610fa8350ea72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerPrefab: {fileID: 7861538706192391953, guid: af9fb9684445b0b46a1a59ab884adce9,
+    type: 3}
+  TeamPositions: {fileID: 319080147}
+  TeamColor: {r: 0, g: 0, b: 1, a: 1}
 --- !u!1 &853149857
 GameObject:
   m_ObjectHideFlags: 0
@@ -781,6 +828,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 7861538706192391953, guid: af9fb9684445b0b46a1a59ab884adce9,
     type: 3}
+  TeamPositions: {fileID: 1414231452}
+  TeamColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1 &859300746
 GameObject:
   m_ObjectHideFlags: 0
@@ -1752,6 +1801,7 @@ Transform:
   - {fileID: 2107254545}
   - {fileID: 1478665232}
   - {fileID: 853149858}
+  - {fileID: 800644820}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1814,6 +1864,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20b5a6b26ef9617449a422c3bee07741, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Client: {fileID: 1012770104803234077, guid: 01eb6bf169816194ca2f6827cb3afa28, type: 3}
   BallPrefab: {fileID: 5243674010703687360, guid: 9c1d376ba94224242940c04955fc2d36,
     type: 3}
 --- !u!4 &1730033859
