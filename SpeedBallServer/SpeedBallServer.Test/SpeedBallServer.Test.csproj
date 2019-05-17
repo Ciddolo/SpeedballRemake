@@ -61,6 +61,7 @@
     <Compile Include="TestFromDifferentEndPoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestFromSameEndpoint.cs" />
+    <Compile Include="TimerTests.cs" />
     <Compile Include="UpdateTests.cs" />
   </ItemGroup>
   <ItemGroup>

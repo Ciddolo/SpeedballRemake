@@ -21,6 +21,8 @@ namespace SpeedBallServer
 
     public class GameServer
     {
+        private Timer gameLogicTimer;
+
         private IMonotonicClock clock;
         private IGameTransport transport;
 
@@ -108,6 +110,9 @@ namespace SpeedBallServer
         {         
             this.transport = gameTransport;
             this.clock = clock;
+            currentNow = clock.GetNow();
+            LastServerTickTimestamp = currentNow;
+
             clientsTable = new Dictionary<EndPoint, GameClient>();
             gameObjectsTable = new Dictionary<uint, GameObject>();
 
@@ -125,6 +130,9 @@ namespace SpeedBallServer
             gameLogic = new GameLogic(this);
             gameLogic.SpawnLevel(startingLevel);
 
+            gameLogicTimer = new Timer(UpdateFrequency, GameLogicTick, true);
+            gameLogicTimer.Start();
+
         }
 
         public bool CheckGameObjectOwner(uint id,EndPoint owner)
@@ -141,10 +149,41 @@ namespace SpeedBallServer
         public void Run()
         {
             Console.WriteLine("server started");
+
             while (true)
             {
                 SingleStep();
             }
+        }
+
+        private void GameLogicTick()
+        {
+            //Console.WriteLine("tick :" + currentNow);
+            gameLogic.Update();
+
+            List<EndPoint> deadClients = new List<EndPoint>();
+
+            foreach (GameClient client in clientsTable.Values)
+            {
+                float timeSinceLastPacket = currentNow - client.LastPacketTimestamp;
+
+                if (timeSinceLastPacket > MaxTimeOfInactivity)
+                {
+                    //Console.WriteLine("kicking");
+                    deadClients.Add(client.EndPoint);
+                }
+                else
+                {
+                    client.Process();
+                }
+            }
+
+            foreach (EndPoint deadClient in deadClients)
+            {
+                gameLogic.RemovePlayer(clientsTable[deadClient]);
+                clientsTable.Remove(deadClient);
+            }
+
         }
 
         public void SingleStep()
@@ -174,36 +213,9 @@ namespace SpeedBallServer
                 }
             }
 
-            float timeSinceLasTick = currentNow - LastServerTickTimestamp;
-            if (timeSinceLasTick >= UpdateFrequency)
-            {
-                LastServerTickTimestamp = currentNow;
-
-                gameLogic.Update();
-
-                List<EndPoint> deadClients=new List<EndPoint>();
-
-                foreach (GameClient client in clientsTable.Values)
-                {
-                    float timeSinceLastPacket = currentNow - client.LastPacketTimestamp;
-
-                    if (timeSinceLastPacket>MaxTimeOfInactivity)
-                    {
-                        deadClients.Add(client.EndPoint);
-                    }
-                    else
-                    {
-                        client.Process();
-                    }
-                }
-
-                foreach (EndPoint deadClient in deadClients)
-                {
-                    gameLogic.RemovePlayer(clientsTable[deadClient]);
-                    clientsTable.Remove(deadClient);
-                }
-
-            }
+            float deltaTime = currentNow - LastServerTickTimestamp;
+            gameLogicTimer.Update(deltaTime);
+            LastServerTickTimestamp = currentNow;
         }
 
         /// <summary>
@@ -253,8 +265,6 @@ namespace SpeedBallServer
             {
                 newClient.Enqueue(gameObject.GetSpawnPacket());
             }
-
-
         }
 
         private void Update(byte[] data, EndPoint sender)
