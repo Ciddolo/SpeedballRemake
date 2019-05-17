@@ -18,6 +18,12 @@ namespace SpeedBallServer
         private EndPoint endPoint;
         private Dictionary<uint, Packet> ackTable;
 
+        private Timer pingTimer;
+        private bool waitingForPong;
+        private uint pingPacketId;
+        private float sendedPingTimestamp;
+        public float PingValue;
+
         public EndPoint EndPoint
         {
             get { return endPoint; }
@@ -40,10 +46,28 @@ namespace SpeedBallServer
             sendQueue = new Queue<Packet>();
             ackTable = new Dictionary<uint, Packet>();
             Malus = 0;
+            pingTimer = new Timer(1,AttemptPing,true);
+            PingValue = -1;
+            pingTimer.Start();
         }
 
-        public void Process()
+        private void AttemptPing()
         {
+            if(waitingForPong)
+            {
+                Malus += 1000;
+            }
+            else
+            {
+                Console.WriteLine("sending ping");
+                Ping();
+            }
+        }
+
+        public void Process(float deltaTime)
+        {
+            pingTimer.Update(deltaTime);
+
             int packetsInQueue = sendQueue.Count;
             for (int i = 0; i < packetsInQueue; i++)
             {
@@ -123,5 +147,32 @@ namespace SpeedBallServer
         {
             return endPoint.ToString();
         }
+
+        public void Ping()
+        {
+            waitingForPong = true;
+            Packet pingPacket = new Packet((byte)PacketsCommands.Ping);
+            this.pingPacketId = pingPacket.Id;
+            sendedPingTimestamp = server.Now;
+            server.Send(pingPacket, this.endPoint);
+        }
+
+        public void Pong(uint packetId)
+        {
+            Console.WriteLine("received pong "+packetId+" "+pingPacketId);
+            if (pingPacketId==packetId)
+            {
+                PingValue = server.Now - sendedPingTimestamp;
+                pingPacketId = 0;
+                waitingForPong = false;
+            }
+            else
+            {
+                //increase malus
+                Malus += 50;
+            }
+        }
+
+
     }
 }

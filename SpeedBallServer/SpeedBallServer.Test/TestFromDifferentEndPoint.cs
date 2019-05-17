@@ -39,6 +39,10 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
+
             byte[] output = transport.ClientDequeue().data;
 
             Assert.That(output[0], Is.EqualTo(1));
@@ -187,7 +191,7 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             clock.IncreaseTimeStamp(1f);
 
-            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(15));
+            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(16));
         }
 
         [Test]
@@ -203,6 +207,10 @@ namespace SpeedBallServer.Test
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            //dequeue ping packet
+            transport.ClientDequeue();
+
+            //dequeue welcome packet
             byte[] output = transport.ClientDequeue().data;
 
             uint packetId = BitConverter.ToUInt32(output,1);
@@ -267,7 +275,7 @@ namespace SpeedBallServer.Test
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
-            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(5));
+            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(6));
         }
 
         [Test]
@@ -282,6 +290,9 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             byte[] output = transport.ClientDequeue().data;
 
@@ -340,6 +351,9 @@ namespace SpeedBallServer.Test
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            //dequeue ping packet
+            transport.ClientDequeue();
+
             byte[] output = transport.ClientDequeue().data;
 
             uint playerId = BitConverter.ToUInt32(output, 10);
@@ -390,6 +404,8 @@ namespace SpeedBallServer.Test
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            //dequeue ping packet
+            transport.ClientDequeue();
             //welcome packet
             byte[] output = transport.ClientDequeue().data;
             //spawn obstacle packet
@@ -418,6 +434,9 @@ namespace SpeedBallServer.Test
             server.SingleStep();
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             //welcome packet
             byte[] output = transport.ClientDequeue().data;

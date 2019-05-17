@@ -44,6 +44,9 @@ namespace SpeedBallServer.Test
 
             //server responds after 1 second (default tick frequency)
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
         }
 
         [Test]
@@ -122,6 +125,9 @@ namespace SpeedBallServer.Test
             transport.ClientDequeue();
 
             //dequeueing first player spawn of the second team
+            transport.ClientDequeue();
+
+            //dequeue ping packet second client
             transport.ClientDequeue();
 
             //dequeing packet for first client

@@ -16,7 +16,9 @@ namespace SpeedBallServer
         Update=3,
         Input=4,
         GameInfo=5,
-        Ack=255
+        Pong = 253,
+        Ping = 254,
+        Ack =255
     }
 
     public class GameServer
@@ -96,6 +98,13 @@ namespace SpeedBallServer
             return (int)clientsTable[client].Malus;
         }
 
+        public float GetClientPing(EndPoint client)
+        {
+            if (!CheckIfClientJoined(client))
+                return -1;
+            return clientsTable[client].PingValue;
+        }
+
         //cached time value
         private float currentNow;
         public float Now
@@ -126,6 +135,8 @@ namespace SpeedBallServer
             commandsTable[(byte)PacketsCommands.Join] = Join;
             commandsTable[(byte)PacketsCommands.Ack] = Ack;
             commandsTable[(byte)PacketsCommands.Update] = Update;
+            commandsTable[(byte)PacketsCommands.Ping] = Ping;
+            commandsTable[(byte)PacketsCommands.Pong] = Pong;
 
             gameLogic = new GameLogic(this);
             gameLogic.SpawnLevel(startingLevel);
@@ -174,7 +185,7 @@ namespace SpeedBallServer
                 }
                 else
                 {
-                    client.Process();
+                    client.Process(gameLogicTimer.Interval);
                 }
             }
 
@@ -239,6 +250,27 @@ namespace SpeedBallServer
             return this.Send(data.GetData(), endPoint);
         }
 
+        private void Ping(byte[] data, EndPoint sender)
+        {
+            uint packetId = BitConverter.ToUInt32(data, 1);
+            Packet pongPacket = new Packet((byte)PacketsCommands.Pong, false, packetId);
+            Send(pongPacket.GetData(), sender);
+        }
+
+        private void Pong(byte[] data, EndPoint sender)
+        {
+            Console.WriteLine("pong");
+            if (!CheckIfClientJoined(sender))
+            {
+                return;
+            }
+
+            GameClient client = clientsTable[sender];
+            uint packetId = BitConverter.ToUInt32(data, 6);
+
+            client.Pong(packetId);
+        }
+
         private void Join(byte[] data, EndPoint sender)
         {
             // check if the client has already joined
@@ -260,6 +292,7 @@ namespace SpeedBallServer
 
             Packet welcome = new Packet((byte)PacketsCommands.Welcome, true,clientId, controlledPlayerId);
             newClient.Enqueue(welcome);
+            newClient.Ping();
 
             foreach (GameObject gameObject in gameObjectsTable.Values)
             {
