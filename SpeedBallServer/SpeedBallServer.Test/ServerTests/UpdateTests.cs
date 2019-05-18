@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Numerics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
+using System.Numerics;
 
-namespace SpeedBallServer.Test
+namespace SpeedBallServer.Test.ServerTests
 {
     public class UpdateTests
     {
         private GameServer server;
         private FakeClock clock;
         private FakeTransport transport;
-        private FakeEndPoint FirstClient, SecondClient;
+        private FakeEndPoint firstClient, secondClient;
 
         [SetUp]
         public void SetUpTest()
@@ -27,13 +23,13 @@ namespace SpeedBallServer.Test
             server = new GameServer(transport, clock);
 
             //initializinng clients
-            FirstClient = new FakeEndPoint("192.168.1.1", 5001);
-            SecondClient = new FakeEndPoint("192.168.1.2", 5002);
+            firstClient = new FakeEndPoint("192.168.1.1", 5001);
+            secondClient = new FakeEndPoint("192.168.1.2", 5002);
 
             //initializing join packet
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = FirstClient;
+            packet.endPoint = firstClient;
 
             //sending packet
             transport.ClientEnqueue(packet);
@@ -63,7 +59,7 @@ namespace SpeedBallServer.Test
             FakeData packet = new FakeData();
 
             packet.data = new Packet((byte)PacketsCommands.Update,false,playerObjectId,10f,10f,10f,10f).GetData();
-            packet.endPoint = FirstClient;
+            packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet
@@ -78,7 +74,7 @@ namespace SpeedBallServer.Test
         {
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //read second client join
@@ -90,7 +86,7 @@ namespace SpeedBallServer.Test
 
             //initializing update packet
             packet.data = new Packet((byte)PacketsCommands.Update, false, playerObjectId, 10f, 10f, 5f, 5f).GetData();
-            packet.endPoint = FirstClient;
+            packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet
@@ -105,7 +101,7 @@ namespace SpeedBallServer.Test
         {
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //increasing time to make server responds to the secon player
@@ -148,7 +144,7 @@ namespace SpeedBallServer.Test
             uint playerObjectId = BitConverter.ToUInt32(welcomeData, 10);
             //initializing update packet
             packet.data = new Packet((byte)PacketsCommands.Update, false, playerObjectId, 10f, 10f, 10f, 10f).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet
@@ -162,7 +158,7 @@ namespace SpeedBallServer.Test
         {
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //read second client join
@@ -184,7 +180,7 @@ namespace SpeedBallServer.Test
 
             //initializing update packet
             packet.data = new Packet((byte)PacketsCommands.Update, false, playerObjectId, 10f, 10f, 10f, 10f).GetData();
-            packet.endPoint = FirstClient;
+            packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet
@@ -198,7 +194,7 @@ namespace SpeedBallServer.Test
         {
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //increasing time to make server responds to the secon player
@@ -213,7 +209,7 @@ namespace SpeedBallServer.Test
 
             //initializing update packet
             packet.data = new Packet((byte)PacketsCommands.Update, false, playerObjectId, 10f, 10f, 10f, 10f).GetData();
-            packet.endPoint = SecondClient;
+            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet

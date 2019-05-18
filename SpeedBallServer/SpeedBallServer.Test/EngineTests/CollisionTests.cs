@@ -1,11 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SpeedBallServer.Test
+namespace SpeedBallServer.Test.EngineTests
 {
     public class CollisionTests
     {
@@ -20,14 +17,14 @@ namespace SpeedBallServer.Test
         }
 
         [Test]
-        public void TestSuccessfulCollision()
+        public void SuccessfulCollision()
         {
             Collision collisionInfo = new Collision();
             Assert.That(myPlayer.RigidBody.Collides(obstacle.RigidBody, ref collisionInfo), Is.EqualTo(true));
         }
 
         [Test]
-        public void TestUnsuccessfulCollision()
+        public void UnsuccessfulCollision()
         {
             myPlayer.Position = new Vector2(0, 1.01f);
             Collision collisionInfo = new Collision();

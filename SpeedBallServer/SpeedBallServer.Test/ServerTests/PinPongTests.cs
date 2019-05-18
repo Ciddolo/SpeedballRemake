@@ -1,18 +1,14 @@
 ﻿using System;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SpeedBallServer.Test
+namespace SpeedBallServer.Test.ServerTests
 {
     public class PinPongTests
     {
         private GameServer server;
         private FakeClock clock;
         private FakeTransport transport;
-        private FakeEndPoint FirstClient;
+        private FakeEndPoint firstClient;
 
         [SetUp]
         public void SetUpTest()
@@ -26,12 +22,12 @@ namespace SpeedBallServer.Test
             server = new GameServer(transport, clock,2);
 
             //initializinng client
-            FirstClient = new FakeEndPoint("192.168.1.1", 5001);
+            firstClient = new FakeEndPoint("192.168.1.1", 5001);
 
             //initializing join packet
             FakeData packet = new FakeData();
             packet.data = new Packet((byte)PacketsCommands.Join).GetData();
-            packet.endPoint = FirstClient;
+            packet.endPoint = firstClient;
 
             //sending packet
             transport.ClientEnqueue(packet);
@@ -52,7 +48,7 @@ namespace SpeedBallServer.Test
         [Test]
         public void DefaultClientPing()
         {
-            Assert.That(server.GetClientPing(FirstClient),Is.EqualTo(-1f));
+            Assert.That(server.GetClientPing(firstClient),Is.EqualTo(-1f));
         }
 
         [Test]
@@ -63,7 +59,7 @@ namespace SpeedBallServer.Test
             uint pingPacketId = BitConverter.ToUInt32(pingPacket,1);
 
             FakeData pongPacket=new FakeData();
-            pongPacket.endPoint = FirstClient;
+            pongPacket.endPoint = firstClient;
             pongPacket.data = (new Packet((byte)PacketsCommands.Pong,false,pingPacketId)).GetData();
 
             clock.IncreaseTimeStamp(.5f);
@@ -71,7 +67,7 @@ namespace SpeedBallServer.Test
             clock.IncreaseTimeStamp(.4f);
             server.SingleStep();
 
-            Assert.That(server.GetClientPing(FirstClient), Is.EqualTo(.9f));
+            Assert.That(server.GetClientPing(firstClient), Is.EqualTo(.9f));
         }
 
         [Test]
@@ -82,7 +78,7 @@ namespace SpeedBallServer.Test
             uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
 
             FakeData pongPacket = new FakeData();
-            pongPacket.endPoint = FirstClient;
+            pongPacket.endPoint = firstClient;
             pongPacket.data = (new Packet((byte)PacketsCommands.Pong, false, pingPacketId)).GetData();
 
             transport.ClientEnqueue(pongPacket);
@@ -116,7 +112,7 @@ namespace SpeedBallServer.Test
         public void ClientSendingPingPacket()
         {
             FakeData pingPacket = new FakeData();
-            pingPacket.endPoint = FirstClient;
+            pingPacket.endPoint = firstClient;
             pingPacket.data = (new Packet((byte)PacketsCommands.Ping)).GetData();
 
             transport.ClientEnqueue(pingPacket);
@@ -135,7 +131,7 @@ namespace SpeedBallServer.Test
         public void ClientSendingPingPacketId()
         {
             FakeData pingPacket = new FakeData();
-            pingPacket.endPoint = FirstClient;
+            pingPacket.endPoint = firstClient;
             pingPacket.data = (new Packet((byte)PacketsCommands.Ping)).GetData();
             uint pingPacketId = BitConverter.ToUInt32(pingPacket.data, 1);
 
@@ -150,6 +146,25 @@ namespace SpeedBallServer.Test
             uint pongResponseId = BitConverter.ToUInt32(pingPacket.data, 1);
 
             Assert.That(pingPacketId, Is.EqualTo(pongResponseId));
+        }
+
+        [Test]
+        public void MultipleJoinPings()
+        {
+            FakeEndPoint secondClient = new FakeEndPoint("192.168.1.2", 5002);
+
+            //initializing join packet
+            FakeData packet = new FakeData();
+            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+
+            //sending packet
+            transport.ClientEnqueue(packet);
+
+            //server reads join
+            server.SingleStep();
+
+            Assert.That(transport.GetSendQueueCount, Is.EqualTo(2));
         }
     }
 }

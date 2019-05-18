@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SpeedBallServer.Test
+namespace SpeedBallServer.Test.EngineTests
 {
     public class PhysicsHandlerTest
     {
@@ -19,6 +15,7 @@ namespace SpeedBallServer.Test
         {
             myPlayer = new Player(null);
             obstacle = new Obstacle(null, 10, 10);
+
             physicsHandler = new PhysicsHandler();
             physicsHandler.AddItem(myPlayer.RigidBody);
             physicsHandler.AddItem(obstacle.RigidBody);

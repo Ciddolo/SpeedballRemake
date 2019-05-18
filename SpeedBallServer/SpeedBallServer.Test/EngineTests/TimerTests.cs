@@ -1,11 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SpeedBallServer.Test
+namespace SpeedBallServer.Test.EngineTests
 {
     public class TimerTests
     {
@@ -117,7 +113,7 @@ namespace SpeedBallServer.Test
         }
 
         [Test]
-        public void UnsucessfullCalbackTimerNotStarted()
+        public void UnsucessfullCalbackOnTimerNotStarted()
         {
             myTimer = new Timer(1, myCallback);
 
