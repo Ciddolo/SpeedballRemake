@@ -12,7 +12,13 @@ namespace SpeedBallServer
 
     public struct Collision
     {
-        public enum CollisionType { None, RectsIntersection }
+        public enum CollisionType
+        {
+            None,
+            RectsIntersection,
+            RectCircleIntersection,
+            CirclesIntersection
+        }
 
         public CollisionType Type;
         public Vector2 Delta;

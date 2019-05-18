@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actors\Player.cs" />
+    <Compile Include="Engine\Circle.cs" />
     <Compile Include="Engine\Collision.cs" />
     <Compile Include="Engine\GameObject.cs" />
     <Compile Include="Engine\IActivable.cs" />
