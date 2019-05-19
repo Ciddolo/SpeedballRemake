@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,11 +39,11 @@ namespace SpeedBallServer
 
         public uint[] Score;
 
-        private List<IUpdatable> UpdatableItems;
+        private List<IUpdatable> updatableItems;
         private PhysicsHandler physicsHandler;
-        private List<Player>[] Teams;
-        private List<Player> TeamOneControllablePlayers;
-        private List<Player> TeamTwoControllablePlayers;
+        private List<Player>[] teams;
+        private List<Player> teamOneControllablePlayers;
+        private List<Player> teamTwoControllablePlayers;
 
         private uint defaultPlayerTeamOneId,defaultPlayerTeamTwoId;
 
@@ -51,7 +52,7 @@ namespace SpeedBallServer
             ClientInfo newClientInfo = new ClientInfo();
 
             newClientInfo.TeamId = 0;
-            newClientInfo.ControlledPlayerId = defaultPlayerTeamOneId;
+            newClientInfo.ControlledPlayerId = teamOneControllablePlayers[(int)defaultPlayerTeamOneId].Id;
 
             if (!clients.ContainsKey(client))
             {
@@ -60,7 +61,7 @@ namespace SpeedBallServer
                     if(clients.First().Value.TeamId==0)
                     {
                         newClientInfo.TeamId = 1;
-                        newClientInfo.ControlledPlayerId = defaultPlayerTeamTwoId;
+                        newClientInfo.ControlledPlayerId = teamTwoControllablePlayers[(int)defaultPlayerTeamTwoId].Id;
                     }
 
                     GameStatus = GameState.Playing;
@@ -70,7 +71,7 @@ namespace SpeedBallServer
                 clients.Add(client,newClientInfo);
             }
 
-            foreach (Player player in Teams[newClientInfo.TeamId])
+            foreach (Player player in teams[newClientInfo.TeamId])
             {
                 player.SetOwner(client);
             }
@@ -81,12 +82,13 @@ namespace SpeedBallServer
             }
 
             controlledPlayerId = newClientInfo.ControlledPlayerId;
+
             return newClientInfo.TeamId;
         }
 
         public void RemovePlayer(GameClient clientToRemove)
         {
-            foreach (Player player in Teams[clients[clientToRemove].TeamId])
+            foreach (Player player in teams[clients[clientToRemove].TeamId])
             {
                 player.SetOwner(null);
             }
@@ -102,31 +104,95 @@ namespace SpeedBallServer
             physicsHandler.AddItem(myObstacle.RigidBody);
             myObstacle.SetPosition(0f, 3f);
 
-            Player defPlayerTeamOne = server.Spawn<Player>();
-            defaultPlayerTeamOneId = defPlayerTeamOne.Id;
+            Player defPlayerTeamOne = server.Spawn<Player>(1,1);
+            defaultPlayerTeamOneId = 0;
             defPlayerTeamOne.SetStartingPosition(-1f, 0f);
             defPlayerTeamOne.TeamId = 0;
-            TeamOneControllablePlayers.Add(defPlayerTeamOne);
-            UpdatableItems.Add(defPlayerTeamOne);
+            teamOneControllablePlayers.Add(defPlayerTeamOne);
+            updatableItems.Add(defPlayerTeamOne);
             physicsHandler.AddItem(defPlayerTeamOne.RigidBody);
 
-            Player defAnotherPlayerTeamOne = server.Spawn<Player>();
+            Player defAnotherPlayerTeamOne = server.Spawn<Player>(1,1);
             defAnotherPlayerTeamOne.SetStartingPosition(3f, 0f);
             defAnotherPlayerTeamOne.TeamId = 0;
-            UpdatableItems.Add(defAnotherPlayerTeamOne);
+            updatableItems.Add(defAnotherPlayerTeamOne);
             physicsHandler.AddItem(defAnotherPlayerTeamOne.RigidBody);
 
-            TeamOneControllablePlayers.Add(defAnotherPlayerTeamOne);
+            teamOneControllablePlayers.Add(defAnotherPlayerTeamOne);
 
-            Player defPlayerTeamTwo = server.Spawn<Player>();
+            Player defPlayerTeamTwo = server.Spawn<Player>(1,1);
+            defaultPlayerTeamTwoId = 0;
             defPlayerTeamTwo.SetStartingPosition(1f, 0f);
-            defaultPlayerTeamTwoId = defPlayerTeamTwo.Id;
             defPlayerTeamTwo.TeamId = 1;
-            TeamTwoControllablePlayers.Add(defPlayerTeamTwo);
+            teamTwoControllablePlayers.Add(defPlayerTeamTwo);
             physicsHandler.AddItem(defPlayerTeamTwo.RigidBody);
-            UpdatableItems.Add(defPlayerTeamTwo);
+            updatableItems.Add(defPlayerTeamTwo);
 
             ResetPositions();
+        }
+
+        private void SpawnSerializedLevel(string serializedLevel)
+        {
+            Level levelData = JsonConvert.DeserializeObject<Level>(serializedLevel);
+
+            PlayersInfo playerInfo = levelData.PlayerInfo;
+
+            defaultPlayerTeamTwoId = (uint)playerInfo.DefaultPlayerIndex;
+            defaultPlayerTeamOneId = (uint)playerInfo.DefaultPlayerIndex;
+
+            foreach (var obstacleInfo in levelData.Walls)
+            {
+                Obstacle myObstacle = server.Spawn<Obstacle>(obstacleInfo.Height, obstacleInfo.Width);
+                physicsHandler.AddItem(myObstacle.RigidBody);
+                myObstacle.SetPosition(obstacleInfo.Position);
+
+                myObstacle.Name = obstacleInfo.Name;
+            }
+
+            for (int i = 0; i < levelData.TeamOneSpawnPositions.Count; i++)
+            {
+                SimpleLevelObject data = levelData.TeamOneSpawnPositions[i];
+
+                Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
+                player.SetStartingPosition(data.Position);
+
+                player.TeamId = 0;
+                teamOneControllablePlayers.Add(player);
+
+                updatableItems.Add(player);
+                physicsHandler.AddItem(player.RigidBody);
+
+                player.Name = levelData.TeamOneSpawnPositions[i].Name;
+            }
+
+            for (int i = 0; i < levelData.TeamTwoSpawnPositions.Count; i++)
+            {
+                SimpleLevelObject data = levelData.TeamOneSpawnPositions[i];
+                Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
+                player.SetStartingPosition(data.Position);
+
+                player.TeamId = 1;
+                teamTwoControllablePlayers.Add(player);
+
+                updatableItems.Add(player);
+                physicsHandler.AddItem(player.RigidBody);
+
+                player.Name = levelData.TeamOneSpawnPositions[i].Name;
+            }
+
+            Net TeamOneNet = server.Spawn<Net>(levelData.NetTeamOne.Height, levelData.NetTeamOne.Width);
+            TeamOneNet.Name = levelData.NetTeamOne.Name;
+            physicsHandler.AddItem(TeamOneNet.RigidBody);
+
+            Net TeamTwoNet = server.Spawn<Net>(levelData.NetTeamTwo.Height, levelData.NetTeamTwo.Width);
+            TeamTwoNet.Name = levelData.NetTeamTwo.Name;
+            physicsHandler.AddItem(TeamTwoNet.RigidBody);
+
+            Ball Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);
+            Ball.Name = levelData.Ball.Name;
+            physicsHandler.AddItem(Ball.RigidBody);
+            updatableItems.Add(Ball);
+
         }
 
         public void SpawnLevel(string serializedLevel=null)
@@ -134,15 +200,13 @@ namespace SpeedBallServer
             if (serializedLevel == null)
                 SpawnTestingLevel();
             else
-                throw new NotImplementedException();
+                SpawnSerializedLevel(serializedLevel);
 
             Console.WriteLine("Loaded Level");
-            Teams[0] = TeamOneControllablePlayers;
-            Teams[1] = TeamTwoControllablePlayers;
+            teams[0] = teamOneControllablePlayers;
+            teams[1] = teamTwoControllablePlayers;
 
             Score = new uint[server.MaxPlayers];
-
-
         }
 
         public GameLogic(GameServer server)
@@ -150,10 +214,10 @@ namespace SpeedBallServer
             this.server = server;
             clients = new Dictionary<GameClient, ClientInfo>();
             GameStatus = GameState.WaitingForPlayers;
-            Teams = new List<Player>[server.MaxPlayers];
-            TeamOneControllablePlayers = new List<Player>();
-            TeamTwoControllablePlayers = new List<Player>();
-            UpdatableItems = new List<IUpdatable>();
+            teams = new List<Player>[server.MaxPlayers];
+            teamOneControllablePlayers = new List<Player>();
+            teamTwoControllablePlayers = new List<Player>();
+            updatableItems = new List<IUpdatable>();
             physicsHandler = new PhysicsHandler();
         }
 
@@ -191,7 +255,7 @@ namespace SpeedBallServer
         public void Update()
         {
             physicsHandler.Update();
-            foreach (IUpdatable item in UpdatableItems)
+            foreach (IUpdatable item in updatableItems)
             {
                item.Update();
             }
@@ -200,7 +264,7 @@ namespace SpeedBallServer
 
         public void ResetPositions()
         {
-            foreach (IUpdatable item in UpdatableItems)
+            foreach (IUpdatable item in updatableItems)
             {
                 item.Reset();
             }

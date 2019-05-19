@@ -13,7 +13,7 @@ namespace SpeedBallServer.Test.EngineTests
         [SetUp]
         public void SetUpTest()
         {
-            myPlayer = new Player(null);
+            myPlayer = new Player(null,1,1);
             obstacle = new Obstacle(null, 10, 10);
 
             physicsHandler = new PhysicsHandler();

@@ -22,8 +22,8 @@ namespace SpeedBallServer
         public uint TeamId;
         public PlayerState State;
 
-        public Player(GameServer server)
-            : base((int)InternalObjectsId.Player, server, 1, 1)
+        public Player(GameServer server,float Width,float Height)
+            : base((int)InternalObjectsId.Player, server, Height, Width)
         {
             this.Reset();
 

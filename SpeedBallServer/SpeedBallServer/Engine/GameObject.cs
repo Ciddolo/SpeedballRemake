@@ -34,6 +34,7 @@ namespace SpeedBallServer
 
         public bool IsActive { get; set; }
         public float Width, Height;
+        public String Name;
 
         protected GameClient owner;
         protected GameServer server;
@@ -103,5 +104,10 @@ namespace SpeedBallServer
         public abstract Packet GetSpawnPacket();
         public abstract void Destroy();
         public abstract void OnCollide(Collision collisionInfo);
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

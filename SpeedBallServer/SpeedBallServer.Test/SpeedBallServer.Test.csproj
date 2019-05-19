@@ -58,6 +58,7 @@
     <Compile Include="ServerTests\DisconnectionTests.cs" />
     <Compile Include="ServerTests\GameLogicTests.cs" />
     <Compile Include="ServerTests\JoinTests.cs" />
+    <Compile Include="ServerTests\LevelSpawnTest.cs" />
     <Compile Include="ServerTests\SpawnTests.cs" />
     <Compile Include="ServerTests\WelcomeTests.cs" />
     <Compile Include="FakeClock.cs" />
@@ -72,6 +73,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="TestData\TestLevel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeedBallServer\SpeedBallServer.csproj">
