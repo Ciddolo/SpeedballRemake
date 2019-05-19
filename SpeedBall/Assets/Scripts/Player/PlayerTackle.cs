@@ -37,10 +37,10 @@ public class PlayerTackle : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            Debug.Log(transform.parent.gameObject.name + " -> " + other.gameObject.name);
+            //Debug.Log(transform.parent.gameObject.name + " -> " + other.gameObject.name);
             if (other.GetComponent<PlayerManager>().Ball != null && InputKeyDown)
             {
-                Debug.Log(transform.parent.gameObject.name + " [BALL] " + other.gameObject.name);
+                //Debug.Log(transform.parent.gameObject.name + " [BALL] " + other.gameObject.name);
                 GameObject ball = other.GetComponent<PlayerManager>().Ball;
                 other.GetComponent<PlayerManager>().BallLost();
                 ball.GetComponent<BallBehaviour>().AttachBall(transform.parent.gameObject);

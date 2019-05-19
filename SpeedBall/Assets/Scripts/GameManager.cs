@@ -6,11 +6,13 @@ public class GameManager : MonoBehaviour
     public GameObject Client;
     public GameObject BallPrefab;
 
-    private CameraManager cameraManager;
-    private TeamManager redTeamManager;
-    private TeamManager blueTeamManager;
+    public static uint RedScore { get; set; }
+    public static uint BlueScore { get; set; }
+
+    private static CameraManager cameraManager;
+    private static TeamManager redTeamManager;
+    private static TeamManager blueTeamManager;
     private GameObject[] clients;
-    private static uint clientID;
 
     void Start()
     {
@@ -24,12 +26,27 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < CLIENTS_NUMBER; i++)
         {
             clients[i] = Instantiate(Client, Vector3.zero, Quaternion.identity, transform);
-            clients[i].GetComponent<ClientManager>().ID = ++clientID;
-            clients[i].name = ("Client" + clientID);
             if (i == 1)
+            {
+                clients[i].name = ("ClientRed");
                 clients[i].GetComponent<ClientManager>().Team = redTeamManager;
+            }
             else
+            {
+                clients[i].name = ("ClientBlue");
                 clients[i].GetComponent<ClientManager>().Team = blueTeamManager;
+            }
         }
+    }
+
+    public static void TeamScore(int team)
+    {
+        if (team == 1)
+            RedScore++;
+        else
+            BlueScore++;
+
+        redTeamManager.ResetPositions();
+        blueTeamManager.ResetPositions();
     }
 }

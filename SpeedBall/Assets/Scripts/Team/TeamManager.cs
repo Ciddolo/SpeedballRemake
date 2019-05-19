@@ -97,4 +97,12 @@ public class TeamManager : MonoBehaviour
         }
         return -1;
     }
+
+    public void ResetPositions()
+    {
+        for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
+        {
+            transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
+        }
+    }
 }

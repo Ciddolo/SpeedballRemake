@@ -2,7 +2,6 @@
 
 public class ClientManager : MonoBehaviour
 {
-    public uint ID;
     public TeamManager Team;
 
     private string horizontalAxisName;
@@ -47,6 +46,9 @@ public class ClientManager : MonoBehaviour
         TeamInput();
         PlayerInput();
         CameraInput();
+
+        if (Input.GetKeyDown(KeyCode.F))
+            Debug.Log(GameManager.RedScore + " - " + GameManager.BlueScore);
     }
 
     private void TeamInput()
