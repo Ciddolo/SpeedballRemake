@@ -41,11 +41,16 @@ public class PlayerTackle : MonoBehaviour
             if (other.GetComponent<PlayerManager>().Ball != null && InputKeyDown)
             {
                 //Debug.Log(transform.parent.gameObject.name + " [BALL] " + other.gameObject.name);
-                GameObject ball = other.GetComponent<PlayerManager>().Ball;
-                other.GetComponent<PlayerManager>().BallLost();
-                ball.GetComponent<BallBehaviour>().AttachBall(transform.parent.gameObject);
-                transform.parent.GetComponent<PlayerManager>().BallReceived();
+                Tackle(other.gameObject);
             }
         }
+    }
+
+    public void Tackle(GameObject other)
+    {
+        GameObject ball = other.GetComponent<PlayerManager>().Ball;
+        other.GetComponent<PlayerManager>().BallLost();
+        ball.GetComponent<BallBehaviour>().AttachBall(transform.parent.gameObject);
+        transform.parent.GetComponent<PlayerManager>().BallReceived();
     }
 }

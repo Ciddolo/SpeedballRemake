@@ -33,9 +33,15 @@ public class TeamManager : MonoBehaviour
             player.transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
             player.GetComponent<PlayerManager>().Index = i;
             if (i == 0)
+            {
                 player.name = color + "GK";
+                player.AddComponent<GoalkeeperAI>();
+            }
             else
+            {
                 player.name = color + "PLAYER_" + i;
+                player.AddComponent<PlayerMove>();
+            }
             AddPlayer(player);
         }
         CurrentPlayer = players[3];
