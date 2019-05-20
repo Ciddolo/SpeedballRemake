@@ -34,7 +34,7 @@ namespace SpeedBallServer
     {
         private GameServer server;
         public GameState GameStatus;
-        public Dictionary<GameClient, ClientInfo> clients;
+        public Dictionary<GameClient, ClientInfo> Clients;
         private float startTimestamp;
 
         public uint[] Score;
@@ -54,11 +54,11 @@ namespace SpeedBallServer
             newClientInfo.TeamId = 0;
             newClientInfo.ControlledPlayerId = teamOneControllablePlayers[(int)defaultPlayerTeamOneId].Id;
 
-            if (!clients.ContainsKey(client))
+            if (!Clients.ContainsKey(client))
             {
-                if (clients.Count == 1 )
+                if (Clients.Count == 1 )
                 {
-                    if(clients.First().Value.TeamId==0)
+                    if(Clients.First().Value.TeamId==0)
                     {
                         newClientInfo.TeamId = 1;
                         newClientInfo.ControlledPlayerId = teamTwoControllablePlayers[(int)defaultPlayerTeamTwoId].Id;
@@ -68,7 +68,7 @@ namespace SpeedBallServer
                     startTimestamp = server.Now;
                 }
 
-                clients.Add(client,newClientInfo);
+                Clients.Add(client,newClientInfo);
             }
 
             foreach (Player player in teams[newClientInfo.TeamId])
@@ -76,7 +76,7 @@ namespace SpeedBallServer
                 player.SetOwner(client);
             }
 
-            if (clients.Count >= server.MaxPlayers)
+            if (Clients.Count >= server.MaxPlayers)
             {
                 GameStatus = GameState.Playing;
             }
@@ -88,12 +88,12 @@ namespace SpeedBallServer
 
         public void RemovePlayer(GameClient clientToRemove)
         {
-            foreach (Player player in teams[clients[clientToRemove].TeamId])
+            foreach (Player player in teams[Clients[clientToRemove].TeamId])
             {
                 player.SetOwner(null);
             }
 
-            clients.Remove(clientToRemove);
+            Clients.Remove(clientToRemove);
             if(GameStatus==GameState.Playing)
                 GameStatus = GameState.Ended;
         }
@@ -212,7 +212,7 @@ namespace SpeedBallServer
         public GameLogic(GameServer server)
         {
             this.server = server;
-            clients = new Dictionary<GameClient, ClientInfo>();
+            Clients = new Dictionary<GameClient, ClientInfo>();
             GameStatus = GameState.WaitingForPlayers;
             teams = new List<Player>[server.MaxPlayers];
             teamOneControllablePlayers = new List<Player>();
@@ -229,19 +229,19 @@ namespace SpeedBallServer
                 return;
             }
 
-            uint netId = BitConverter.ToUInt32(packetData, 6);
+            uint netId = BitConverter.ToUInt32(packetData, 5);
             GameObject gameObject = server.GameObjectsTable[netId];
 
-            if (gameObject.IsOwnedBy(client) && clients[client].ControlledPlayerId==netId)
+            if (gameObject.IsOwnedBy(client) && Clients[client].ControlledPlayerId==netId)
             {
                 Player playerToMove = (Player)gameObject;
 
                 float posX, posY, dirX, dirY;
 
-                posX = BitConverter.ToSingle(packetData, 10);
-                posY = BitConverter.ToSingle(packetData, 14);
-                dirX = BitConverter.ToSingle(packetData, 18);
-                dirY = BitConverter.ToSingle(packetData, 22);
+                posX = BitConverter.ToSingle(packetData, 9);
+                posY = BitConverter.ToSingle(packetData, 13);
+                dirX = BitConverter.ToSingle(packetData, 17);
+                dirY = BitConverter.ToSingle(packetData, 21);
 
                 playerToMove.SetPosition(posX,posY);
                 playerToMove.SetLookingRotation(dirX,dirY);

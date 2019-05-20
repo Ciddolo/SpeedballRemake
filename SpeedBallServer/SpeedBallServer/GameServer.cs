@@ -266,7 +266,7 @@ namespace SpeedBallServer
             }
 
             GameClient client = clientsTable[sender];
-            uint packetId = BitConverter.ToUInt32(data, 6);
+            uint packetId = BitConverter.ToUInt32(data, 5);
 
             client.Pong(packetId);
         }
@@ -311,7 +311,7 @@ namespace SpeedBallServer
 
             GameClient client = clientsTable[sender];
 
-            uint netId = BitConverter.ToUInt32(data, 6);
+            uint netId = BitConverter.ToUInt32(data, 5);
             if (gameObjectsTable.ContainsKey(netId))
             {
                 //Console.WriteLine("object found");
@@ -331,7 +331,7 @@ namespace SpeedBallServer
             }
 
             GameClient client = clientsTable[sender];
-            uint packetId = BitConverter.ToUInt32(data, 6);
+            uint packetId = BitConverter.ToUInt32(data, 5);
 
             client.Ack(packetId);
         }

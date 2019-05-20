@@ -37,7 +37,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             //initializing join packet
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             //sending packet
@@ -54,7 +54,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
 
             packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
@@ -63,10 +63,11 @@ namespace SpeedBallServer.Test.ServerTests
 
             //get controlled object id of the first client
             byte[] welcomeData = transport.ClientDequeue().data;
-            uint playerObjectId = BitConverter.ToUInt32(welcomeData, 10);
+            uint playerObjectId = BitConverter.ToUInt32(welcomeData, 9);
 
+            Console.WriteLine(playerObjectId);
             //initializing update packet
-            packet.data = new Packet((byte)PacketsCommands.Update, false, playerObjectId, 10f, 10f, 5f, 5f).GetData();
+            packet.data = new Packet(PacketsCommands.Update, false, playerObjectId, 10f, 10f, 5f, 5f).GetData();
             packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 

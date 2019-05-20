@@ -23,7 +23,7 @@ namespace SpeedBallServer.Test.ServerTests
             secondClient = new FakeEndPoint("192.168.1.2", 5002);
 
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
@@ -52,7 +52,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             byte[] welcomePacketData = transport.ClientDequeue().data;
 
-            uint clientId = BitConverter.ToUInt32(welcomePacketData, 6);
+            uint clientId = BitConverter.ToUInt32(welcomePacketData, 5);
 
             Assert.That(clientId, Is.EqualTo(0));
         }
@@ -61,7 +61,7 @@ namespace SpeedBallServer.Test.ServerTests
         public void SecondClientIdFromWelcome()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = secondClient;
 
             transport.ClientEnqueue(packet);
@@ -83,7 +83,7 @@ namespace SpeedBallServer.Test.ServerTests
             //can finally dequeue the welcome packet for the second client
             byte[] welcomePacket = transport.ClientDequeue().data;
 
-            uint clientId = BitConverter.ToUInt32(welcomePacket, 6);
+            uint clientId = BitConverter.ToUInt32(welcomePacket, 5);
 
             Assert.That(clientId, Is.EqualTo(1));
         }
@@ -96,7 +96,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             byte[] output = transport.ClientDequeue().data;
 
-            uint playerId = BitConverter.ToUInt32(output, 10);
+            uint playerId = BitConverter.ToUInt32(output, 9);
 
             Assert.That(server.CheckGameObjectOwner(playerId, firstClient), Is.EqualTo(true));
         }

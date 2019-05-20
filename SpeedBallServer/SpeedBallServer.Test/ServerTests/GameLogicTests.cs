@@ -28,7 +28,7 @@ namespace SpeedBallServer.Test.ServerTests
             thirdClient = new FakeEndPoint("192.168.1.3", 5003);
 
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
@@ -42,7 +42,7 @@ namespace SpeedBallServer.Test.ServerTests
         public void GameStateAfterMultipleJoin()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
 
             packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
@@ -71,7 +71,7 @@ namespace SpeedBallServer.Test.ServerTests
         public void GameStateAfterMultipleJoinAndOneDisconnection()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
 
             packet.endPoint = secondClient;
 

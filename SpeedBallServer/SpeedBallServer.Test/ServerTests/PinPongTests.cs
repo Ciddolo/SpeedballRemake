@@ -26,7 +26,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             //initializing join packet
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             //sending packet
@@ -34,7 +34,6 @@ namespace SpeedBallServer.Test.ServerTests
 
             //server reads join
             server.SingleStep();
-
         }
 
         [Test]
@@ -60,7 +59,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             FakeData pongPacket=new FakeData();
             pongPacket.endPoint = firstClient;
-            pongPacket.data = (new Packet((byte)PacketsCommands.Pong,false,pingPacketId)).GetData();
+            pongPacket.data = (new Packet(PacketsCommands.Pong,false,pingPacketId)).GetData();
 
             clock.IncreaseTimeStamp(.5f);
             transport.ClientEnqueue(pongPacket);
@@ -79,7 +78,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             FakeData pongPacket = new FakeData();
             pongPacket.endPoint = firstClient;
-            pongPacket.data = (new Packet((byte)PacketsCommands.Pong, false, pingPacketId)).GetData();
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
 
             transport.ClientEnqueue(pongPacket);
             clock.IncreaseTimeStamp(.5f);
@@ -105,7 +104,6 @@ namespace SpeedBallServer.Test.ServerTests
             pingPacket = (transport.ClientDequeue()).data;
 
             Assert.That(pingPacket[0], Is.EqualTo((byte)PacketsCommands.Ping));
-
         }
 
         [Test]
@@ -113,7 +111,7 @@ namespace SpeedBallServer.Test.ServerTests
         {
             FakeData pingPacket = new FakeData();
             pingPacket.endPoint = firstClient;
-            pingPacket.data = (new Packet((byte)PacketsCommands.Ping)).GetData();
+            pingPacket.data = (new Packet(PacketsCommands.Ping)).GetData();
 
             transport.ClientEnqueue(pingPacket);
 
@@ -132,7 +130,7 @@ namespace SpeedBallServer.Test.ServerTests
         {
             FakeData pingPacket = new FakeData();
             pingPacket.endPoint = firstClient;
-            pingPacket.data = (new Packet((byte)PacketsCommands.Ping)).GetData();
+            pingPacket.data = (new Packet(PacketsCommands.Ping)).GetData();
             uint pingPacketId = BitConverter.ToUInt32(pingPacket.data, 1);
 
             transport.ClientEnqueue(pingPacket);
@@ -155,7 +153,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             //initializing join packet
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = secondClient;
 
             //sending packet

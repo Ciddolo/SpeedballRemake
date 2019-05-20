@@ -26,7 +26,7 @@ namespace SpeedBallServer.Test.ServerTests
             firstClient = new FakeEndPoint("192.168.1.1", 5001);
 
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
@@ -76,7 +76,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             FakeData packet = new FakeData();
             packet.endPoint = firstClient;
-            packet.data = new Packet((byte)PacketsCommands.Ack, false, packetId).GetData();
+            packet.data = new Packet(PacketsCommands.Ack, false, packetId).GetData();
 
             transport.ClientEnqueue(packet);
 
@@ -95,7 +95,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             FakeData packet = new FakeData();
             packet.endPoint = firstClient;
-            packet.data = new Packet((byte)PacketsCommands.Ack, false, 0).GetData();
+            packet.data = new Packet(PacketsCommands.Ack, false, 0).GetData();
 
             transport.ClientEnqueue(packet);
 

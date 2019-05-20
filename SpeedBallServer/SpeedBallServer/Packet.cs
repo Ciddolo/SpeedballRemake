@@ -59,16 +59,18 @@ namespace SpeedBallServer
             SendAfter = 0;
         }
 
+        public Packet(PacketsCommands command, bool needAck = false, params object[] elements) : this((byte)command,needAck,elements)
+        {
+
+        }
+
         public Packet(byte command,bool needAck=false, params object[] elements) : this(needAck)
         {
-            // first element is always the command
+            // first element is always the command (1 byte)
             writer.Write(command);
 
-            //second element is the packet id
+            //second element is always the packet id (4 bytes)
             writer.Write(this.id);
-
-            //third element is needAck
-            writer.Write(needAck);
 
             foreach (object element in elements)
             {

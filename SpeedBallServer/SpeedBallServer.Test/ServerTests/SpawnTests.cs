@@ -21,7 +21,7 @@ namespace SpeedBallServer.Test.ServerTests
             firstClient = new FakeEndPoint("192.168.1.1", 5001);
 
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
@@ -53,7 +53,7 @@ namespace SpeedBallServer.Test.ServerTests
             //spawn second player (first client)
             byte[] spawnPacket = transport.ClientDequeue().data;
 
-            uint playerId = BitConverter.ToUInt32(spawnPacket, 10);
+            uint playerId = BitConverter.ToUInt32(spawnPacket, 9);
 
             Assert.That(server.CheckGameObjectOwner(playerId, firstClient), Is.EqualTo(true));
         }
@@ -75,7 +75,7 @@ namespace SpeedBallServer.Test.ServerTests
             //spawn first player of the second team (default)
             byte[] spawnPacket = transport.ClientDequeue().data;
 
-            uint playerId = BitConverter.ToUInt32(spawnPacket, 10);
+            uint playerId = BitConverter.ToUInt32(spawnPacket, 9);
 
             Assert.That(server.CheckGameObjectOwner(playerId, firstClient), Is.EqualTo(false));
         }
@@ -88,7 +88,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             //welcome packet
             byte[] output = transport.ClientDequeue().data;
-            uint clientId = BitConverter.ToUInt32(output, 6);
+            uint clientId = BitConverter.ToUInt32(output, 5);
             //spawn obstacle packet
             output = transport.ClientDequeue().data;
             //spawn player (default)
@@ -96,7 +96,7 @@ namespace SpeedBallServer.Test.ServerTests
             //spawn second player
             output = transport.ClientDequeue().data;
 
-            uint playerClientId = BitConverter.ToUInt32(output, 30);
+            uint playerClientId = BitConverter.ToUInt32(output, 29);
 
             Assert.That(clientId, Is.EqualTo(playerClientId));
         }
@@ -108,7 +108,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             //welcome packet
             byte[] output = transport.ClientDequeue().data;
-            uint clientId = BitConverter.ToUInt32(output, 6);
+            uint clientId = BitConverter.ToUInt32(output, 5);
             //spawn obstacle packet
             output = transport.ClientDequeue().data;
             //spawn player (default)
@@ -118,7 +118,7 @@ namespace SpeedBallServer.Test.ServerTests
             //spawn first player of the second team (default)
             output = transport.ClientDequeue().data;
 
-            uint playerClientId = BitConverter.ToUInt32(output, 30);
+            uint playerClientId = BitConverter.ToUInt32(output, 29);
 
             Assert.That(clientId, Is.Not.EqualTo(playerClientId));
         }

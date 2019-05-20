@@ -26,7 +26,7 @@ namespace SpeedBallServer.Test.ServerTests
         public void ClientDisconnection()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
@@ -44,7 +44,7 @@ namespace SpeedBallServer.Test.ServerTests
         public void JoinAfterDisconnection()
         {
             FakeData packet = new FakeData();
-            packet.data = new Packet((byte)PacketsCommands.Join).GetData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
