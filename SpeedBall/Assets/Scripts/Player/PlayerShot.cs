@@ -46,4 +46,12 @@ public class PlayerShot : MonoBehaviour
         InputKey = false;
         InputKeyUp = false;
     }
+
+    public void GKShot(Vector2 direction)
+    {
+        AimDirection = direction;
+        currentForce = MAX_SHOOT_FORCE;
+        gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().SetMaxSize();
+        Shot();
+    }
 }

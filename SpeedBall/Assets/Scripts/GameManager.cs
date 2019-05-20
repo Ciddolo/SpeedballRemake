@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 
     public static uint RedScore { get; set; }
     public static uint BlueScore { get; set; }
+    public static GameObject Ball { get; private set; }
 
     private static CameraManager cameraManager;
     private static TeamManager redTeamManager;
@@ -19,9 +20,9 @@ public class GameManager : MonoBehaviour
         cameraManager = Camera.main.GetComponent<CameraManager>();
         redTeamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         blueTeamManager = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
-        GameObject ball = Instantiate(BallPrefab);
-        ball.transform.localPosition = Vector2.zero;
-        cameraManager.Ball = ball;
+        Ball = Instantiate(BallPrefab);
+        Ball.transform.localPosition = Vector2.zero;
+        cameraManager.Ball = Ball;
         clients = new GameObject[CLIENTS_NUMBER];
         for (int i = 0; i < CLIENTS_NUMBER; i++)
         {

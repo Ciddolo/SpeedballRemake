@@ -96,4 +96,9 @@ public class BallBehaviour : MonoBehaviour
         ballMove.Force = 0.0f;
         transform.localPosition = Vector3.zero;
     }
+
+    public void SetMaxSize()
+    {
+        transform.localScale = maxSize;
+    }
 }

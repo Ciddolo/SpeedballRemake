@@ -66,7 +66,8 @@ public class ClientManager : MonoBehaviour
     {
         //MOVE
         Vector2 direction = new Vector2(Input.GetAxis(horizontalAxisName), Input.GetAxis(verticalAxisName)).normalized;
-        Team.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
+        if (Team.CurrentPlayer.GetComponent<PlayerMove>() != null)
+            Team.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
         //SHOT
         if (Team.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
         {
