@@ -10,7 +10,6 @@ namespace SpeedBallServer
     public class GameClient
     {
         public uint Malus;
-        public float LastPacketTimestamp;
 
         private Queue<Packet> sendQueue;
         private GameServer server;
@@ -59,7 +58,7 @@ namespace SpeedBallServer
             }
             else
             {
-                Console.WriteLine("sending ping");
+                //Console.WriteLine("sending ping");
                 Ping();
             }
         }

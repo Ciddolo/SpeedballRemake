@@ -176,9 +176,7 @@ namespace SpeedBallServer
 
             foreach (GameClient client in clientsTable.Values)
             {
-                float timeSinceLastPacket = currentNow - client.LastPacketTimestamp;
-
-                if (timeSinceLastPacket > MaxTimeOfInactivity)
+                if (client.Malus > 5000)
                 {
                     //Console.WriteLine("kicking");
                     deadClients.Add(client.EndPoint);
@@ -204,22 +202,16 @@ namespace SpeedBallServer
             EndPoint sender = transport.CreateEndPoint();
             byte[] dataReceived = transport.Recv(256, ref sender);
 
-            //if the packet received is from my endpoint ignore it
-            if (transport.BindedEndPoint.Equals(sender))
-            {
-                return;
-            }
-
             if (dataReceived != null)
             {
-                byte gameCommand = dataReceived[0];
-
-                if (commandsTable.ContainsKey(gameCommand))
+                //if the packet received is from my endpoint ignore it
+                if (!transport.BindedEndPoint.Equals(sender))
                 {
-                    commandsTable[gameCommand](dataReceived, sender);
-                    if (CheckIfClientJoined(sender))
+                    byte gameCommand = dataReceived[0];
+
+                    if (commandsTable.ContainsKey(gameCommand))
                     {
-                        clientsTable[sender].LastPacketTimestamp = currentNow;
+                        commandsTable[gameCommand](dataReceived, sender);
                     }
                 }
             }

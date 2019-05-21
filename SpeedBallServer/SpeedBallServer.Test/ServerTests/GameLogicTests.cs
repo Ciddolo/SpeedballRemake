@@ -75,12 +75,37 @@ namespace SpeedBallServer.Test.ServerTests
 
             packet.endPoint = secondClient;
 
+            //second client join
             transport.ClientEnqueue(packet);
+            server.SingleStep();
 
+            //every increaseTimestamp and single step increase the malus for clients not responding
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
-            clock.IncreaseTimeStamp(10f);
+
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
-            clock.IncreaseTimeStamp(30f);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] pingPacket = (transport.ClientDequeue()).data;
+
+            uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            FakeData pongPacket = new FakeData();
+            pongPacket.endPoint = firstClient;
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
+
+            transport.ClientEnqueue(pongPacket);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
             Assert.That(server.CurrentGameState, Is.EqualTo(GameState.Ended));

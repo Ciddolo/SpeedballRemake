@@ -20,21 +20,27 @@ namespace SpeedBallServer.Test.ServerTests
             firstClient = new FakeEndPoint("192.168.1.1", 5001);
             secondClient = new FakeEndPoint("192.168.1.2", 5002);
             thirdClient = new FakeEndPoint("192.168.1.3", 5003);
-        }
 
-        [Test]
-        public void ClientDisconnection()
-        {
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
             transport.ClientEnqueue(packet);
-
             server.SingleStep();
+        }
 
+        [Test]
+        public void ClientDisconnection()
+        {
             clock.IncreaseTimeStamp(50f);
 
+            server.SingleStep();
+            server.SingleStep();
+            server.SingleStep();
+            server.SingleStep();
+            server.SingleStep();
+            server.SingleStep();
+            clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
             Assert.That(server.ClientsAmount, Is.EqualTo(0));
@@ -45,13 +51,9 @@ namespace SpeedBallServer.Test.ServerTests
         {
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
-            packet.endPoint = firstClient;
-
-            transport.ClientEnqueue(packet);
-            server.SingleStep();
+            packet.endPoint = secondClient;
 
             clock.IncreaseTimeStamp(20f);
-            packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
             server.SingleStep();
 
