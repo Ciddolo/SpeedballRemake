@@ -45,6 +45,112 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
+        public void ReceiveSamePingPacketAfterTimeout()
+        {
+            clock.IncreaseTimeStamp(.5f);
+            server.SingleStep();
+
+            byte[] pingPacket = (transport.ClientDequeue()).data;
+            uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeueing welcome
+            transport.ClientDequeue();
+
+            //dequeueing obstacle spawn packet
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn
+            transport.ClientDequeue();
+
+            //dequeueing second player spawn
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn of the second team
+            transport.ClientDequeue();
+
+            byte[] secondPingPacket = (transport.ClientDequeue()).data;
+            uint secondPingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            Assert.That(secondPingPacketId, Is.EqualTo(pingPacketId));
+        }
+
+        [Test]
+        public void ReceiveAPingPacketAfterTimeout()
+        {
+            clock.IncreaseTimeStamp(.5f);
+            server.SingleStep();
+
+            //dequeue first ping packet
+            transport.ClientDequeue();
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeueing welcome
+            transport.ClientDequeue();
+
+            //dequeueing obstacle spawn packet
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn
+            transport.ClientDequeue();
+
+            //dequeueing second player spawn
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn of the second team
+            transport.ClientDequeue();
+
+            byte[] secondPingPacket = (transport.ClientDequeue()).data;
+
+            Assert.That(secondPingPacket[0], Is.EqualTo((byte)PacketsCommands.Ping));
+        }
+
+        [Test]
+        public void RespondPingPacketAfterTimeout()
+        {
+            clock.IncreaseTimeStamp(.5f);
+            server.SingleStep();
+
+            byte[] pingPacket = (transport.ClientDequeue()).data;
+            uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeueing welcome
+            transport.ClientDequeue();
+
+            //dequeueing obstacle spawn packet
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn
+            transport.ClientDequeue();
+
+            //dequeueing second player spawn
+            transport.ClientDequeue();
+
+            //dequeueing first player spawn of the second team
+            transport.ClientDequeue();
+
+            byte[] secondPingPacket = (transport.ClientDequeue()).data;
+            uint secondPingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            FakeData pongPacket = new FakeData();
+            pongPacket.endPoint = firstClient;
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
+
+            transport.ClientEnqueue(pongPacket);
+            clock.IncreaseTimeStamp(.5f);
+            server.SingleStep();
+
+            Assert.That(server.GetClientPing(firstClient), Is.EqualTo(.5f));
+        }
+
+        [Test]
         public void DefaultClientPing()
         {
             Assert.That(server.GetClientPing(firstClient),Is.EqualTo(-1f));

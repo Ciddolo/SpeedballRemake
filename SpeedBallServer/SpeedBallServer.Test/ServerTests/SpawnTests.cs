@@ -64,6 +64,9 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            //dequeue ping packet
+            transport.ClientDequeue();
+
             //welcome packet
             transport.ClientDequeue();
             //spawn obstacle packet
@@ -85,6 +88,9 @@ namespace SpeedBallServer.Test.ServerTests
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             //welcome packet
             byte[] output = transport.ClientDequeue().data;

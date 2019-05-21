@@ -109,7 +109,7 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
-            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(5));
+            Assert.That(transport.GetSendQueueCount(), Is.EqualTo(6));
         }
     }
 }

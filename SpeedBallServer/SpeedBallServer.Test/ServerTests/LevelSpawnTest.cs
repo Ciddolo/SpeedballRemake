@@ -47,6 +47,9 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
             clock.IncreaseTimeStamp(1f);
 
+            //dequeue ping packet
+            transport.ClientDequeue();
+
             //server responds after 1 second (default tick frequency)
             server.SingleStep();
 

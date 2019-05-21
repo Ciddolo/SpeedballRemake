@@ -38,6 +38,8 @@ namespace SpeedBallServer.Test.ServerTests
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             byte[] welcomePacketData = transport.ClientDequeue().data;
 
@@ -49,6 +51,8 @@ namespace SpeedBallServer.Test.ServerTests
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             byte[] welcomePacketData = transport.ClientDequeue().data;
 
@@ -73,6 +77,12 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            //dequeue ping packet
+            transport.ClientDequeue();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
+
             //dequeue of the packets for the first client (1 welcome 4 spawn)
             transport.ClientDequeue();
             transport.ClientDequeue();
@@ -93,6 +103,9 @@ namespace SpeedBallServer.Test.ServerTests
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             byte[] output = transport.ClientDequeue().data;
 

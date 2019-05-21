@@ -18,6 +18,7 @@ namespace SpeedBallServer
         private Dictionary<uint, Packet> ackTable;
 
         private Timer pingTimer;
+        private Packet pingPacketSended;
         private bool waitingForPong;
         private uint pingPacketId;
         private float sendedPingTimestamp;
@@ -55,6 +56,8 @@ namespace SpeedBallServer
             if(waitingForPong)
             {
                 Malus += 1000;
+                sendedPingTimestamp = server.Now;
+                server.Send(pingPacketSended, this.endPoint);
             }
             else
             {
@@ -154,11 +157,12 @@ namespace SpeedBallServer
             this.pingPacketId = pingPacket.Id;
             sendedPingTimestamp = server.Now;
             server.Send(pingPacket, this.endPoint);
+            pingPacketSended = pingPacket;
         }
 
         public void Pong(uint packetId)
         {
-            Console.WriteLine("received pong "+packetId+" "+pingPacketId);
+            //Console.WriteLine("received pong "+packetId+" "+pingPacketId);
             if (pingPacketId==packetId)
             {
                 PingValue = server.Now - sendedPingTimestamp;
