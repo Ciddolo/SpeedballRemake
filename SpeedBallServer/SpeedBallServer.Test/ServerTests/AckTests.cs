@@ -100,6 +100,27 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
+        public void CheckSuccessfullAckAfterSingleStep()
+        {
+
+            byte[] welcomePacket = transport.ClientDequeue().data;
+
+            uint packetId = BitConverter.ToUInt32(welcomePacket, 1);
+
+            FakeData packet = new FakeData();
+            packet.endPoint = firstClient;
+            packet.data = new Packet(PacketsCommands.Ack, false, packetId).GetData();
+
+            transport.ClientEnqueue(packet);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.AcksIdsNeededFrom(firstClient).Contains(packetId), Is.EqualTo(false));
+        }
+
+        [Test]
         public void UnsuccessfullAck()
         {
 

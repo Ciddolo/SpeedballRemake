@@ -102,15 +102,6 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void SecondClientMovingControlledPlayer()
         {
-            FakeData packet = new FakeData();
-            packet.data = new Packet(PacketsCommands.Join).GetData();
-            packet.endPoint = secondClient;
-            transport.ClientEnqueue(packet);
-
-            //increasing time to make server responds to the secon player
-            clock.IncreaseTimeStamp(1f);
-            server.SingleStep();
-
             //first client welcome
             transport.ClientDequeue();
 
@@ -126,20 +117,37 @@ namespace SpeedBallServer.Test.ServerTests
             //dequeueing first player spawn of the second team
             transport.ClientDequeue();
 
-            //dequeue ping packet second client
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            //increasing time to make server responds to the secon player
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeue ping second client from join 
             transport.ClientDequeue();
 
-            //dequeing packet for first client
+            //dequeue ping packet first client
+            transport.ClientDequeue();
+
             //welcome
             transport.ClientDequeue();
+
             //obstacle spawn
             transport.ClientDequeue();
+
             //spawn playerOne  of the first team
             transport.ClientDequeue();
+
             //spawn playerTwo of the first team
             transport.ClientDequeue();
 
             //spawn playerTwo of the second team
+            transport.ClientDequeue();
+
+            //dequeue ping packet for second client
             transport.ClientDequeue();
 
             //welcome for secondClient
@@ -150,6 +158,7 @@ namespace SpeedBallServer.Test.ServerTests
             packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
+            Console.WriteLine("trying to move object "+playerObjectId+"packet "+welcomeData[0] );
             //reading update packet
             server.SingleStep();
 

@@ -70,6 +70,33 @@ namespace SpeedBallServer
         {
             pingTimer.Update(deltaTime);
 
+            // check ack table
+            List<uint> deadPackets = new List<uint>();
+            foreach (uint id in ackTable.Keys)
+            {
+                Packet packet = ackTable[id];
+                if (packet.IsExpired(server.Now))
+                {
+                    if (packet.Attempts < server.MaxAttemptsForPacket)
+                    {
+                        sendQueue.Enqueue(packet);
+                    }
+                    else
+                    {
+                        deadPackets.Add(id);
+                    }
+                }
+            }
+
+            foreach (uint id in deadPackets)
+            {
+                ackTable.Remove(id);
+                //Console.WriteLine("client not responding ack for packet " + id);
+            }
+
+            //Console.WriteLine(PingValue);
+            //Console.WriteLine(Malus);
+
             int packetsInQueue = sendQueue.Count;
             for (int i = 0; i < packetsInQueue; i++)
             {
@@ -102,29 +129,6 @@ namespace SpeedBallServer
                     sendQueue.Enqueue(packet);
                 }
             }
-
-            // check ack table
-            List<uint> deadPackets = new List<uint>();
-            foreach (uint id in ackTable.Keys)
-            {
-                Packet packet = ackTable[id];
-                if (packet.IsExpired(server.Now))
-                {
-                    if (packet.Attempts < server.MaxAttemptsForPacket)
-                    {
-                        sendQueue.Enqueue(packet);
-                    }
-                    else
-                    {
-                        deadPackets.Add(id);
-                    }
-                }
-            }
-
-            foreach (uint id in deadPackets)
-            {
-                ackTable.Remove(id);
-            }
         }
 
         public void Enqueue(Packet packet)
@@ -136,6 +140,7 @@ namespace SpeedBallServer
         {
             if (ackTable.ContainsKey(packetId))
             {
+                //Console.WriteLine("received ack of packet "+ packetId);
                 ackTable.Remove(packetId);
             }
             else
