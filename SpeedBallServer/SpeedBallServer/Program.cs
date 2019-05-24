@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,9 @@ namespace SpeedBallServer
 
             MonotonicClock monotonicClock = new MonotonicClock();
 
-            GameServer server = new GameServer(transport, monotonicClock);
+            string serializedLevel = File.ReadAllText("Level.json");
+
+            GameServer server = new GameServer(transport, monotonicClock,1,serializedLevel);
 
             server.Run();
         }

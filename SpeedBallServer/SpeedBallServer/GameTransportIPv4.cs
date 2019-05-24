@@ -49,6 +49,9 @@ namespace SpeedBallServer
 
         public byte[] Recv(int bufferSize, ref EndPoint sender)
         {
+            if (!(socket.Poll(1000, SelectMode.SelectRead)))
+                return null;
+
             int rlen = -1;
             byte[] data = new byte[bufferSize];
             try
