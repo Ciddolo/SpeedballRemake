@@ -10,21 +10,28 @@ public class TeamManager : MonoBehaviour
 
     public bool IsInBallPossession { get; set; }
     public GameObject CurrentPlayer { get; set; }
+    public GameObject ClientOwner { get; set; }
+    public bool IsSpawned { get; private set; }
 
     private GameObject[] players;
     private int index;
     private CameraManager cameraManager;
 
-    void Awake()
+    void Update()
     {
+        if (ClientOwner != null && !IsSpawned)
+            Spawn();
+    }
+
+    private void Spawn()
+    {
+        cameraManager = Camera.main.GetComponent<CameraManager>();
+        players = new GameObject[NUMBER_OF_PLAYERS];
         string color = "DEFAULT_";
         if (TeamColor.r == 1)
             color = "RED_";
         else if (TeamColor.b == 1)
             color = "BLUE_";
-
-        cameraManager = Camera.main.GetComponent<CameraManager>();
-        players = new GameObject[NUMBER_OF_PLAYERS];
         for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
             GameObject player = Instantiate(PlayerPrefab, transform);
@@ -47,6 +54,7 @@ public class TeamManager : MonoBehaviour
         CurrentPlayer = players[3];
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
+        IsSpawned = true;
     }
 
     public GameObject SelectPlayer(int index)
@@ -106,7 +114,9 @@ public class TeamManager : MonoBehaviour
 
     public void ResetPositions()
     {
-        for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
+        if (players == null)
+            return;
+        for (int i = 0; i < players.Length; i++)
         {
             transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
         }

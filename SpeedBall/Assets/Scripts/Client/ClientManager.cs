@@ -20,8 +20,6 @@ public class ClientManager : MonoBehaviour
 {
     private const int MAX_PACKETS = 100;
 
-    public TeamManager Team;
-
     [SerializeField]
     private string address;
     [SerializeField]
@@ -29,8 +27,13 @@ public class ClientManager : MonoBehaviour
     private Socket socket;
     private IPEndPoint endPoint;
 
-    private uint netId;
+    private uint teamNetId;
+    private uint currentPlayerId;
 
+    [SerializeField]
+    private TeamManager teamManager;
+    [SerializeField]
+    private bool isInitialized;
     private string horizontalAxisName;
     private string verticalAxisName;
     private string horizontalAimAxisName;
@@ -43,7 +46,16 @@ public class ClientManager : MonoBehaviour
 
     void Awake()
     {
-        return;
+        isInitialized = false;
+
+        //Test
+        teamNetId = 0;
+        Init();
+        //End test
+
+        if (!(address == null) || !(port == 0))
+            return;
+
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Blocking = false;
         endPoint = new IPEndPoint(IPAddress.Parse(address), port);
@@ -67,19 +79,38 @@ public class ClientManager : MonoBehaviour
 
     void Update()
     {
+        //Receiver();
+
+        if (!isInitialized || !teamManager.IsSpawned)
+            return;
+
         TeamInput();
         PlayerInput();
         CameraInput();
     }
 
+    private void Init()
+    {
+        if (isInitialized)
+            return;
+
+        if (teamNetId == 0)
+            teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+        else if (teamNetId == 1)
+            teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+        //else exceptions
+        teamManager.ClientOwner = gameObject;
+        isInitialized = true;
+    }
+
     private void TeamInput()
     {
-        if (!Team.IsInBallPossession)
+        if (!teamManager.IsInBallPossession)
         {
             if (Input.GetKeyDown(selectPreviousPlayer))
-                Team.SelectPreviousPlayer();
+                teamManager.SelectPreviousPlayer();
             if (Input.GetKeyDown(selectNextPlayer))
-                Team.SelectNextPlayer();
+                teamManager.SelectNextPlayer();
         }
     }
 
@@ -87,21 +118,21 @@ public class ClientManager : MonoBehaviour
     {
         //MOVE
         Vector2 direction = new Vector2(Input.GetAxis(horizontalAxisName), Input.GetAxis(verticalAxisName)).normalized;
-        if (Team.CurrentPlayer.GetComponent<PlayerMove>() != null)
-            Team.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
+        if (teamManager.CurrentPlayer.GetComponent<PlayerMove>() != null)
+            teamManager.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
         //SHOT
-        if (Team.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
+        if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            Team.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
-            Team.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
-            Team.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
         }
         else //TACKLE
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            Team.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
-            Team.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
+            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
+            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
         }
     }
 
@@ -129,11 +160,13 @@ public class ClientManager : MonoBehaviour
             if (rlen > 0)
             {
                 byte command = data[0];
-
                 if (command == (byte)PacketsCommands.Welcome)
                 {
-                    uint prefabType = BitConverter.ToUInt32(data, 1);
-                    netId = BitConverter.ToUInt32(data, 5);
+                    if (isInitialized)
+                        return;
+                    teamNetId = BitConverter.ToUInt32(data, 5);
+                    currentPlayerId = BitConverter.ToUInt32(data, 9);
+                    Init();
                 }
             }
         }
