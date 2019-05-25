@@ -4,58 +4,54 @@ public class TeamManager : MonoBehaviour
 {
     private const int NUMBER_OF_PLAYERS = 5;
 
-    public GameObject PlayerPrefab;
-    public GameObject TeamPositions;
-    public Color TeamColor;
-
     public bool IsInBallPossession { get; set; }
     public GameObject CurrentPlayer { get; set; }
     public GameObject ClientOwner { get; set; }
     public bool IsSpawned { get; private set; }
 
+    [SerializeField]
     private GameObject[] players;
     private int index;
     private CameraManager cameraManager;
 
-    void Update()
+    void Awake()
     {
-        if (ClientOwner != null && !IsSpawned)
-            Spawn();
+        players = new GameObject[NUMBER_OF_PLAYERS];
     }
 
-    private void Spawn()
-    {
-        cameraManager = Camera.main.GetComponent<CameraManager>();
-        players = new GameObject[NUMBER_OF_PLAYERS];
-        string color = "DEFAULT_";
-        if (TeamColor.r == 1)
-            color = "RED_";
-        else if (TeamColor.b == 1)
-            color = "BLUE_";
-        for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
-        {
-            GameObject player = Instantiate(PlayerPrefab, transform);
-            player.gameObject.GetComponent<PlayerManager>().Team = this;
-            player.gameObject.GetComponent<SpriteRenderer>().color = TeamColor;
-            player.transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
-            player.GetComponent<PlayerManager>().Index = i;
-            if (i == 0)
-            {
-                player.name = color + "GK";
-                player.AddComponent<GoalkeeperAI>();
-            }
-            else
-            {
-                player.name = color + "PLAYER_" + i;
-                player.AddComponent<PlayerMove>();
-            }
-            AddPlayer(player);
-        }
-        CurrentPlayer = players[3];
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-        cameraManager.CurrentPlayer = CurrentPlayer;
-        IsSpawned = true;
-    }
+    //private void Spawn()
+    //{
+    //    cameraManager = Camera.main.GetComponent<CameraManager>();
+    //    players = new GameObject[NUMBER_OF_PLAYERS];
+    //    string color = "DEFAULT_";
+    //    if (TeamColor.r == 1)
+    //        color = "RED_";
+    //    else if (TeamColor.b == 1)
+    //        color = "BLUE_";
+    //    for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
+    //    {
+    //        GameObject player;
+    //        if (i == 0)
+    //        {
+    //            player = Instantiate(GoalkeeperPrefab, transform);
+    //            player.name = color + "GK";
+    //        }
+    //        else
+    //        {
+    //            player = Instantiate(PlayerPrefab, transform);
+    //            player.name = color + "PLAYER_" + i;
+    //        }
+    //        player.gameObject.GetComponent<PlayerManager>().Team = this;
+    //        player.gameObject.GetComponent<SpriteRenderer>().color = TeamColor;
+    //        player.transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
+    //        player.GetComponent<PlayerManager>().Index = i;
+    //        AddPlayer(player);
+    //    }
+    //    CurrentPlayer = players[3];
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+    //    cameraManager.CurrentPlayer = CurrentPlayer;
+    //    IsSpawned = true;
+    //}
 
     public GameObject SelectPlayer(int index)
     {
@@ -65,6 +61,23 @@ public class TeamManager : MonoBehaviour
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
         return CurrentPlayer;
+    }
+
+    public GameObject SelectPlayer(uint netId)
+    {
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<PlayerManager>().NetId == netId)
+            {
+                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                CurrentPlayer = players[i];
+                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+                index = CurrentPlayer.GetComponent<PlayerManager>().Index;
+                cameraManager.CurrentPlayer = CurrentPlayer;
+                return CurrentPlayer;
+            }
+        }
+        return null;
     }
 
     public GameObject SelectPlayer(GameObject player)
@@ -114,11 +127,11 @@ public class TeamManager : MonoBehaviour
 
     public void ResetPositions()
     {
-        if (players == null)
-            return;
-        for (int i = 0; i < players.Length; i++)
-        {
-            transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
-        }
+        //if (players == null)
+        //    return;
+        //for (int i = 0; i < players.Length; i++)
+        //{
+        //    transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
+        //}
     }
 }

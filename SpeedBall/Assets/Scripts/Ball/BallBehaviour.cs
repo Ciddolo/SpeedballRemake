@@ -42,7 +42,7 @@ public class BallBehaviour : MonoBehaviour
         {
             if (other.gameObject.name == "BlueGoal")
                 GameManager.TeamScore(1);
-            else
+            else if (other.gameObject.name == "RedGoal")
                 GameManager.TeamScore(2);
 
             if (Owner != null)
@@ -54,9 +54,9 @@ public class BallBehaviour : MonoBehaviour
         if (Owner != null)
             return;
 
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.tag == "Player" || other.gameObject.tag == "Goalkeeper")
         {
-            if ((other.gameObject.name == "RED_GK" || other.gameObject.name == "BLUE_GK") || isCatchable)
+            if (other.gameObject.tag == "Goalkeeper" || isCatchable)
                 AttachBall(other.gameObject);
         }
         else if (other.gameObject.tag == "Wall")
