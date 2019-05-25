@@ -4,6 +4,7 @@ public class TeamManager : MonoBehaviour
 {
     private const int NUMBER_OF_PLAYERS = 5;
 
+    public GameObject GoalkeeperPrefab;
     public GameObject PlayerPrefab;
     public GameObject TeamPositions;
     public Color TeamColor;
@@ -34,21 +35,21 @@ public class TeamManager : MonoBehaviour
             color = "BLUE_";
         for (int i = 0; i < NUMBER_OF_PLAYERS; i++)
         {
-            GameObject player = Instantiate(PlayerPrefab, transform);
+            GameObject player;
+            if (i == 0)
+            {
+                player = Instantiate(GoalkeeperPrefab, transform);
+                player.name = color + "GK";
+            }
+            else
+            {
+                player = Instantiate(PlayerPrefab, transform);
+                player.name = color + "PLAYER_" + i;
+            }
             player.gameObject.GetComponent<PlayerManager>().Team = this;
             player.gameObject.GetComponent<SpriteRenderer>().color = TeamColor;
             player.transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
             player.GetComponent<PlayerManager>().Index = i;
-            if (i == 0)
-            {
-                player.name = color + "GK";
-                player.AddComponent<GoalkeeperAI>();
-            }
-            else
-            {
-                player.name = color + "PLAYER_" + i;
-                player.AddComponent<PlayerMove>();
-            }
             AddPlayer(player);
         }
         CurrentPlayer = players[3];
@@ -65,6 +66,23 @@ public class TeamManager : MonoBehaviour
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
         return CurrentPlayer;
+    }
+
+    public GameObject SelectPlayer(uint netId)
+    {
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].GetComponent<PlayerManager>().NetId == netId)
+            {
+                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                CurrentPlayer = players[i];
+                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+                index = CurrentPlayer.GetComponent<PlayerManager>().Index;
+                cameraManager.CurrentPlayer = CurrentPlayer;
+                return CurrentPlayer;
+            }
+        }
+        return null;
     }
 
     public GameObject SelectPlayer(GameObject player)

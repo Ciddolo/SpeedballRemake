@@ -1220,6 +1220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ce713dd06067b45a4610fa8350ea72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GoalkeeperPrefab: {fileID: 1087982941507854389, guid: 925920ce00ed82c4d9398285f193ebc5,
+    type: 3}
   PlayerPrefab: {fileID: 7861538706192391953, guid: af9fb9684445b0b46a1a59ab884adce9,
     type: 3}
   TeamPositions: {fileID: 319080147}
@@ -1267,6 +1269,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ce713dd06067b45a4610fa8350ea72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GoalkeeperPrefab: {fileID: 1087982941507854389, guid: 925920ce00ed82c4d9398285f193ebc5,
+    type: 3}
   PlayerPrefab: {fileID: 7861538706192391953, guid: af9fb9684445b0b46a1a59ab884adce9,
     type: 3}
   TeamPositions: {fileID: 1414231452}
@@ -2721,7 +2725,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.75}
+  m_Size: {x: 0.8, y: 0.75}
   m_EdgeRadius: 0
 --- !u!1 &1605359806
 GameObject:
@@ -3388,7 +3392,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.75}
+  m_Size: {x: 0.8, y: 0.75}
   m_EdgeRadius: 0
 --- !u!1 &2095013934
 GameObject:
