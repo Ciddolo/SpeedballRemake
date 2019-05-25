@@ -28,7 +28,7 @@ public class UIManager : MonoBehaviour
         blueScoreGameText.text = GameManager.BlueScore.ToString();
     }
 
-    public void ResetTImer()
+    public void ResetTimer()
     {
         seconds = 0.0f;
         minutes = 0.0f;

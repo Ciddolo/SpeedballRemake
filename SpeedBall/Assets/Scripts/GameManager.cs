@@ -17,9 +17,9 @@ public class GameManager : MonoBehaviour
         cameraManager = Camera.main.GetComponent<CameraManager>();
         redTeamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         blueTeamManager = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
-        Ball = Instantiate(BallPrefab);
-        Ball.transform.localPosition = Vector2.zero;
-        cameraManager.Ball = Ball;
+        //Ball = Instantiate(BallPrefab);
+        //Ball.transform.localPosition = Vector2.zero;
+        //cameraManager.Ball = Ball;
     }
 
 

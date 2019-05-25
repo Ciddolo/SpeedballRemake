@@ -78,8 +78,7 @@ namespace SpeedBallServer
 
         public void Update()
         {
-            //to do
-            //update player logic
+            server.SendToAllClients(GetUpdatePacket());
         }
 
         protected Packet GetUpdatePacket()

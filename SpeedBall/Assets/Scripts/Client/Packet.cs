@@ -18,6 +18,11 @@ public class Packet
         id = ++packetCounter;
     }
 
+    public Packet(PacketsCommands command, params object[] elements) : this((byte)command, elements)
+    {
+
+    }
+
     public Packet(byte command, params object[] elements) : this()
     {
         writer.Write(command);
