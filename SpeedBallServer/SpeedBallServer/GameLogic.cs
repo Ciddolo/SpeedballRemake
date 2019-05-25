@@ -167,7 +167,7 @@ namespace SpeedBallServer
 
             for (int i = 0; i < levelData.TeamTwoSpawnPositions.Count; i++)
             {
-                SimpleLevelObject data = levelData.TeamOneSpawnPositions[i];
+                SimpleLevelObject data = levelData.TeamTwoSpawnPositions[i];
                 Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
                 player.SetStartingPosition(data.Position);
 
@@ -182,10 +182,14 @@ namespace SpeedBallServer
 
             Net TeamOneNet = server.Spawn<Net>(levelData.NetTeamOne.Height, levelData.NetTeamOne.Width);
             TeamOneNet.Name = levelData.NetTeamOne.Name;
+            TeamOneNet.TeamId = 0;
+            TeamOneNet.Position = levelData.NetTeamOne.Position;
             physicsHandler.AddItem(TeamOneNet.RigidBody);
 
             Net TeamTwoNet = server.Spawn<Net>(levelData.NetTeamTwo.Height, levelData.NetTeamTwo.Width);
             TeamTwoNet.Name = levelData.NetTeamTwo.Name;
+            TeamTwoNet.TeamId = 1;
+            TeamTwoNet.Position = levelData.NetTeamTwo.Position;
             physicsHandler.AddItem(TeamTwoNet.RigidBody);
 
             Ball Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);

@@ -251,7 +251,7 @@ namespace SpeedBallServer
 
         private void Pong(byte[] data, EndPoint sender)
         {
-            Console.WriteLine("pong");
+            //Console.WriteLine("pong");
             if (!CheckIfClientJoined(sender))
             {
                 return;
@@ -349,6 +349,14 @@ namespace SpeedBallServer
             T newGameObject = Activator.CreateInstance(typeof(T), ctorParamsList.ToArray()) as T;
             RegisterGameObject(newGameObject);
             return newGameObject;
+        }
+
+        public void SendToAllClients(Packet packet)
+        {
+            foreach (GameClient client in clientsTable.Values)
+            {
+                client.Enqueue(packet);
+            }
         }
     }
 }

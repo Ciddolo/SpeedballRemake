@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    class Net:GameObject
+    class Net : GameObject
     {
+        public uint TeamId;
+
         public Net(GameServer server, float Height, float Width)
-            : base((int) InternalObjectsId.Net, server, Height, Width)
+            : base((int)InternalObjectsId.Net, server, Height, Width)
         {
 
         }
@@ -21,7 +23,7 @@ namespace SpeedBallServer
 
         public override Packet GetSpawnPacket()
         {
-            return new Packet((byte)PacketsCommands.Spawn, true, ObjectType, Id, X, Y, Height, Width);
+            return new Packet((byte)PacketsCommands.Spawn, true, ObjectType, Id, X, Y, Height, Width, TeamId);
         }
 
         public override void OnCollide(Collision collisionInfo)
