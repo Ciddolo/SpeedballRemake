@@ -42,6 +42,7 @@ public class PlayerShot : MonoBehaviour
         gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Force = currentForce;
         gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().RemoveBall();
         GetComponent<PlayerManager>().BallThrown();
+        GetComponent<PlayerManager>().Team.ClientOwner.GetComponent<ClientManager>().SendShot(AimDirection.x, AimDirection.y, currentForce);
         currentForce = 0.0f;
         InputKey = false;
         InputKeyUp = false;
