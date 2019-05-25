@@ -88,7 +88,7 @@ namespace SpeedBallServer.Test.ServerTests
             uint playerObjectId = BitConverter.ToUInt32(welcomeData, 9);
 
             //initializing update packet
-            packet.data = new Packet(PacketsCommands.Update, false, playerObjectId, 10f, 10f, 5f, 5f).GetData();
+            packet.data = new Packet(PacketsCommands.Update, false, playerObjectId, 10f, 10f).GetData();
             packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 
@@ -96,7 +96,6 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
 
             Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.EqualTo(new Vector2(10f, 10f)));
-            Assert.That(((Player)server.GameObjectsTable[playerObjectId]).LookingDirection, Is.EqualTo(new Vector2(5f, 5f)));
         }
 
         [Test]
