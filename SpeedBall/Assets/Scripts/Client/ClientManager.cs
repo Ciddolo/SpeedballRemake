@@ -17,6 +17,24 @@ public enum PacketsCommands
     Ack = 255
 }
 
+public enum NetPrefab
+{
+    MIN,
+    Player,
+    Wall,
+    Goal,
+    Ball,
+    Goalkeeper
+}
+
+public enum InputType
+{
+    SelectPlayer,
+    Shot,
+    Tackle,
+    Movement
+}
+
 public class ClientManager : MonoBehaviour
 {
     private const int MAX_PACKETS = 100;
@@ -37,17 +55,11 @@ public class ClientManager : MonoBehaviour
     private uint teamNetId;
     private uint currentPlayerId;
 
-    //private Timer pingTimer;
-    //private Packet pingPacketSended;
-    //private bool waitingForPong;
-    //private uint pingPacketId;
-    //private float sendedPingTimestamp;
-    //public float PingValue;
-
     [SerializeField]
     private TeamManager teamManager;
     [SerializeField]
     private bool isInitialized;
+    private bool isGettingPing;
     private Dictionary<uint, GameObject> netPrefabs;
     private Dictionary<uint, GameObject> spawnedObjects;
     private string horizontalAxisName;
@@ -59,7 +71,11 @@ public class ClientManager : MonoBehaviour
     private KeyCode selectNextPlayer;
     private KeyCode shot;
     private KeyCode tackle;
-    private uint name;
+    private uint redPlayers;
+    private uint bluePlayers;
+    private uint walls;
+    private float calculatePing;
+    private float currentPing;
 
     void Awake()
     {
@@ -67,14 +83,6 @@ public class ClientManager : MonoBehaviour
         spawnedObjects = new Dictionary<uint, GameObject>();
 
         isInitialized = false;
-
-        ////Test
-        //teamNetId = 0;
-        //Init();
-        ////End
-
-        //if (!(address == null) || !(port == 0))
-        //    return;
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Blocking = false;
@@ -99,7 +107,15 @@ public class ClientManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.L))
+            CalculatePing();
+
         Receiver();
+
+        if (isGettingPing)
+        {
+            calculatePing += Time.deltaTime;
+        }
 
         if (!isInitialized || !teamManager.IsSpawned)
             return;
@@ -118,7 +134,7 @@ public class ClientManager : MonoBehaviour
             teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         else if (teamNetId == 1)
             teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
-        //else exceptions
+
         teamManager.ClientOwner = gameObject;
         isInitialized = true;
     }
@@ -130,10 +146,13 @@ public class ClientManager : MonoBehaviour
             if (Input.GetKeyDown(selectPreviousPlayer))
             {
                 uint playerId = teamManager.SelectPreviousPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet(PacketsCommands.Input, playerId));
+                Send(new Packet(PacketsCommands.Input, InputType.SelectPlayer, playerId));
             }
             if (Input.GetKeyDown(selectNextPlayer))
-                teamManager.SelectNextPlayer();
+            {
+                uint playerId = teamManager.SelectNextPlayer().GetComponent<PlayerManager>().NetId;
+                Send(new Packet(PacketsCommands.Input, InputType.SelectPlayer, playerId));
+            }
         }
     }
 
@@ -142,7 +161,10 @@ public class ClientManager : MonoBehaviour
         //MOVE
         Vector2 direction = new Vector2(Input.GetAxis(horizontalAxisName), Input.GetAxis(verticalAxisName)).normalized;
         if (teamManager.CurrentPlayer.GetComponent<PlayerMove>() != null)
+        {
             teamManager.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
+            Send(new Packet(PacketsCommands.Input, InputType.Movement, direction.x, direction.y));
+        }
         //SHOT
         if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
         {
@@ -156,6 +178,7 @@ public class ClientManager : MonoBehaviour
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
+            Send(new Packet(PacketsCommands.Input, InputType.Tackle));
         }
     }
 
@@ -170,15 +193,35 @@ public class ClientManager : MonoBehaviour
         socket.SendTo(packet.GetData(), endPoint);
     }
 
+    public void SendShot(float directionX, float directionY, float force)
+    {
+        Send(new Packet(PacketsCommands.Input, InputType.Shot, directionX, directionY, force));
+    }
+
+    private void CalculatePing()
+    {
+        calculatePing = 0.0f;
+        isGettingPing = true;
+        Send(new Packet(PacketsCommands.Ping));
+    }
+
+    private float GetPing()
+    {
+        currentPing = calculatePing;
+        return currentPing;
+    }
+
     private void Receiver()
     {
         byte[] data = new byte[256];
+        EndPoint sender = new IPEndPoint(0, 0);
+
         for (int i = 0; i < MAX_PACKETS; i++)
         {
             int rlen = -1;
             try
             {
-                rlen = socket.Receive(data);
+                rlen = socket.ReceiveFrom(data, ref sender);
             }
             catch
             {
@@ -187,6 +230,9 @@ public class ClientManager : MonoBehaviour
 
             if (rlen > 0)
             {
+                //if (sender != endPoint)
+                //    continue;
+
                 byte command = data[0];
                 if (command == (byte)PacketsCommands.Welcome)
                 {
@@ -215,41 +261,81 @@ public class ClientManager : MonoBehaviour
 
                     if (!spawnedObjects.ContainsKey(id))
                     {
-                        GameObject go;
-                        if (type == 1)
+                        GameObject objectToSpawn = null;
+                        string objectToSpawnName = "";
+
+                        if (type == (uint)NetPrefab.Goalkeeper || type == (uint)NetPrefab.Player)
                         {
-                            go = Instantiate(PlayerPrefab);
-                            go.GetComponent<PlayerManager>().NetId = id;
+                            TeamManager team;
+                            Color color;
+                            uint teamId = BitConverter.ToUInt32(data, 29);
+
+                            if (teamId == 0)
+                            {
+                                team = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+                                color = Color.red;
+                                objectToSpawnName = "RED";
+                            }
+                            else
+                            {
+                                team = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
+                                color = Color.blue;
+                                objectToSpawnName = "BLUE";
+                            }
+
+                            if (type == (uint)NetPrefab.Goalkeeper)
+                            {
+                                objectToSpawn = Instantiate(GoalkeeperPrefab, team.transform);
+                                objectToSpawnName += "_GOALKEEPER";
+                            }
+                            else
+                            {
+                                objectToSpawn = Instantiate(PlayerPrefab, team.transform);
+                                if (teamId == 0)
+                                    objectToSpawnName = "PLAYER_" + ++redPlayers;
+                                else
+                                    objectToSpawnName = "PLAYER_" + ++bluePlayers;
+                            }
+
+                            objectToSpawn.GetComponent<PlayerManager>().NetId = id;
+                            objectToSpawn.GetComponent<SpriteRenderer>().color = color;
+
+                            if (teamId == teamNetId)
+                                teamManager.AddPlayer(objectToSpawn);
+                        }
+                        else if (type == (uint)NetPrefab.Wall)
+                        {
+                            objectToSpawn = Instantiate(WallPrefab);
+                            objectToSpawnName = "WALL_" + ++walls;
+                        }
+                        else if (type == (uint)NetPrefab.Goal)
+                        {
+                            objectToSpawn = Instantiate(GoalPrefab);
                             Color color;
                             uint teamId = BitConverter.ToUInt32(data, 29);
                             if (teamId == 0)
+                            {
                                 color = Color.red;
+                                objectToSpawnName = "RED_GOAL";
+                            }
                             else
+                            {
                                 color = Color.blue;
-                            go.GetComponent<SpriteRenderer>().color = color;
-                            if (teamId == teamNetId)
-                                teamManager.AddPlayer(go);
+                                objectToSpawnName = "BLUE_GOAL";
+                            }
+                            objectToSpawn.GetComponent<SpriteRenderer>().color = color;
                         }
-                        else if (type == 2)
-                            go = Instantiate(WallPrefab);
-                        else if (type == 3)
+                        else if (type == (uint)NetPrefab.Ball)
                         {
-                            go = Instantiate(GoalPrefab);
-                            Color color;
-                            if (BitConverter.ToUInt32(data, 29) == 0)
-                                color = Color.red;
-                            else
-                                color = Color.blue;
-                            go.GetComponent<SpriteRenderer>().color = color;
+                            objectToSpawn = Instantiate(BallPrefab);
+                            objectToSpawnName = "BALL";
                         }
-                        else if (type == 4)
-                            go = Instantiate(BallPrefab);
-                        else
-                            go = null;
-                        spawnedObjects.Add(id, go);
-                        go.name = (++name).ToString();
-                        go.transform.position = new Vector2(x, y);
-                        go.transform.localScale = new Vector2(width, height);
+
+                        objectToSpawn.name = objectToSpawnName;
+                        objectToSpawn.transform.position = new Vector2(x, y);
+                        objectToSpawn.transform.localScale = new Vector2(width, height);
+
+                        spawnedObjects.Add(id, objectToSpawn);
                     }
                 }
                 else if (command == (byte)PacketsCommands.Update)
@@ -261,11 +347,8 @@ public class ClientManager : MonoBehaviour
                 else if (command == (byte)PacketsCommands.Pong)
                 {
                     uint packetId = BitConverter.ToUInt32(data, 2);
-                    //Smoothing stuff
-                    //if (packetId != this.sendedPingId)
-                    //    continue;
-                    //PingValue = TimeSinceSendingPingPacket;
-                    //waitingForPong = false;
+                    isGettingPing = false;
+                    Debug.Log(GetPing());
                 }
                 else if (command == (byte)PacketsCommands.Ping)
                 {
