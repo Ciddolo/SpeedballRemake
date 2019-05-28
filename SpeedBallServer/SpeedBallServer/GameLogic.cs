@@ -323,12 +323,10 @@ namespace SpeedBallServer
             {
                 Player playerToMove = (Player)gameObject;
 
-                float posX, posY, dirX, dirY;
+                float posX, posY;
 
                 posX = BitConverter.ToSingle(packetData, 9);
                 posY = BitConverter.ToSingle(packetData, 13);
-                dirX = BitConverter.ToSingle(packetData, 17);
-                dirY = BitConverter.ToSingle(packetData, 21);
 
                 playerToMove.SetPosition(posX,posY);
             }
