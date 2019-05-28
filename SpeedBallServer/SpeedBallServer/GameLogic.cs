@@ -234,6 +234,10 @@ namespace SpeedBallServer
         private void SelectPlayer(byte[] data, GameClient sender)
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
+
+            Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
+            playerToStop.SetMovingDirection(new System.Numerics.Vector2(0.0f, 0.0f));
+
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
 
@@ -264,14 +268,12 @@ namespace SpeedBallServer
             {
                 float x = BitConverter.ToSingle(data,6);
                 float y = BitConverter.ToSingle(data,10);
-                Console.WriteLine(x+" "+y);
-                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x,y));
+                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x, y));
             }
             else
             {
                 sender.Malus += 1;
             }
-            Console.WriteLine("INPUT MOVEMENT");
         }
 
         private void Shot(byte[] data, GameClient sender)

@@ -153,12 +153,12 @@ public class ClientManager : MonoBehaviour
             if (Input.GetKeyDown(selectPreviousPlayer))
             {
                 uint playerId = teamManager.SelectPreviousPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet(PacketsCommands.Input, InputType.SelectPlayer, playerId));
+                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
             }
             if (Input.GetKeyDown(selectNextPlayer))
             {
                 uint playerId = teamManager.SelectNextPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet(PacketsCommands.Input, InputType.SelectPlayer, playerId));
+                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
             }
         }
     }
