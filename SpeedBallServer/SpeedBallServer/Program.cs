@@ -18,7 +18,7 @@ namespace SpeedBallServer
 
             string serializedLevel = File.ReadAllText("Level.json");
 
-            GameServer server = new GameServer(transport, monotonicClock,1,serializedLevel);
+            GameServer server = new GameServer(transport, monotonicClock, 60, serializedLevel);
 
             server.Run();
         }

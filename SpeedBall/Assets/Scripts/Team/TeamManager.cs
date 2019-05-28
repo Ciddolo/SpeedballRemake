@@ -17,11 +17,11 @@ public class TeamManager : MonoBehaviour
     void Awake()
     {
         players = new GameObject[NUMBER_OF_PLAYERS];
+        cameraManager = Camera.main.GetComponent<CameraManager>();
     }
 
     //private void Spawn()
     //{
-    //    cameraManager = Camera.main.GetComponent<CameraManager>();
     //    players = new GameObject[NUMBER_OF_PLAYERS];
     //    string color = "DEFAULT_";
     //    if (TeamColor.r == 1)
@@ -83,7 +83,8 @@ public class TeamManager : MonoBehaviour
     public GameObject SelectPlayer(GameObject player)
     {
         index = player.GetComponent<PlayerManager>().Index;
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+        if (CurrentPlayer)
+            CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
         CurrentPlayer = player;
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;

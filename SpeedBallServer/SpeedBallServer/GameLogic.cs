@@ -227,11 +227,17 @@ namespace SpeedBallServer
             inputCommandsTable = new Dictionary<byte, GameCommand>();
             inputCommandsTable[(byte)InputType.SelectPlayer] = SelectPlayer;
             inputCommandsTable[(byte)InputType.Movement] = MovementDir;
+            inputCommandsTable[(byte)InputType.Shot] = Shot;
+            inputCommandsTable[(byte)InputType.Tackle] = Tackle;
         }
 
         private void SelectPlayer(byte[] data, GameClient sender)
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
+
+            Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
+            playerToStop.SetMovingDirection(new System.Numerics.Vector2(0.0f, 0.0f));
+
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
 
@@ -262,14 +268,22 @@ namespace SpeedBallServer
             {
                 float x = BitConverter.ToSingle(data,6);
                 float y = BitConverter.ToSingle(data,10);
-
-                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x,y));
+                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x, y));
             }
             else
             {
                 sender.Malus += 1;
             }
+        }
 
+        private void Shot(byte[] data, GameClient sender)
+        {
+
+        }
+
+        private void Tackle(byte[] data, GameClient sender)
+        {
+            uint playerId = Clients[sender].ControlledPlayerId;
         }
 
         private Dictionary<byte, GameCommand> inputCommandsTable;
@@ -278,13 +292,13 @@ namespace SpeedBallServer
         public void GetPlayerInput(byte[] data,GameClient client)
         {
 
-            //Console.WriteLine("taking input");
-            if (GameStatus != GameState.Playing)
-            {
-                //Console.WriteLine("not playing");
-                client.Malus++;
-                return;
-            }
+            ////Console.WriteLine("taking input");
+            //if (GameStatus != GameState.Playing)
+            //{
+            //    //Console.WriteLine("not playing");
+            //    client.Malus++;
+            //    return;
+            //}
 
             byte inputCommand = data[5];
 

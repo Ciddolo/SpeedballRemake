@@ -48,7 +48,8 @@ namespace SpeedBallServer
 
         public void SetMovingDirection(Vector2 newLookingRotation)
         {
-            this.direction = Vector2.Normalize(newLookingRotation);
+            //this.direction = Vector2.Normalize(newLookingRotation);
+            this.direction = newLookingRotation;
         }
 
         public void SetMovingDirection(float x, float y)
