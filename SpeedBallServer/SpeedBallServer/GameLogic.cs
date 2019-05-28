@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net;
+using System.Numerics;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -235,8 +235,6 @@ namespace SpeedBallServer
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
 
-            Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
-            playerToStop.SetMovingDirection(new System.Numerics.Vector2(0.0f, 0.0f));
 
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
@@ -245,6 +243,9 @@ namespace SpeedBallServer
             {
                 if (playerToControl.Owner == sender)
                 {
+                    Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
+                    playerToStop.SetMovingDirection(new Vector2(0.0f, 0.0f));
+
                     Clients[sender].ControlledPlayerId = playerId;
                 }
                 else
@@ -268,7 +269,7 @@ namespace SpeedBallServer
             {
                 float x = BitConverter.ToSingle(data,6);
                 float y = BitConverter.ToSingle(data,10);
-                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x, y));
+                playerToMove.SetMovingDirection(new Vector2(x, y));
             }
             else
             {
@@ -291,14 +292,13 @@ namespace SpeedBallServer
 
         public void GetPlayerInput(byte[] data,GameClient client)
         {
-
-            ////Console.WriteLine("taking input");
-            //if (GameStatus != GameState.Playing)
-            //{
-            //    //Console.WriteLine("not playing");
-            //    client.Malus++;
-            //    return;
-            //}
+            //Console.WriteLine("taking input");
+            if (GameStatus != GameState.Playing)
+            {
+                //Console.WriteLine("not playing");
+                client.Malus++;
+                return;
+            }
 
             byte inputCommand = data[5];
 
@@ -340,10 +340,10 @@ namespace SpeedBallServer
 
         public void Update()
         {
-            physicsHandler.Update();
+            physicsHandler.Update(server.UpdateFrequency);
             foreach (IUpdatable item in updatableItems)
             {
-               item.Update();
+                item.Update(server.UpdateFrequency);
             }
             physicsHandler.CheckCollisions();
         }

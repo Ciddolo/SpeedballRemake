@@ -48,8 +48,8 @@ namespace SpeedBallServer
 
         public void SetMovingDirection(Vector2 newLookingRotation)
         {
-            //this.direction = Vector2.Normalize(newLookingRotation);
             this.direction = newLookingRotation;
+            this.RigidBody.Velocity = direction * velocity;
         }
 
         public void SetMovingDirection(float x, float y)
@@ -70,19 +70,13 @@ namespace SpeedBallServer
             direction = Vector2.Zero;
         }
 
-        public void Tick()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Destroy()
         {
             throw new NotImplementedException();
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
-            this.Position += direction * server.UpdateFrequency * velocity;
             server.SendToAllClients(GetUpdatePacket());
         }
 
