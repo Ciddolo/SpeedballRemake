@@ -17,7 +17,8 @@ namespace SpeedBallServer
     public class Player : GameObject, IUpdatable
     {
         private Vector2 startingPosition;
-        public Vector2 LookingDirection;
+        private Vector2 direction;
+        private float velocity;
         private Vector2 lastUpdatePosition;
         public uint TeamId;
         public PlayerState State;
@@ -27,8 +28,10 @@ namespace SpeedBallServer
         {
             this.Reset();
 
+            velocity = 5;
             RigidBody.Type = (uint)ColliderType.Player;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
+            RigidBody.AddCollision((uint)ColliderType.Player);
         }
 
         public void SetStartingPosition(Vector2 startingPos)
@@ -43,14 +46,15 @@ namespace SpeedBallServer
             this.SetStartingPosition(new Vector2(x,y));
         }
 
-        public void SetLookingRotation(Vector2 newLookingRotation)
+        public void SetMovingDirection(Vector2 newLookingRotation)
         {
-            this.LookingDirection = newLookingRotation;
+            //this.direction = Vector2.Normalize(newLookingRotation);
+            this.direction = newLookingRotation;
         }
 
-        public void SetLookingRotation(float x, float y)
+        public void SetMovingDirection(float x, float y)
         {
-            this.SetLookingRotation(new Vector2(x,y));
+            this.SetMovingDirection(new Vector2(x,y));
         }
 
         public override Packet GetSpawnPacket()
@@ -63,7 +67,7 @@ namespace SpeedBallServer
         {
             this.Position = startingPosition;
             State = PlayerState.Idle;
-            LookingDirection = Vector2.Zero;
+            direction = Vector2.Zero;
         }
 
         public void Tick()
@@ -78,13 +82,14 @@ namespace SpeedBallServer
 
         public void Update()
         {
+            this.Position += direction * server.UpdateFrequency * velocity;
             server.SendToAllClients(GetUpdatePacket());
         }
 
         protected Packet GetUpdatePacket()
         {
             return new Packet((byte)PacketsCommands.Update, false, 
-                Id, X, Y, LookingDirection.X, LookingDirection.Y, (uint)State);
+                Id, X, Y,(uint)State);
         }
 
         public override void OnCollide(Collision collisionInfo)

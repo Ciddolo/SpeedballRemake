@@ -60,6 +60,8 @@ public class ClientManager : MonoBehaviour
     [SerializeField]
     private bool isInitialized;
     private bool isGettingPing;
+    private delegate void SpawnPrefab(byte[] data);
+    private Dictionary<int, SpawnPrefab> spawnTable;
     private Dictionary<uint, GameObject> netPrefabs;
     private Dictionary<uint, GameObject> spawnedObjects;
     private string horizontalAxisName;
@@ -81,6 +83,13 @@ public class ClientManager : MonoBehaviour
     {
         netPrefabs = new Dictionary<uint, GameObject>();
         spawnedObjects = new Dictionary<uint, GameObject>();
+        spawnTable = new Dictionary<int, SpawnPrefab>();
+
+        spawnTable[(int)NetPrefab.Player] = SpawnPlayer;
+        spawnTable[(int)NetPrefab.Goalkeeper] = SpawnGoalkeeper;
+        spawnTable[(int)NetPrefab.Wall] = SpawnWall;
+        spawnTable[(int)NetPrefab.Goal] = SpawnGoal;
+        spawnTable[(int)NetPrefab.Ball] = SpawnBall;
 
         isInitialized = false;
 
@@ -113,11 +122,9 @@ public class ClientManager : MonoBehaviour
         Receiver();
 
         if (isGettingPing)
-        {
             calculatePing += Time.deltaTime;
-        }
 
-        if (!isInitialized || !teamManager.IsSpawned)
+        if (!isInitialized)
             return;
 
         TeamInput();
@@ -163,23 +170,23 @@ public class ClientManager : MonoBehaviour
         if (teamManager.CurrentPlayer.GetComponent<PlayerMove>() != null)
         {
             teamManager.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
-            Send(new Packet(PacketsCommands.Input, InputType.Movement, direction.x, direction.y));
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Movement, direction.x, direction.y));
         }
         //SHOT
-        if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
-        {
-            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
-        }
-        else //TACKLE
-        {
-            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
-            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
-            Send(new Packet(PacketsCommands.Input, InputType.Tackle));
-        }
+        //if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
+        //{
+        //    Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
+        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
+        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
+        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
+        //}
+        //else //TACKLE
+        //{
+        //    Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
+        //    teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
+        //    teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
+        //    Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
+        //}
     }
 
     private void CameraInput()
@@ -237,7 +244,8 @@ public class ClientManager : MonoBehaviour
                 if (command == (byte)PacketsCommands.Welcome)
                 {
                     if (isInitialized)
-                        return;
+                        continue;
+
                     teamNetId = BitConverter.ToUInt32(data, 5);
                     currentPlayerId = BitConverter.ToUInt32(data, 9);
                     Init();
@@ -248,94 +256,25 @@ public class ClientManager : MonoBehaviour
                 }
                 else if (command == (byte)PacketsCommands.Spawn)
                 {
+                    uint packetId = BitConverter.ToUInt32(data, 1);
                     uint type = BitConverter.ToUInt32(data, 5);
                     uint id = BitConverter.ToUInt32(data, 9);
-                    float x = BitConverter.ToSingle(data, 13);
-                    float y = BitConverter.ToSingle(data, 17);
-                    float height = BitConverter.ToSingle(data, 21);
-                    float width = BitConverter.ToSingle(data, 25);
 
-                    uint packetId = BitConverter.ToUInt32(data, 1);
                     Packet ack = new Packet(PacketsCommands.Ack, packetId);
                     socket.SendTo(ack.GetData(), endPoint);
 
                     if (!spawnedObjects.ContainsKey(id))
                     {
-                        GameObject objectToSpawn = null;
-                        string objectToSpawnName = "";
-
-                        if (type == (uint)NetPrefab.Goalkeeper || type == (uint)NetPrefab.Player)
-                        {
-                            TeamManager team;
-                            Color color;
-                            uint teamId = BitConverter.ToUInt32(data, 29);
-
-                            if (teamId == 0)
-                            {
-                                team = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
-                                color = Color.red;
-                                objectToSpawnName = "RED";
-                            }
-                            else
-                            {
-                                team = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
-                                color = Color.blue;
-                                objectToSpawnName = "BLUE";
-                            }
-
-                            if (type == (uint)NetPrefab.Goalkeeper)
-                            {
-                                objectToSpawn = Instantiate(GoalkeeperPrefab, team.transform);
-                                objectToSpawnName += "_GOALKEEPER";
-                            }
-                            else
-                            {
-                                objectToSpawn = Instantiate(PlayerPrefab, team.transform);
-                                if (teamId == 0)
-                                    objectToSpawnName = "PLAYER_" + ++redPlayers;
-                                else
-                                    objectToSpawnName = "PLAYER_" + ++bluePlayers;
-                            }
-
-                            objectToSpawn.GetComponent<PlayerManager>().NetId = id;
-                            objectToSpawn.GetComponent<SpriteRenderer>().color = color;
-
-                            if (teamId == teamNetId)
-                                teamManager.AddPlayer(objectToSpawn);
-                        }
+                        if (type == (uint)NetPrefab.Goalkeeper)
+                            spawnTable[(int)NetPrefab.Goalkeeper](data);
+                        else if (type == (uint)NetPrefab.Player)
+                            spawnTable[(int)NetPrefab.Player](data);
                         else if (type == (uint)NetPrefab.Wall)
-                        {
-                            objectToSpawn = Instantiate(WallPrefab);
-                            objectToSpawnName = "WALL_" + ++walls;
-                        }
+                            spawnTable[(int)NetPrefab.Wall](data);
                         else if (type == (uint)NetPrefab.Goal)
-                        {
-                            objectToSpawn = Instantiate(GoalPrefab);
-                            Color color;
-                            uint teamId = BitConverter.ToUInt32(data, 29);
-                            if (teamId == 0)
-                            {
-                                color = Color.red;
-                                objectToSpawnName = "RED_GOAL";
-                            }
-                            else
-                            {
-                                color = Color.blue;
-                                objectToSpawnName = "BLUE_GOAL";
-                            }
-                            objectToSpawn.GetComponent<SpriteRenderer>().color = color;
-                        }
+                            spawnTable[(int)NetPrefab.Goal](data);
                         else if (type == (uint)NetPrefab.Ball)
-                        {
-                            objectToSpawn = Instantiate(BallPrefab);
-                            objectToSpawnName = "BALL";
-                        }
-
-                        objectToSpawn.name = objectToSpawnName;
-                        objectToSpawn.transform.position = new Vector2(x, y);
-                        objectToSpawn.transform.localScale = new Vector2(width, height);
-
-                        spawnedObjects.Add(id, objectToSpawn);
+                            spawnTable[(int)NetPrefab.Ball](data);
                     }
                 }
                 else if (command == (byte)PacketsCommands.Update)
@@ -343,6 +282,8 @@ public class ClientManager : MonoBehaviour
                     uint id = BitConverter.ToUInt32(data, 5);
                     float x = BitConverter.ToSingle(data, 9);
                     float y = BitConverter.ToSingle(data, 13);
+
+                    spawnedObjects[id].transform.position = new Vector2(x, y);
                 }
                 else if (command == (byte)PacketsCommands.Pong)
                 {
@@ -358,5 +299,144 @@ public class ClientManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void SpawnPlayer(byte[] data)
+    {
+        TeamManager team;
+        Color color;
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+        uint teamId = BitConverter.ToUInt32(data, 29);
+        GameObject objectToSpawn = null;
+        string name;
+
+        if (teamId == 0)
+        {
+            team = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+            color = Color.red;
+            name = "RED_PLAYER_" + ++redPlayers;
+        }
+        else
+        {
+            team = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
+            color = Color.blue;
+            name = "BLUE_PLAYER_" + ++bluePlayers;
+        }
+
+        objectToSpawn = Instantiate(PlayerPrefab, team.transform);
+        objectToSpawn.name = name;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+
+        objectToSpawn.GetComponent<PlayerManager>().NetId = id;
+        objectToSpawn.GetComponent<PlayerManager>().Team = team;
+        objectToSpawn.GetComponent<SpriteRenderer>().color = color;
+
+        if (teamId == teamNetId)
+            teamManager.AddPlayer(objectToSpawn);
+        if (currentPlayerId == id)
+            teamManager.SelectPlayer(objectToSpawn);
+    }
+
+    private void SpawnGoalkeeper(byte[] data)
+    {
+        TeamManager team;
+        Color color;
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+        uint teamId = BitConverter.ToUInt32(data, 29);
+        GameObject objectToSpawn = null;
+        string name;
+
+        if (teamId == 0)
+        {
+            team = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+            color = Color.red;
+            name = "RED_GOALKEEPER";
+        }
+        else
+        {
+            team = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
+            color = Color.blue;
+            name = "BLUE_GOALKEEPER";
+        }
+
+        objectToSpawn = Instantiate(GoalkeeperPrefab, team.transform);
+        objectToSpawn.name = name;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+
+        objectToSpawn.GetComponent<PlayerManager>().NetId = id;
+        objectToSpawn.GetComponent<PlayerManager>().Team = team;
+        objectToSpawn.GetComponent<SpriteRenderer>().color = color;
+
+        if (teamId == teamNetId)
+            teamManager.AddPlayer(objectToSpawn);
+    }
+
+    private void SpawnWall(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+
+        GameObject objectToSpawn = Instantiate(WallPrefab, GameObject.Find("Walls").transform);
+        objectToSpawn.name = "WALL_" + ++walls;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+    }
+
+    private void SpawnGoal(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+        uint teamId = BitConverter.ToUInt32(data, 29);
+
+        GameObject objectToSpawn = Instantiate(GoalPrefab, GameObject.Find("Goals").transform);
+
+        if (teamId == 0)
+        {
+            objectToSpawn.GetComponent<SpriteRenderer>().color = Color.red;
+            objectToSpawn.name = "RED_GOAL";
+        }
+        else
+        {
+            objectToSpawn.GetComponent<SpriteRenderer>().color = Color.blue;
+            objectToSpawn.name = "BLUE_GOAL";
+        }
+ 
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+    }
+
+    private void SpawnBall(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+
+        GameObject objectToSpawn = Instantiate(BallPrefab);
+        objectToSpawn.name = "BALL";
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
     }
 }

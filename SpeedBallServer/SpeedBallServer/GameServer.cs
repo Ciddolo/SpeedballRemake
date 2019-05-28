@@ -115,6 +115,11 @@ namespace SpeedBallServer
             }
         }
 
+        public uint GetClientControlledPlayer(EndPoint client)
+        {
+            return gameLogic.GetClientControlledPlayerId(clientsTable[client]);
+        }
+
         public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1,string startingLevel=null)
         {         
             this.transport = gameTransport;
@@ -137,6 +142,7 @@ namespace SpeedBallServer
             commandsTable[(byte)PacketsCommands.Update] = Update;
             commandsTable[(byte)PacketsCommands.Ping] = Ping;
             commandsTable[(byte)PacketsCommands.Pong] = Pong;
+            commandsTable[(byte)PacketsCommands.Input] = Input;
 
             gameLogic = new GameLogic(this);
             gameLogic.SpawnLevel(startingLevel);
@@ -144,6 +150,17 @@ namespace SpeedBallServer
             gameLogicTimer = new Timer(UpdateFrequency, GameLogicTick, true);
             gameLogicTimer.Start();
 
+        }
+
+        private void Input(byte[] data, EndPoint sender)
+        {
+            if (!clientsTable.ContainsKey(sender))
+            {
+                //Console.WriteLine("unknown client");
+                return;
+            }
+
+            gameLogic.GetPlayerInput(data,clientsTable[sender]);
         }
 
         public bool CheckGameObjectOwner(uint id,EndPoint owner)

@@ -8,19 +8,19 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    public struct ClientInfo
+    public class ClientInfo
     {
         public uint TeamId;
         public uint ControlledPlayerId;
-        //public byte[] InputData;
-        //public PlayerState Sate;
     }
 
-    //public enum PlayerState
-    //{
-    //    WithoutInput,
-    //    HasInputReady,
-    //}
+    public enum InputType
+    {
+        SelectPlayer,
+        Shot,
+        Tackle,
+        Movement
+    }
 
     public enum GameState
     {
@@ -223,6 +223,87 @@ namespace SpeedBallServer
             teamTwoControllablePlayers = new List<Player>();
             updatableItems = new List<IUpdatable>();
             physicsHandler = new PhysicsHandler();
+
+            inputCommandsTable = new Dictionary<byte, GameCommand>();
+            inputCommandsTable[(byte)InputType.SelectPlayer] = SelectPlayer;
+            inputCommandsTable[(byte)InputType.Movement] = MovementDir;
+            inputCommandsTable[(byte)InputType.Shot] = Shot;
+            inputCommandsTable[(byte)InputType.Tackle] = Tackle;
+        }
+
+        private void SelectPlayer(byte[] data, GameClient sender)
+        {
+            uint playerId = BitConverter.ToUInt32(data, 6);
+            GameObject playerToControl = server.GameObjectsTable[playerId];
+            //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
+
+            if (playerToControl is Player)
+            {
+                if (playerToControl.Owner == sender)
+                {
+                    Clients[sender].ControlledPlayerId = playerId;
+                }
+                else
+                {
+                    sender.Malus += 1;
+                }
+            }
+            else
+            {
+                sender.Malus += 10;
+            }
+
+        }
+
+        private void MovementDir(byte[] data, GameClient sender)
+        {
+            uint playerId = Clients[sender].ControlledPlayerId;
+            Player playerToMove = (Player)server.GameObjectsTable[playerId];
+
+            if (playerToMove.Owner == sender)
+            {
+                float x = BitConverter.ToSingle(data,6);
+                float y = BitConverter.ToSingle(data,10);
+                Console.WriteLine(x+" "+y);
+                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x,y));
+            }
+            else
+            {
+                sender.Malus += 1;
+            }
+            Console.WriteLine("INPUT MOVEMENT");
+        }
+
+        private void Shot(byte[] data, GameClient sender)
+        {
+
+        }
+
+        private void Tackle(byte[] data, GameClient sender)
+        {
+            uint playerId = Clients[sender].ControlledPlayerId;
+        }
+
+        private Dictionary<byte, GameCommand> inputCommandsTable;
+        private delegate void GameCommand(byte[] data, GameClient sender);
+
+        public void GetPlayerInput(byte[] data,GameClient client)
+        {
+
+            ////Console.WriteLine("taking input");
+            //if (GameStatus != GameState.Playing)
+            //{
+            //    //Console.WriteLine("not playing");
+            //    client.Malus++;
+            //    return;
+            //}
+
+            byte inputCommand = data[5];
+
+            if (inputCommandsTable.ContainsKey(inputCommand))
+            {
+                inputCommandsTable[inputCommand](data, client);
+            }
         }
 
         public void ClientUpdate(byte[] packetData,GameClient client)
@@ -248,7 +329,6 @@ namespace SpeedBallServer
                 dirY = BitConverter.ToSingle(packetData, 21);
 
                 playerToMove.SetPosition(posX,posY);
-                playerToMove.SetLookingRotation(dirX,dirY);
             }
             else
             {
@@ -272,6 +352,13 @@ namespace SpeedBallServer
             {
                 item.Reset();
             }
+        }
+
+        public uint GetClientControlledPlayerId(GameClient client)
+        {
+            if (Clients.ContainsKey(client))
+                return Clients[client].ControlledPlayerId;
+            return 0;
         }
 
         public Packet GetGameInfoPacket()

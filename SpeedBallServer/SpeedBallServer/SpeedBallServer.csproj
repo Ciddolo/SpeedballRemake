@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actors\Ball.cs" />
+    <Compile Include="Actors\Goalkeeper.cs" />
     <Compile Include="Actors\Net.cs" />
     <Compile Include="Actors\Player.cs" />
     <Compile Include="Engine\Circle.cs" />
