@@ -22,6 +22,8 @@ namespace SpeedBallServer
         public uint Type { get; set; }
         protected uint CollisionMask;
 
+        private Vector2 gravity = new Vector2(4.0f, 4.0f);
+
         public RigidBody(Vector2 position, GameObject owner, bool collisionAffected = true, bool gravityAffected = false)
         {
             Position = position;
@@ -68,13 +70,47 @@ namespace SpeedBallServer
             Velocity = new Vector2(vX, Velocity.Y);
         }
 
+        public void SetYVelocity(float vY)
+        {
+            Velocity = new Vector2(Velocity.X, vY);
+        }
+
         public void Update(float deltaTime)
         {
             this.Position += Velocity * deltaTime;
-            //if (IsGravityAffected)
-            //{
-            //    AddVelocity(0, Gravity * DeltaTime);
-            //}
+
+            if (IsGravityAffected)
+            {
+                Vector2 gravityToApply = gravity * deltaTime;
+                Vector2 normalizedAbsoluteVelocity = Vector2.Abs(Vector2.Normalize(Velocity));
+                gravityToApply *= normalizedAbsoluteVelocity;
+
+                if (Velocity.X > 0.05f)
+                {
+                    AddVelocity(-gravityToApply.X, 0.0f);
+                }
+                else if (Velocity.X < -0.05f)
+                {
+                    AddVelocity(gravityToApply.X, 0.0f);
+                }
+                else
+                {
+                    SetXVelocity(0.0f);
+                }
+
+                if (Velocity.Y > 0.05f)
+                {
+                    AddVelocity(0.0f, -gravityToApply.Y);
+                }
+                else if (Velocity.Y < -0.05f)
+                {
+                    AddVelocity(0.0f, gravityToApply.Y);
+                }
+                else
+                {
+                    SetYVelocity(0.0f);
+                }
+            }
         }
     }
 }
