@@ -124,7 +124,6 @@ namespace SpeedBallServer.Test.ServerTests
             //gameinfo
             transport.ClientDequeue();
 
-
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = secondClient;
@@ -175,7 +174,7 @@ namespace SpeedBallServer.Test.ServerTests
             packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
-            Console.WriteLine("trying to move object " + playerObjectId + "packet " + welcomeData[0]);
+            //Console.WriteLine("trying to move object " + playerObjectId + "packet " + welcomeData[0]);
             //reading update packet
             server.SingleStep();
 

@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpeedBallServer.Test.ServerTests
 {
@@ -124,15 +120,8 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void TestAfterSelect()
         {
-
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
-
-            //while(true)
-            //{
-            //    byte[] outp = transport.ClientDequeue().data;
-            //    Console.WriteLine(outp[0]);
-            //}
 
             //dequeue ping
             transport.ClientDequeue();
@@ -182,22 +171,15 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void TestScoreUpdate()
+        public void ScoreUpdate()
         {
             server.GetBall().SetPosition(20f, 20f);
 
             uint myObjId = server.GetClientControlledPlayer(firstClient);
             server.GameObjectsTable[myObjId].Position = new Vector2(100f, 100f);
-            Assert.That(server.GameObjectsTable[myObjId].Position, Is.Not.EqualTo(new Vector2(-1, 0f)));
 
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
-
-            //while(true)
-            //{
-            //    byte[] outp = transport.ClientDequeue().data;
-            //    Console.WriteLine(outp[0]);
-            //}
 
             //dequeue ping
             transport.ClientDequeue();
@@ -230,7 +212,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void ObjectResetsAfterGoal()
+        public void ObjectsResetsAfterGoal()
         {
             server.GetBall().SetPosition(20f, 20f);
 
@@ -247,8 +229,6 @@ namespace SpeedBallServer.Test.ServerTests
 
             uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
 
-            //Console.WriteLine(playerObjectId);
-
             //spawn updates and welcome
             transport.ClientDequeue();
             transport.ClientDequeue();
@@ -259,7 +239,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //cane dequeue gameinfo
+            //can dequeue gameinfo
             byte[] gameInfoPacket = (transport.ClientDequeue()).data;
 
             //reading controlled id object from game info packet

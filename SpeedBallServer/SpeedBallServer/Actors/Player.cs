@@ -115,6 +115,10 @@ namespace SpeedBallServer
             }
             else if (collisionInfo.Collider is Ball)
             {
+                //ball too high, cant catch it
+                if (((Ball)collisionInfo.Collider).Magnification > .01f)
+                    return;
+
                 ball = (Ball)collisionInfo.Collider;
                 ((Ball)collisionInfo.Collider).SetBallOwner(this);
             }

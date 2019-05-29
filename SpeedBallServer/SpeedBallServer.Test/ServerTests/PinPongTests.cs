@@ -110,7 +110,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //gameinfo
+            //gameinfo packet
             transport.ClientDequeue();
 
             byte[] secondPingPacket = (transport.ClientDequeue()).data;
@@ -223,7 +223,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //gameinfo
+            //gameinfo packet
             transport.ClientDequeue();
 
             pingPacket = (transport.ClientDequeue()).data;
@@ -316,7 +316,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //gameinfo
+            //gameinfo packet
             transport.ClientDequeue();
 
             server.SingleStep();
@@ -343,7 +343,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //gameinfo
+            //gameinfo packet
             transport.ClientDequeue();
 
             server.SingleStep();
@@ -359,7 +359,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
-            //gameinfo
+            //gameinfo packet
             transport.ClientDequeue();
 
             server.SingleStep();
