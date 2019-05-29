@@ -49,6 +49,7 @@
     <Compile Include="Engine\PhysicsHandler.cs" />
     <Compile Include="Engine\Rect.cs" />
     <Compile Include="Engine\RigidBody.cs" />
+    <Compile Include="Engine\Team.cs" />
     <Compile Include="GameLogic.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="GameServer.cs" />

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpeedBallServer.Actors
+namespace SpeedBallServer
 {
-    class Goalkeeper
+    public class Goalkeeper
     {
     }
 }
