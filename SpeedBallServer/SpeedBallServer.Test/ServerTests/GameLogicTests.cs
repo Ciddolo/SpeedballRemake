@@ -120,5 +120,30 @@ namespace SpeedBallServer.Test.ServerTests
 
             Assert.That(server.CurrentGameState, Is.EqualTo(GameState.WaitingForPlayers));
         }
+
+        [Test]
+        public void ControlledPlayereChangingOnTakingBall()
+        {
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeue ping
+            transport.ClientDequeue();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            Console.WriteLine(playerObjectId);
+
+            ////moving ball on second player of the first client
+            server.GetBall().SetPosition(3f, 0f);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().gameLogic, Is.Not.EqualTo(null));
+            Assert.That(server.GetClientControlledPlayer(firstClient), Is.Not.EqualTo(playerObjectId));
+        }
     }
 }

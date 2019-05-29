@@ -30,6 +30,7 @@ namespace SpeedBallServer
         public GameState GameStatus;
         public Dictionary<GameClient, Team> Clients;
         private float startTimestamp;
+        public Ball Ball { get; protected set; }
 
         public uint[] Score;
 
@@ -117,6 +118,12 @@ namespace SpeedBallServer
 
             updatableItems.Add(defPlayerTeamTwo);
 
+            Ball = new Ball(this.server, 1, 1);
+            updatableItems.Add(Ball);
+            Ball.gameLogic = this;
+            physicsHandler.AddItem(Ball.RigidBody);
+            Ball.SetStartingPosition(30f, 30f);
+
             ResetPositions();
         }
 
@@ -186,9 +193,18 @@ namespace SpeedBallServer
 
             Ball Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);
             Ball.Name = levelData.Ball.Name;
+            Ball.gameLogic = this;
+            Ball.SetStartingPosition(levelData.Ball.Position);
             physicsHandler.AddItem(Ball.RigidBody);
             updatableItems.Add(Ball);
+        }
 
+        public void OnBallTaken(Player playerTakingBall)
+        {
+            Console.WriteLine("changing team" + playerTakingBall.TeamId + " controlled" + playerTakingBall.Id);
+            uint playerTeamId = playerTakingBall.TeamId;
+            teams[playerTeamId].ControlledPlayer.SetMovingDirection(Vector2.Zero);
+            teams[playerTeamId].ControlledPlayerId = playerTakingBall.Id;
         }
 
         public void SpawnLevel(string serializedLevel=null)
@@ -211,8 +227,7 @@ namespace SpeedBallServer
             teams = new Team[server.MaxPlayers];
             teams[0] = new Team(0);
             teams[1] = new Team(1);
-            //teamOneControllablePlayers = new List<Player>();
-            //teamTwoControllablePlayers = new List<Player>();
+
             updatableItems = new List<IUpdatable>();
             physicsHandler = new PhysicsHandler();
 
@@ -226,7 +241,6 @@ namespace SpeedBallServer
         private void SelectPlayer(byte[] data, GameClient sender)
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
-
 
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
@@ -348,11 +362,12 @@ namespace SpeedBallServer
         public void Update()
         {
             physicsHandler.Update(server.UpdateFrequency);
+            physicsHandler.CheckCollisions();
             foreach (IUpdatable item in updatableItems)
             {
                 item.Update(server.UpdateFrequency);
             }
-            physicsHandler.CheckCollisions();
+            server.SendToAllClients(this.GetGameInfoPacket());
         }
 
         public void ResetPositions()
@@ -375,7 +390,8 @@ namespace SpeedBallServer
             uint controlledPlayerIdTeamOne = teams[0].ControlledPlayerId;
             uint controlledPlayerIdTeamTwo = teams[1].ControlledPlayerId;
 
-            return new Packet(PacketsCommands.GameInfo, false, Score[0], Score[1],controlledPlayerIdTeamOne,controlledPlayerIdTeamTwo, (uint)GameStatus);
+            return new Packet(PacketsCommands.GameInfo, false, Score[0], Score[1],
+                controlledPlayerIdTeamOne, controlledPlayerIdTeamTwo, (uint)GameStatus);
         }
     }
 }

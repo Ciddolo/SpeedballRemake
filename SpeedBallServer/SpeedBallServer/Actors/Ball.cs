@@ -9,7 +9,10 @@ namespace SpeedBallServer
 {
     public class Ball : GameObject,IUpdatable
     {
-        private Player playerWhoOwnsTheBall;
+        public Player PlayerWhoOwnsTheBall { get; private set; }
+        private Vector2 startingPosition;
+
+        public GameLogic gameLogic;
 
         public Ball(GameServer server, float Height, float Width)
             : base((int)InternalObjectsId.Ball, server, Height, Width)
@@ -61,15 +64,27 @@ namespace SpeedBallServer
             }
         }
 
+        public void SetStartingPosition(float x, float y)
+        {
+            this.SetStartingPosition(new Vector2(x, y));
+        }
+
+        public void SetStartingPosition(Vector2 startingPos)
+        {
+            this.Position = startingPos;
+            startingPosition = startingPos;
+        }
+
         public void Reset()
         {
-            throw new NotImplementedException();
+            this.Position = startingPosition;
+            this.RigidBody.Velocity = Vector2.Zero;
         }
 
         public void Update(float deltaTime)
         {
-            if (playerWhoOwnsTheBall != null)
-                this.Position = playerWhoOwnsTheBall.Position;
+            if (PlayerWhoOwnsTheBall != null)
+                this.Position = PlayerWhoOwnsTheBall.Position;
 
             server.SendToAllClients(GetUpdatePacket());
         }
@@ -77,13 +92,15 @@ namespace SpeedBallServer
         protected Packet GetUpdatePacket()
         {
             return new Packet((byte)PacketsCommands.Update, false,
-                Id, X, Y);
+                Id, X, Y);//could send owner and float magnify value
         }
 
-        public void SetBallOwner(Player owner)
+        public void SetBallOwner(Player newOwner)
         {
             this.RigidBody.IsCollisionsAffected = false;
-            playerWhoOwnsTheBall = owner;
+            PlayerWhoOwnsTheBall = newOwner;
+            if (gameLogic != null)
+                gameLogic.OnBallTaken(newOwner);
         }
     }
 }

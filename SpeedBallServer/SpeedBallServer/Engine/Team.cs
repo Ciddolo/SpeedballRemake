@@ -10,6 +10,13 @@ namespace SpeedBallServer
     {
         public uint TeamId { get; private set; }
         public uint ControlledPlayerId;
+        public Player ControlledPlayer
+        {
+            get
+            {
+                return ControllablePlayers[ControlledPlayerId];
+            }
+        }
         private uint defaultControlledPlayerId;
         public uint DefaultControlledPlayerId
         {

@@ -41,6 +41,11 @@ namespace SpeedBallServer
             }
         }
 
+        public Ball GetBall()
+        {
+            return gameLogic.Ball;
+        }
+
         public GameState CurrentGameState()
         {
             return gameLogic.GameStatus;

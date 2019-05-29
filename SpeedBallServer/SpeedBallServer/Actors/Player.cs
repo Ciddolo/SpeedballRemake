@@ -17,7 +17,6 @@ namespace SpeedBallServer
     public class Player : GameObject, IUpdatable
     {
         private Vector2 startingPosition;
-        private Vector2 direction;
         private float velocity;
         private Vector2 lastUpdatePosition;
         public uint TeamId;
@@ -50,10 +49,9 @@ namespace SpeedBallServer
             this.SetStartingPosition(new Vector2(x,y));
         }
 
-        public void SetMovingDirection(Vector2 newLookingRotation)
+        public void SetMovingDirection(Vector2 newMovingDirection)
         {
-            this.direction = newLookingRotation;
-            this.RigidBody.Velocity = direction * velocity;
+            this.RigidBody.Velocity = newMovingDirection * velocity;
         }
 
         public void SetMovingDirection(float x, float y)
@@ -71,7 +69,7 @@ namespace SpeedBallServer
         {
             this.Position = startingPosition;
             State = PlayerState.Idle;
-            direction = Vector2.Zero;
+            this.SetMovingDirection(Vector2.Zero);
         }
 
         public override void Destroy()
