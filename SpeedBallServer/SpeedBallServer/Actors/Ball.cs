@@ -34,12 +34,7 @@ namespace SpeedBallServer
             throw new NotImplementedException();
         }
 
-        public void Tick()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update()
+        public void Update(float deltaTime)
         {
             //todo
         }

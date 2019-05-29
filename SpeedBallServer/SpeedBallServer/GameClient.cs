@@ -22,7 +22,28 @@ namespace SpeedBallServer
         private bool waitingForPong;
         private uint pingPacketId;
         private float sendedPingTimestamp;
-        public float PingValue;
+        public float LastPingValue;
+
+        public float PingAverage { get; private set;}
+        private Queue<float> lastTenPingValues;
+        private float pingTotal;
+        private int pingCount;
+        private int maxPingCount;
+
+        private void PingReceived(float newPing)
+        {
+            lastTenPingValues.Enqueue(newPing);
+            pingTotal += newPing;
+            pingCount++;
+            if(lastTenPingValues .Count> maxPingCount)
+            {
+                float pingToRemove = lastTenPingValues.Dequeue();
+                pingTotal -= pingToRemove;
+                pingCount--;
+            }
+            Console.WriteLine("Aver "+PingAverage+" add "+newPing+" count"+pingCount);
+            PingAverage = pingTotal / pingCount;
+        }
 
         public EndPoint EndPoint
         {
@@ -47,7 +68,9 @@ namespace SpeedBallServer
             ackTable = new Dictionary<uint, Packet>();
             Malus = 0;
             pingTimer = new Timer(1,AttemptPing,true);
-            PingValue = -1;
+            LastPingValue = -1;
+            lastTenPingValues = new Queue<float>();
+            maxPingCount = 10;
             pingTimer.Start();
         }
 
@@ -167,10 +190,11 @@ namespace SpeedBallServer
 
         public void Pong(uint packetId)
         {
-            //Console.WriteLine("received pong "+packetId+" "+pingPacketId);
+            //Console.WriteLine("received pong "+packetId+" expected "+pingPacketId);
             if (pingPacketId==packetId)
             {
-                PingValue = server.Now - sendedPingTimestamp;
+                LastPingValue = server.Now - sendedPingTimestamp;
+                PingReceived(LastPingValue);
                 pingPacketId = 0;
                 waitingForPong = false;
             }

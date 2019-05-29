@@ -90,6 +90,12 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
 
+            //update packets
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+
             //can finally dequeue the welcome packet for the second client
             byte[] welcomePacket = transport.ClientDequeue().data;
 

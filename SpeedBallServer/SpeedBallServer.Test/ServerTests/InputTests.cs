@@ -126,7 +126,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void MovementPlayerAfterMaliciusSelectPlayerGameStarted()
+        public void MovePlayerGameStarted()
         {
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
@@ -138,9 +138,9 @@ namespace SpeedBallServer.Test.ServerTests
 
             byte[] welcomePacketData = transport.ClientDequeue().data;
             uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
-            Vector2 startPos=(server.GameObjectsTable[playerId].Position);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
 
-            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Movement,1f,0f);
+            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Movement, 1f, 0f);
             FakeData fakePack = new FakeData();
             fakePack.data = SelectPlayerPacket.GetData();
             fakePack.endPoint = firstClient;
@@ -153,7 +153,57 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(updateTime);
             server.SingleStep();
 
-            Assert.That(startPos+(new Vector2(1f,0f)*updateTime*5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+        }
+
+        [Test]
+        public void VelocityResetAfterChangePlayer()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
+
+            Packet MovePlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Movement, 1f, 0f);
+            FakeData fakePack = new FakeData();
+            fakePack.data = MovePlayerPacket.GetData();
+            fakePack.endPoint = firstClient;
+
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            float updateTime = 1f;
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+
+            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.SelectPlayer, playerId + 1);
+            fakePack = new FakeData();
+            fakePack.data = SelectPlayerPacket.GetData();
+            fakePack.endPoint = firstClient;
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(playerId, Is.Not.EqualTo(server.GetClientControlledPlayer(firstClient)));
+            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
         }
     }
 }

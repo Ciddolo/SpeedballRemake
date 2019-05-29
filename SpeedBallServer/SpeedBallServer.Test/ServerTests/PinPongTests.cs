@@ -104,6 +104,11 @@ namespace SpeedBallServer.Test.ServerTests
             //dequeueing first player spawn of the second team
             transport.ClientDequeue();
 
+            //dequeueing updates
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
             byte[] secondPingPacket = (transport.ClientDequeue()).data;
 
             Assert.That(secondPingPacket[0], Is.EqualTo((byte)PacketsCommands.Ping));
@@ -147,13 +152,13 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(.5f);
             server.SingleStep();
 
-            Assert.That(server.GetClientPing(firstClient), Is.EqualTo(.5f));
+            Assert.That(server.GetClientLastPing(firstClient), Is.EqualTo(.5f));
         }
 
         [Test]
         public void DefaultClientPing()
         {
-            Assert.That(server.GetClientPing(firstClient),Is.EqualTo(-1f));
+            Assert.That(server.GetClientLastPing(firstClient),Is.EqualTo(-1f));
         }
 
         [Test]
@@ -172,7 +177,8 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(.4f);
             server.SingleStep();
 
-            Assert.That(server.GetClientPing(firstClient), Is.EqualTo(.9f));
+            Assert.That(server.GetClientLastPing(firstClient), Is.EqualTo(.9f));
+            Assert.That(server.GetClientPingAverage(firstClient), Is.EqualTo(.9f));
         }
 
         [Test]
@@ -205,6 +211,11 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
 
             //dequeueing first player spawn of the second team
+            transport.ClientDequeue();
+
+            //dequeueing updates
+            transport.ClientDequeue();
+            transport.ClientDequeue();
             transport.ClientDequeue();
 
             pingPacket = (transport.ClientDequeue()).data;
@@ -269,6 +280,90 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
 
             Assert.That(transport.GetSendQueueCount, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void SendPongPacketCheckAverage()
+        {
+            byte[] pingPacket = (transport.ClientDequeue()).data;
+
+            uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            FakeData pongPacket = new FakeData();
+            pongPacket.endPoint = firstClient;
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
+
+            clock.IncreaseTimeStamp(2f);
+            transport.ClientEnqueue(pongPacket);
+            server.SingleStep();
+
+            //dequeue 3 update 4 spawn 1 welcome
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            server.SingleStep();
+
+            pingPacket = (transport.ClientDequeue()).data;
+
+            pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            pongPacket = new FakeData();
+            pongPacket.endPoint = firstClient;
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
+
+            clock.IncreaseTimeStamp(1f);
+            transport.ClientEnqueue(pongPacket);
+
+            //dequeue 3 update 4 spawn 1 welcome
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            server.SingleStep();
+
+            //dequeue 3 update 4 spawn 1 welcome
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            server.SingleStep();
+
+            pingPacket = (transport.ClientDequeue()).data;
+
+            pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
+
+            pongPacket = new FakeData();
+            pongPacket.endPoint = firstClient;
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
+
+            clock.IncreaseTimeStamp(1f);
+            transport.ClientEnqueue(pongPacket);
+
+            //dequeue 3 updates
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            server.SingleStep();
+
+            Assert.That(server.GetClientLastPing(firstClient), Is.EqualTo(1f));
+            Assert.That(server.GetClientPingAverage(firstClient), Is.EqualTo(4f/3f));
         }
     }
 }
