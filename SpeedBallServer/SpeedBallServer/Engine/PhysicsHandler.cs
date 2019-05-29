@@ -46,14 +46,14 @@ namespace SpeedBallServer
 
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
             DeleteItemsToRemove();
 
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i].GameObject.IsActive)
-                    items[i].Update();
+                    items[i].Update(deltaTime);
             }
         }
 

@@ -23,6 +23,9 @@ namespace SpeedBallServer
         public uint TeamId;
         public PlayerState State;
 
+        private Ball ball;
+        public Ball Ball { get { return ball; } set { ball = value; } }
+
         public Player(GameServer server,float Width,float Height)
             : base((int)InternalObjectsId.Player, server, Height, Width)
         {
@@ -32,6 +35,7 @@ namespace SpeedBallServer
             RigidBody.Type = (uint)ColliderType.Player;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
             RigidBody.AddCollision((uint)ColliderType.Player);
+            RigidBody.AddCollision((uint)ColliderType.Ball);
         }
 
         public void SetStartingPosition(Vector2 startingPos)
@@ -48,8 +52,8 @@ namespace SpeedBallServer
 
         public void SetMovingDirection(Vector2 newLookingRotation)
         {
-            //this.direction = Vector2.Normalize(newLookingRotation);
             this.direction = newLookingRotation;
+            this.RigidBody.Velocity = direction * velocity;
         }
 
         public void SetMovingDirection(float x, float y)
@@ -70,19 +74,13 @@ namespace SpeedBallServer
             direction = Vector2.Zero;
         }
 
-        public void Tick()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Destroy()
         {
             throw new NotImplementedException();
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
-            this.Position += direction * server.UpdateFrequency * velocity;
             server.SendToAllClients(GetUpdatePacket());
         }
 
@@ -116,6 +114,11 @@ namespace SpeedBallServer
                         this.Position -= new Vector2(0, deltaY);
                     }
                 }
+            }
+            else if (collisionInfo.Collider is Ball)
+            {
+                ball = (Ball)collisionInfo.Collider;
+                ((Ball)collisionInfo.Collider).SetBallOwner(this);
             }
         }
     }

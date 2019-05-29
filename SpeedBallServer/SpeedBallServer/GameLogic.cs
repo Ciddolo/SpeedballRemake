@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net;
+using System.Numerics;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -235,8 +235,6 @@ namespace SpeedBallServer
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
 
-            Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
-            playerToStop.SetMovingDirection(new System.Numerics.Vector2(0.0f, 0.0f));
 
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
@@ -245,6 +243,9 @@ namespace SpeedBallServer
             {
                 if (playerToControl.Owner == sender)
                 {
+                    Player playerToStop = (Player)server.GameObjectsTable[Clients[sender].ControlledPlayerId];
+                    playerToStop.SetMovingDirection(new Vector2(0.0f, 0.0f));
+
                     Clients[sender].ControlledPlayerId = playerId;
                 }
                 else
@@ -268,7 +269,7 @@ namespace SpeedBallServer
             {
                 float x = BitConverter.ToSingle(data,6);
                 float y = BitConverter.ToSingle(data,10);
-                playerToMove.SetMovingDirection(new System.Numerics.Vector2(x, y));
+                playerToMove.SetMovingDirection(new Vector2(x, y));
             }
             else
             {
@@ -278,7 +279,24 @@ namespace SpeedBallServer
 
         private void Shot(byte[] data, GameClient sender)
         {
+            uint playerId = Clients[sender].ControlledPlayerId;
+            Player player = (Player)server.GameObjectsTable[playerId];
 
+            if (player.Ball != null)
+            {
+                Ball ball = player.Ball;
+                float offset = 3.0f;
+                float directionX = BitConverter.ToSingle(data, 6);
+                float directionY = BitConverter.ToSingle(data, 10);
+                float force = BitConverter.ToSingle(data, 14);
+
+                ball.SetBallOwner(null);
+                ball.Position += new System.Numerics.Vector2(directionX, directionY) * offset;
+                ball.RigidBody.IsCollisionsAffected = true;
+                ball.RigidBody.Velocity = new System.Numerics.Vector2(directionX, directionY) * force;
+
+                player.Ball = null;
+            }
         }
 
         private void Tackle(byte[] data, GameClient sender)
@@ -291,8 +309,7 @@ namespace SpeedBallServer
 
         public void GetPlayerInput(byte[] data,GameClient client)
         {
-
-            ////Console.WriteLine("taking input");
+            //Console.WriteLine("taking input");
             //if (GameStatus != GameState.Playing)
             //{
             //    //Console.WriteLine("not playing");
@@ -323,12 +340,10 @@ namespace SpeedBallServer
             {
                 Player playerToMove = (Player)gameObject;
 
-                float posX, posY, dirX, dirY;
+                float posX, posY;
 
                 posX = BitConverter.ToSingle(packetData, 9);
                 posY = BitConverter.ToSingle(packetData, 13);
-                dirX = BitConverter.ToSingle(packetData, 17);
-                dirY = BitConverter.ToSingle(packetData, 21);
 
                 playerToMove.SetPosition(posX,posY);
             }
@@ -340,10 +355,10 @@ namespace SpeedBallServer
 
         public void Update()
         {
-            physicsHandler.Update();
+            physicsHandler.Update(server.UpdateFrequency);
             foreach (IUpdatable item in updatableItems)
             {
-               item.Update();
+                item.Update(server.UpdateFrequency);
             }
             physicsHandler.CheckCollisions();
         }

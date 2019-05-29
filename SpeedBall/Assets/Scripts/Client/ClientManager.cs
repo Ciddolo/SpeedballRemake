@@ -173,20 +173,20 @@ public class ClientManager : MonoBehaviour
             Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Movement, direction.x, direction.y));
         }
         //SHOT
-        //if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
-        //{
-        //    Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
-        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
-        //    teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
-        //}
-        //else //TACKLE
-        //{
-        //    Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-        //    teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
-        //    teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
-        //    Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
-        //}
+        if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
+        {
+            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
+            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
+        }
+        else //TACKLE
+        {
+            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
+            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
+            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
+        }
     }
 
     private void CameraInput()
@@ -202,7 +202,12 @@ public class ClientManager : MonoBehaviour
 
     public void SendShot(float directionX, float directionY, float force)
     {
-        Send(new Packet(PacketsCommands.Input, InputType.Shot, directionX, directionY, force));
+        Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Shot, directionX, directionY, force));
+    }
+
+    public void SendTackle()
+    {
+        Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
     }
 
     private void CalculatePing()
@@ -289,7 +294,6 @@ public class ClientManager : MonoBehaviour
                 {
                     uint packetId = BitConverter.ToUInt32(data, 2);
                     isGettingPing = false;
-                    Debug.Log(GetPing());
                 }
                 else if (command == (byte)PacketsCommands.Ping)
                 {
