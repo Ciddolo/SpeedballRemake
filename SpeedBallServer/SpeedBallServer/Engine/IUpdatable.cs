@@ -8,8 +8,7 @@ namespace SpeedBallServer
 {
     public interface IUpdatable
     {
-        void Update();
-        void Tick();
+        void Update(float deltaTime);
         void Reset();
     }
 }

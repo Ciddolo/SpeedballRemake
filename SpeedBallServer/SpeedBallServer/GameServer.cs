@@ -98,11 +98,18 @@ namespace SpeedBallServer
             return (int)clientsTable[client].Malus;
         }
 
-        public float GetClientPing(EndPoint client)
+        public float GetClientLastPing(EndPoint client)
         {
             if (!CheckIfClientJoined(client))
                 return -1;
-            return clientsTable[client].PingValue;
+            return clientsTable[client].LastPingValue;
+        }
+
+        public float GetClientPingAverage(EndPoint client)
+        {
+            if (!CheckIfClientJoined(client))
+                return -1;
+            return clientsTable[client].PingAverage;
         }
 
         //cached time value

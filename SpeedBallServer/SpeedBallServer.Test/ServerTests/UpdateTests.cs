@@ -116,6 +116,11 @@ namespace SpeedBallServer.Test.ServerTests
             //dequeueing first player spawn of the second team
             transport.ClientDequeue();
 
+            //updates
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = secondClient;
@@ -129,6 +134,11 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
 
             //dequeue ping packet first client
+            transport.ClientDequeue();
+
+            //updates
+            transport.ClientDequeue();
+            transport.ClientDequeue();
             transport.ClientDequeue();
 
             //welcome

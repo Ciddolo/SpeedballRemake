@@ -40,6 +40,11 @@ namespace SpeedBallServer.Test.ServerTests
 
             //dequeue ping packet
             transport.ClientDequeue();
+            //update packets
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
         }
 
         [Test]
@@ -52,12 +57,21 @@ namespace SpeedBallServer.Test.ServerTests
 
             //dequeue ping packet
             transport.ClientDequeue();
+            //update packets
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
 
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
             //dequeue ping packet
             transport.ClientDequeue();
+            //update packets
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
 
             //on this increaseTimestamp/singleStep the client will not receive the copy of the 5 packets, out of attempts
             clock.IncreaseTimeStamp(1f);
@@ -65,6 +79,11 @@ namespace SpeedBallServer.Test.ServerTests
 
             //dequeue ping packet
             transport.ClientDequeue();
+            //update packets
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
 
             Assert.That(transport.GetSendQueueCount(), Is.EqualTo(15));
         }

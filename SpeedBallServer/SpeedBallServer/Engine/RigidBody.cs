@@ -68,14 +68,13 @@ namespace SpeedBallServer
             Velocity = new Vector2(vX, Velocity.Y);
         }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
+            this.Position += Velocity * deltaTime;
             //if (IsGravityAffected)
             //{
             //    AddVelocity(0, Gravity * DeltaTime);
             //}
-
-            //Position += Velocity * DeltaTime;
         }
     }
 }
