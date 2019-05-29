@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace SpeedBallServer
 {
-    public class Ball : GameObject,IUpdatable
+    public class Ball : GameObject, IUpdatable
     {
         public Player PlayerWhoOwnsTheBall { get; private set; }
         private Vector2 startingPosition;
@@ -19,6 +19,7 @@ namespace SpeedBallServer
         {
             RigidBody.Type = (uint)ColliderType.Ball;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
+            RigidBody.AddCollision((uint)ColliderType.Net);
             RigidBody.IsGravityAffected = true;
         }
 
@@ -62,6 +63,11 @@ namespace SpeedBallServer
                 else
                     this.RigidBody.SetYVelocity(-RigidBody.Velocity.Y);
             }
+            else if (collisionInfo.Collider is Net)
+            {
+                if (gameLogic != null)
+                    gameLogic.OnGoal((Net)collisionInfo.Collider);
+            }
         }
 
         public void SetStartingPosition(float x, float y)
@@ -83,6 +89,8 @@ namespace SpeedBallServer
 
         public void Update(float deltaTime)
         {
+            //Console.WriteLine(Id + " im at" + this.Position);
+
             if (PlayerWhoOwnsTheBall != null)
                 this.Position = PlayerWhoOwnsTheBall.Position;
 

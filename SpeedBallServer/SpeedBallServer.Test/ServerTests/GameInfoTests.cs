@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Numerics;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SpeedBallServer.Test.ServerTests
 {
@@ -175,6 +179,95 @@ namespace SpeedBallServer.Test.ServerTests
 
             Assert.That(playerObjectIdFromGameInfo, Is.Not.EqualTo(playerObjectId));
             Assert.That(playerObjectIdFromGameInfo, Is.EqualTo(playerObjectId + 1));
+        }
+
+        [Test]
+        public void TestScoreUpdate()
+        {
+            server.GetBall().SetPosition(20f, 20f);
+
+            uint myObjId = server.GetClientControlledPlayer(firstClient);
+            server.GameObjectsTable[myObjId].Position = new Vector2(100f, 100f);
+            Assert.That(server.GameObjectsTable[myObjId].Position, Is.Not.EqualTo(new Vector2(-1, 0f)));
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //while(true)
+            //{
+            //    byte[] outp = transport.ClientDequeue().data;
+            //    Console.WriteLine(outp[0]);
+            //}
+
+            //dequeue ping
+            transport.ClientDequeue();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            Console.WriteLine(playerObjectId);
+
+            //spawn updates and welcome
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //cane dequeue gameinfo
+            byte[] gameInfoPacket = (transport.ClientDequeue()).data;
+
+            //reading controlled id object from game info packet
+            uint teamOneScore = BitConverter.ToUInt32(gameInfoPacket, 5);
+            uint teamTwoScore = BitConverter.ToUInt32(gameInfoPacket, 9);
+
+            Assert.That(teamOneScore, Is.Not.EqualTo(1));
+            Assert.That(teamTwoScore, Is.Not.EqualTo(0));
+        }
+
+        [Test]
+        public void ObjectResetsAfterGoal()
+        {
+            server.GetBall().SetPosition(20f, 20f);
+
+            uint myObjId = server.GetClientControlledPlayer(firstClient);
+            server.GameObjectsTable[myObjId].Position = new Vector2(100f, 100f);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            //dequeue ping
+            transport.ClientDequeue();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            //Console.WriteLine(playerObjectId);
+
+            //spawn updates and welcome
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //cane dequeue gameinfo
+            byte[] gameInfoPacket = (transport.ClientDequeue()).data;
+
+            //reading controlled id object from game info packet
+            uint teamOneScore = BitConverter.ToUInt32(gameInfoPacket, 5);
+            uint teamTwoScore = BitConverter.ToUInt32(gameInfoPacket, 9);
+
+            Assert.That(server.GetBall().Position, Is.EqualTo(new Vector2(30f, 30f)));
+            Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.EqualTo(new Vector2(-1, 0f)));
         }
     }
 }
