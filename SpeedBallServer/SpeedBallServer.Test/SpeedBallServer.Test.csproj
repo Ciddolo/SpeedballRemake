@@ -56,6 +56,7 @@
     <Compile Include="EngineTests\CollisionTests.cs" />
     <Compile Include="ServerTests\AckTests.cs" />
     <Compile Include="ServerTests\DisconnectionTests.cs" />
+    <Compile Include="ServerTests\GameInfoTests.cs" />
     <Compile Include="ServerTests\GameLogicTests.cs" />
     <Compile Include="ServerTests\InputTests.cs" />
     <Compile Include="ServerTests\JoinTests.cs" />

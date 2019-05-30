@@ -8,12 +8,6 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    public class ClientInfo
-    {
-        public uint TeamId;
-        public uint ControlledPlayerId;
-    }
-
     public enum InputType
     {
         SelectPlayer,
@@ -34,67 +28,59 @@ namespace SpeedBallServer
     {
         private GameServer server;
         public GameState GameStatus;
-        public Dictionary<GameClient, ClientInfo> Clients;
+        public Dictionary<GameClient, Team> Clients;
         private float startTimestamp;
+        public Ball Ball { get; protected set; }
 
         public uint[] Score;
 
         private List<IUpdatable> updatableItems;
         private PhysicsHandler physicsHandler;
-        private List<Player>[] teams;
-        private List<Player> teamOneControllablePlayers;
-        private List<Player> teamTwoControllablePlayers;
+        private Team[] teams;
 
-        private uint defaultPlayerTeamOneId,defaultPlayerTeamTwoId;
-
-        public uint AddClient(GameClient client,out uint controlledPlayerId)
+        public uint AddClient(GameClient client, out uint controlledPlayerId)
         {
-            ClientInfo newClientInfo = new ClientInfo();
-
-            newClientInfo.TeamId = 0;
-            newClientInfo.ControlledPlayerId = teamOneControllablePlayers[(int)defaultPlayerTeamOneId].Id;
-
             if (!Clients.ContainsKey(client))
             {
-                if (Clients.Count == 1 )
-                {
-                    if(Clients.First().Value.TeamId==0)
-                    {
-                        newClientInfo.TeamId = 1;
-                        newClientInfo.ControlledPlayerId = teamTwoControllablePlayers[(int)defaultPlayerTeamTwoId].Id;
-                    }
+                Team teamToAssign = null;
 
-                    GameStatus = GameState.Playing;
-                    startTimestamp = server.Now;
+                foreach (Team item in teams)
+                {
+                    if (!item.HasOwner)
+                    {
+                        teamToAssign = item;
+                        break;
+                    }
                 }
 
-                Clients.Add(client,newClientInfo);
+                if (teamToAssign == null)
+                    throw new Exception("Third client should nover join and try to get a team.");
+
+                teamToAssign.SetTeamOwner(client);
+
+                Clients.Add(client, teamToAssign);
+
+                if (Clients.Count >= server.MaxPlayers)
+                {
+                    startTimestamp = server.Now;
+                    GameStatus = GameState.Playing;
+                }
+
+                controlledPlayerId = teamToAssign.ControlledPlayerId;
+
+                return teamToAssign.TeamId;
             }
 
-            foreach (Player player in teams[newClientInfo.TeamId])
-            {
-                player.SetOwner(client);
-            }
-
-            if (Clients.Count >= server.MaxPlayers)
-            {
-                GameStatus = GameState.Playing;
-            }
-
-            controlledPlayerId = newClientInfo.ControlledPlayerId;
-
-            return newClientInfo.TeamId;
+            controlledPlayerId = 0;
+            return 0;
         }
 
         public void RemovePlayer(GameClient clientToRemove)
         {
-            foreach (Player player in teams[Clients[clientToRemove].TeamId])
-            {
-                player.SetOwner(null);
-            }
-
+            Clients[clientToRemove].Reset();
             Clients.Remove(clientToRemove);
-            if(GameStatus==GameState.Playing)
+
+            if (GameStatus == GameState.Playing)
                 GameStatus = GameState.Ended;
         }
 
@@ -104,29 +90,43 @@ namespace SpeedBallServer
             physicsHandler.AddItem(myObstacle.RigidBody);
             myObstacle.SetPosition(0f, 3f);
 
-            Player defPlayerTeamOne = server.Spawn<Player>(1,1);
-            defaultPlayerTeamOneId = 0;
+            Player defPlayerTeamOne = server.Spawn<Player>(1, 1);
             defPlayerTeamOne.SetStartingPosition(-1f, 0f);
             defPlayerTeamOne.TeamId = 0;
-            teamOneControllablePlayers.Add(defPlayerTeamOne);
             updatableItems.Add(defPlayerTeamOne);
             physicsHandler.AddItem(defPlayerTeamOne.RigidBody);
 
-            Player defAnotherPlayerTeamOne = server.Spawn<Player>(1,1);
+            teams[0].AddPlayer(defPlayerTeamOne);
+            teams[0].DefaultControlledPlayerId = defPlayerTeamOne.Id;
+
+
+            Player defAnotherPlayerTeamOne = server.Spawn<Player>(1, 1);
             defAnotherPlayerTeamOne.SetStartingPosition(3f, 0f);
             defAnotherPlayerTeamOne.TeamId = 0;
             updatableItems.Add(defAnotherPlayerTeamOne);
             physicsHandler.AddItem(defAnotherPlayerTeamOne.RigidBody);
 
-            teamOneControllablePlayers.Add(defAnotherPlayerTeamOne);
+            teams[0].AddPlayer(defAnotherPlayerTeamOne);
 
-            Player defPlayerTeamTwo = server.Spawn<Player>(1,1);
-            defaultPlayerTeamTwoId = 0;
+            Player defPlayerTeamTwo = server.Spawn<Player>(1, 1);
             defPlayerTeamTwo.SetStartingPosition(1f, 0f);
             defPlayerTeamTwo.TeamId = 1;
-            teamTwoControllablePlayers.Add(defPlayerTeamTwo);
+
+            teams[1].AddPlayer(defPlayerTeamTwo);
+            teams[1].DefaultControlledPlayerId = defPlayerTeamTwo.Id;
             physicsHandler.AddItem(defPlayerTeamTwo.RigidBody);
+
             updatableItems.Add(defPlayerTeamTwo);
+
+            Ball = new Ball(this.server, 1, 1);
+            updatableItems.Add(Ball);
+            Ball.gameLogic = this;
+            physicsHandler.AddItem(Ball.RigidBody);
+            Ball.SetStartingPosition(30f, 30f);
+
+            Net teamTwoNet = new Net(this.server, 4, 4);
+            teamTwoNet.Position = new Vector2(20, 20);
+            physicsHandler.AddItem(teamTwoNet.RigidBody);
 
             ResetPositions();
         }
@@ -136,9 +136,6 @@ namespace SpeedBallServer
             Level levelData = JsonConvert.DeserializeObject<Level>(serializedLevel);
 
             PlayersInfo playerInfo = levelData.PlayerInfo;
-
-            defaultPlayerTeamTwoId = (uint)playerInfo.DefaultPlayerIndex;
-            defaultPlayerTeamOneId = (uint)playerInfo.DefaultPlayerIndex;
 
             foreach (var obstacleInfo in levelData.Walls)
             {
@@ -157,12 +154,15 @@ namespace SpeedBallServer
                 player.SetStartingPosition(data.Position);
 
                 player.TeamId = 0;
-                teamOneControllablePlayers.Add(player);
+                teams[0].AddPlayer(player);
 
                 updatableItems.Add(player);
                 physicsHandler.AddItem(player.RigidBody);
 
                 player.Name = levelData.TeamOneSpawnPositions[i].Name;
+
+                if ((uint)playerInfo.DefaultPlayerIndex == i)
+                    (teams[0]).DefaultControlledPlayerId = player.Id;
             }
 
             for (int i = 0; i < levelData.TeamTwoSpawnPositions.Count; i++)
@@ -172,12 +172,15 @@ namespace SpeedBallServer
                 player.SetStartingPosition(data.Position);
 
                 player.TeamId = 1;
-                teamTwoControllablePlayers.Add(player);
+                teams[1].AddPlayer(player);
 
                 updatableItems.Add(player);
                 physicsHandler.AddItem(player.RigidBody);
 
                 player.Name = levelData.TeamOneSpawnPositions[i].Name;
+
+                if ((uint)playerInfo.DefaultPlayerIndex == i)
+                    (teams[1]).DefaultControlledPlayerId = player.Id;
             }
 
             Net TeamOneNet = server.Spawn<Net>(levelData.NetTeamOne.Height, levelData.NetTeamOne.Width);
@@ -194,12 +197,29 @@ namespace SpeedBallServer
 
             Ball Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);
             Ball.Name = levelData.Ball.Name;
+            Ball.gameLogic = this;
+            Ball.SetStartingPosition(levelData.Ball.Position);
             physicsHandler.AddItem(Ball.RigidBody);
             updatableItems.Add(Ball);
-
         }
 
-        public void SpawnLevel(string serializedLevel=null)
+        public void OnBallTaken(Player playerTakingBall)
+        {
+            Console.WriteLine("changing team" + playerTakingBall.TeamId + " controlled" + playerTakingBall.Id);
+            uint playerTeamId = playerTakingBall.TeamId;
+            teams[playerTeamId].ControlledPlayer.SetMovingDirection(Vector2.Zero);
+            teams[playerTeamId].ControlledPlayerId = playerTakingBall.Id;
+        }
+
+        public void OnGoal(Net collidedNet)
+        {
+            int scoreToIncrement = ((int)collidedNet.TeamId + 1) % server.MaxPlayers;
+            Score[scoreToIncrement]++;
+
+            this.ResetPositions();
+        }
+
+        public void SpawnLevel(string serializedLevel = null)
         {
             if (serializedLevel == null)
                 SpawnTestingLevel();
@@ -207,8 +227,6 @@ namespace SpeedBallServer
                 SpawnSerializedLevel(serializedLevel);
 
             Console.WriteLine("Loaded Level");
-            teams[0] = teamOneControllablePlayers;
-            teams[1] = teamTwoControllablePlayers;
 
             Score = new uint[server.MaxPlayers];
         }
@@ -216,11 +234,14 @@ namespace SpeedBallServer
         public GameLogic(GameServer server)
         {
             this.server = server;
-            Clients = new Dictionary<GameClient, ClientInfo>();
+            Clients = new Dictionary<GameClient, Team>();
             GameStatus = GameState.WaitingForPlayers;
-            teams = new List<Player>[server.MaxPlayers];
-            teamOneControllablePlayers = new List<Player>();
-            teamTwoControllablePlayers = new List<Player>();
+            teams = new Team[server.MaxPlayers];
+            teams[0] = new Team(0);
+            teams[1] = new Team(1);
+
+            //teamOneControllablePlayers = new List<Player>();
+            //teamTwoControllablePlayers = new List<Player>();
             updatableItems = new List<IUpdatable>();
             physicsHandler = new PhysicsHandler();
 
@@ -234,7 +255,6 @@ namespace SpeedBallServer
         private void SelectPlayer(byte[] data, GameClient sender)
         {
             uint playerId = BitConverter.ToUInt32(data, 6);
-
 
             GameObject playerToControl = server.GameObjectsTable[playerId];
             //Console.WriteLine("selecting "+playerId+" selected"+ Clients[sender].ControlledPlayerId);
@@ -267,8 +287,8 @@ namespace SpeedBallServer
 
             if (playerToMove.Owner == sender)
             {
-                float x = BitConverter.ToSingle(data,6);
-                float y = BitConverter.ToSingle(data,10);
+                float x = BitConverter.ToSingle(data, 6);
+                float y = BitConverter.ToSingle(data, 10);
                 playerToMove.SetMovingDirection(new Vector2(x, y));
             }
             else
@@ -307,7 +327,7 @@ namespace SpeedBallServer
         private Dictionary<byte, GameCommand> inputCommandsTable;
         private delegate void GameCommand(byte[] data, GameClient sender);
 
-        public void GetPlayerInput(byte[] data,GameClient client)
+        public void GetPlayerInput(byte[] data, GameClient client)
         {
             //Console.WriteLine("taking input");
             //if (GameStatus != GameState.Playing)
@@ -325,7 +345,7 @@ namespace SpeedBallServer
             }
         }
 
-        public void ClientUpdate(byte[] packetData,GameClient client)
+        public void ClientUpdate(byte[] packetData, GameClient client)
         {
             if (GameStatus != GameState.Playing)
             {
@@ -336,7 +356,7 @@ namespace SpeedBallServer
             uint netId = BitConverter.ToUInt32(packetData, 5);
             GameObject gameObject = server.GameObjectsTable[netId];
 
-            if (gameObject.IsOwnedBy(client) && Clients[client].ControlledPlayerId==netId)
+            if (gameObject.IsOwnedBy(client) && Clients[client].ControlledPlayerId == netId)
             {
                 Player playerToMove = (Player)gameObject;
 
@@ -345,7 +365,7 @@ namespace SpeedBallServer
                 posX = BitConverter.ToSingle(packetData, 9);
                 posY = BitConverter.ToSingle(packetData, 13);
 
-                playerToMove.SetPosition(posX,posY);
+                playerToMove.SetPosition(posX, posY);
             }
             else
             {
@@ -361,6 +381,8 @@ namespace SpeedBallServer
                 item.Update(server.UpdateFrequency);
             }
             physicsHandler.CheckCollisions();
+
+            server.SendToAllClients(this.GetGameInfoPacket());
         }
 
         public void ResetPositions()
@@ -380,7 +402,11 @@ namespace SpeedBallServer
 
         public Packet GetGameInfoPacket()
         {
-            return new Packet((int)PacketsCommands.GameInfo, false, Score[0], Score[1], (uint)GameStatus);
+            uint controlledPlayerIdTeamOne = teams[0].ControlledPlayerId;
+            uint controlledPlayerIdTeamTwo = teams[1].ControlledPlayerId;
+
+            return new Packet(PacketsCommands.GameInfo, false, Score[0], Score[1],
+                controlledPlayerIdTeamOne, controlledPlayerIdTeamTwo, (uint)GameStatus);
         }
     }
 }

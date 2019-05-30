@@ -19,7 +19,7 @@ namespace SpeedBallServer.Test.ServerTests
             transport.Bind("127.0.0.1", 5000);
 
             //initializing server
-            server = new GameServer(transport, clock,2);
+            server = new GameServer(transport, clock, 2);
 
             //initializinng client
             firstClient = new FakeEndPoint("192.168.1.1", 5001);
@@ -108,6 +108,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo packet
+            transport.ClientDequeue();
 
             byte[] secondPingPacket = (transport.ClientDequeue()).data;
 
@@ -158,7 +162,7 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void DefaultClientPing()
         {
-            Assert.That(server.GetClientLastPing(firstClient),Is.EqualTo(-1f));
+            Assert.That(server.GetClientLastPing(firstClient), Is.EqualTo(-1f));
         }
 
         [Test]
@@ -166,11 +170,11 @@ namespace SpeedBallServer.Test.ServerTests
         {
             byte[] pingPacket = (transport.ClientDequeue()).data;
 
-            uint pingPacketId = BitConverter.ToUInt32(pingPacket,1);
+            uint pingPacketId = BitConverter.ToUInt32(pingPacket, 1);
 
-            FakeData pongPacket=new FakeData();
+            FakeData pongPacket = new FakeData();
             pongPacket.endPoint = firstClient;
-            pongPacket.data = (new Packet(PacketsCommands.Pong,false,pingPacketId)).GetData();
+            pongPacket.data = (new Packet(PacketsCommands.Pong, false, pingPacketId)).GetData();
 
             clock.IncreaseTimeStamp(.5f);
             transport.ClientEnqueue(pongPacket);
@@ -216,6 +220,10 @@ namespace SpeedBallServer.Test.ServerTests
             //dequeueing updates
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo packet
             transport.ClientDequeue();
 
             pingPacket = (transport.ClientDequeue()).data;
@@ -306,6 +314,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo packet
+            transport.ClientDequeue();
 
             server.SingleStep();
 
@@ -329,6 +341,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo packet
+            transport.ClientDequeue();
 
             server.SingleStep();
 
@@ -340,6 +356,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo packet
             transport.ClientDequeue();
 
             server.SingleStep();
@@ -363,7 +383,7 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
 
             Assert.That(server.GetClientLastPing(firstClient), Is.EqualTo(1f));
-            Assert.That(server.GetClientPingAverage(firstClient), Is.EqualTo(4f/3f));
+            Assert.That(server.GetClientPingAverage(firstClient), Is.EqualTo(4f / 3f));
         }
     }
 }

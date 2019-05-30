@@ -7,16 +7,27 @@ using System.Numerics;
 
 namespace SpeedBallServer
 {
-    public class Ball : GameObject,IUpdatable
+    public class Ball : GameObject, IUpdatable
     {
-        private Player playerWhoOwnsTheBall;
+        public Player PlayerWhoOwnsTheBall { get; private set; }
+        private Vector2 startingPosition;
+
+        public GameLogic gameLogic;
+
+        private float maxVelocity, velocityMagnificationTreshold;
+
+        public float Magnification { get; private set; }
 
         public Ball(GameServer server, float Height, float Width)
             : base((int)InternalObjectsId.Ball, server, Height, Width)
         {
             RigidBody.Type = (uint)ColliderType.Ball;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
+            RigidBody.AddCollision((uint)ColliderType.Net);
             RigidBody.IsGravityAffected = true;
+
+            maxVelocity = 20f;
+            velocityMagnificationTreshold = 15f;
         }
 
         public override void Destroy()
@@ -59,31 +70,61 @@ namespace SpeedBallServer
                 else
                     this.RigidBody.SetYVelocity(-RigidBody.Velocity.Y);
             }
+            else if (collisionInfo.Collider is Net)
+            {
+                if (gameLogic != null)
+                    gameLogic.OnGoal((Net)collisionInfo.Collider);
+            }
+        }
+
+        public void SetStartingPosition(float x, float y)
+        {
+            this.SetStartingPosition(new Vector2(x, y));
+        }
+
+        public void SetStartingPosition(Vector2 startingPos)
+        {
+            this.Position = startingPos;
+            startingPosition = startingPos;
         }
 
         public void Reset()
         {
-            throw new NotImplementedException();
+            this.Position = startingPosition;
+            this.RigidBody.Velocity = Vector2.Zero;
         }
 
         public void Update(float deltaTime)
         {
-            if (playerWhoOwnsTheBall != null)
-                this.Position = playerWhoOwnsTheBall.Position;
+            //Console.WriteLine(Id + " im at" + this.Position);
+
+            //max velocity of the ball should be 20, over 15 the ball should be in "air" 
+            Magnification = RigidBody.Velocity.Length() - velocityMagnificationTreshold;
+            Console.WriteLine(Magnification);
+            Console.WriteLine(RigidBody.Velocity.Length());
+            if (Magnification <= 0f)
+                Magnification = 0f;
+            else
+                Magnification /= (maxVelocity - velocityMagnificationTreshold);
+
+            if (PlayerWhoOwnsTheBall != null)
+                this.Position = PlayerWhoOwnsTheBall.Position;
 
             server.SendToAllClients(GetUpdatePacket());
         }
 
         protected Packet GetUpdatePacket()
         {
-            return new Packet((byte)PacketsCommands.Update, false,
-                Id, X, Y);
+            return new Packet(PacketsCommands.Update, false,
+                Id, X, Y, Magnification);//could send owner and float magnify value
         }
 
-        public void SetBallOwner(Player owner)
+        public void SetBallOwner(Player newOwner)
         {
             this.RigidBody.IsCollisionsAffected = false;
-            playerWhoOwnsTheBall = owner;
+            PlayerWhoOwnsTheBall = newOwner;
+            if (gameLogic != null && newOwner != null)
+                gameLogic.OnBallTaken(newOwner);
         }
     }
 }

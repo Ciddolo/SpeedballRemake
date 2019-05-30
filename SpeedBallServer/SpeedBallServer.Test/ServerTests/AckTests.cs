@@ -31,7 +31,7 @@ namespace SpeedBallServer.Test.ServerTests
 
             transport.ClientEnqueue(packet);
             server.SingleStep();
-            
+
             //dequeue ping packet
             transport.ClientDequeue();
 
@@ -44,12 +44,16 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
-
         }
 
         [Test]
         public void SendAckAttempts()
         {
+            transport.ClientDequeue();
+
+            //gameinfo
+            transport.ClientDequeue();
+
             //on join received 5 packets that needs ack
             //every increaseTimestamp/singleStep the client receive the copy of the 5 packets
             clock.IncreaseTimeStamp(1f);
@@ -61,6 +65,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo
+            transport.ClientDequeue();
 
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
@@ -71,7 +79,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
 
+            //gameinfo
+            transport.ClientDequeue();
 
             //on this increaseTimestamp/singleStep the client will not receive the copy of the 5 packets, out of attempts
             clock.IncreaseTimeStamp(1f);
@@ -83,7 +94,10 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
 
+            //gameinfo
+            transport.ClientDequeue();
 
             Assert.That(transport.GetSendQueueCount(), Is.EqualTo(15));
         }
@@ -93,7 +107,6 @@ namespace SpeedBallServer.Test.ServerTests
         {
             //dequeue welcome packet
             byte[] welcomePacket = transport.ClientDequeue().data;
-
             uint packetId = BitConverter.ToUInt32(welcomePacket, 1);
 
             Assert.That(server.AcksIdsNeededFrom(firstClient).Contains(packetId), Is.EqualTo(true));
@@ -102,9 +115,7 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void SuccessfullAck()
         {
-
             byte[] welcomePacket = transport.ClientDequeue().data;
-
             uint packetId = BitConverter.ToUInt32(welcomePacket, 1);
 
             FakeData packet = new FakeData();
@@ -121,9 +132,7 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void CheckSuccessfullAckAfterSingleStep()
         {
-
             byte[] welcomePacket = transport.ClientDequeue().data;
-
             uint packetId = BitConverter.ToUInt32(welcomePacket, 1);
 
             FakeData packet = new FakeData();
@@ -142,9 +151,7 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void UnsuccessfullAck()
         {
-
             byte[] welcomePacket = transport.ClientDequeue().data;
-
             uint packetId = BitConverter.ToUInt32(welcomePacket, 1);
 
             FakeData packet = new FakeData();

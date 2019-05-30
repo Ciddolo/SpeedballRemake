@@ -66,7 +66,7 @@ namespace SpeedBallServer.Test.ServerTests
             byte[] welcomePacketData = transport.ClientDequeue().data;
             uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
 
-            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)0, playerId + 1);
+            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.SelectPlayer, playerId + 1);
             FakeData fakePack = new FakeData();
             fakePack.data = SelectPlayerPacket.GetData();
             fakePack.endPoint = firstClient;
@@ -90,7 +90,7 @@ namespace SpeedBallServer.Test.ServerTests
             byte[] welcomePacketData = transport.ClientDequeue().data;
             uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
 
-            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)0, playerId + 1);
+            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.SelectPlayer, playerId + 1);
             FakeData fakePack = new FakeData();
             fakePack.data = SelectPlayerPacket.GetData();
             fakePack.endPoint = firstClient;
@@ -204,6 +204,143 @@ namespace SpeedBallServer.Test.ServerTests
 
             Assert.That(playerId, Is.Not.EqualTo(server.GetClientControlledPlayer(firstClient)));
             Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+        }
+
+        [Test]
+        public void ShotBallGameStarted()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            server.GetBall().Position = new Vector2(-1,0);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
+
+            Console.WriteLine(server.GetBall().Position);
+
+            Packet shotPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Shot, -1f, 0f,10f);
+            FakeData fakePack = new FakeData();
+            fakePack.data = shotPacket.GetData();
+            fakePack.endPoint = firstClient;
+
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            float updateTime = 1f;
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().Position, Is.EqualTo(new Vector2(-11-3,0)));
+        }
+
+        [Test]
+        public void ShotBallMagnificationGameStarted()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            server.GetBall().Position = new Vector2(-1, 0);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
+
+            Console.WriteLine(server.GetBall().Position);
+
+            Packet shotPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Shot, -1f, 0f, 10f);
+            FakeData fakePack = new FakeData();
+            fakePack.data = shotPacket.GetData();
+            fakePack.endPoint = firstClient;
+
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            float updateTime = 1f;
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().Magnification, Is.EqualTo(0f));
+        }
+
+        [Test]
+        public void ShotBallMagnificationInAirGameStarted()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            server.GetBall().Position = new Vector2(-1, 0);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
+
+            Console.WriteLine(server.GetBall().Position);
+
+            Packet shotPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Shot, -1f, 0f, 20f);
+            FakeData fakePack = new FakeData();
+            fakePack.data = shotPacket.GetData();
+            fakePack.endPoint = firstClient;
+
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            float updateTime = 1f;
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().Magnification, Is.EqualTo(1/5f));
+        }
+
+        [Test]
+        public void PlayerInAirNotCatchable()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+            server.GetBall().Position = new Vector2(-1, 0);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            Vector2 startPos = (server.GameObjectsTable[playerId].Position);
+
+            Console.WriteLine(server.GetBall().Position);
+
+            Packet shotPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.Shot, -1f, 0f, 20f);
+            FakeData fakePack = new FakeData();
+            fakePack.data = shotPacket.GetData();
+            fakePack.endPoint = firstClient;
+
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            server.GetBall().Position = new Vector2(-1,0);
+            float updateTime = 1f;
+
+            clock.IncreaseTimeStamp(updateTime);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
         }
     }
 }

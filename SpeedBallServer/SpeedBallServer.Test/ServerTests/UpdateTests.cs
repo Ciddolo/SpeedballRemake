@@ -61,15 +61,15 @@ namespace SpeedBallServer.Test.ServerTests
             //initializing update packet
             FakeData packet = new FakeData();
 
-            packet.data = new Packet(PacketsCommands.Update,false,playerObjectId,10f,10f,10f,10f).GetData();
+            packet.data = new Packet(PacketsCommands.Update, false, playerObjectId, 10f, 10f, 10f, 10f).GetData();
             packet.endPoint = firstClient;
             transport.ClientEnqueue(packet);
 
             //reading update packet
             server.SingleStep();
-            
+
             //object should not be move since the game is in the state "WaitingForPlayers"
-            Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.Not.EqualTo(new Vector2(10f,10f)));
+            Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.Not.EqualTo(new Vector2(10f, 10f)));
         }
 
         [Test]
@@ -120,6 +120,9 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientDequeue();
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+            //gameinfo
+            transport.ClientDequeue();
 
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
@@ -139,6 +142,10 @@ namespace SpeedBallServer.Test.ServerTests
             //updates
             transport.ClientDequeue();
             transport.ClientDequeue();
+            transport.ClientDequeue();
+            transport.ClientDequeue();
+
+            //gameinfo
             transport.ClientDequeue();
 
             //welcome
@@ -167,7 +174,7 @@ namespace SpeedBallServer.Test.ServerTests
             packet.endPoint = secondClient;
             transport.ClientEnqueue(packet);
 
-            Console.WriteLine("trying to move object "+playerObjectId+"packet "+welcomeData[0] );
+            //Console.WriteLine("trying to move object " + playerObjectId + "packet " + welcomeData[0]);
             //reading update packet
             server.SingleStep();
 
@@ -197,7 +204,7 @@ namespace SpeedBallServer.Test.ServerTests
             //get controlled object position
             byte[] SpawnData = transport.ClientDequeue().data;
 
-            uint playerObjectId = BitConverter.ToUInt32(SpawnData,9);
+            uint playerObjectId = BitConverter.ToUInt32(SpawnData, 9);
 
             //initializing update packet
             packet.data = new Packet(PacketsCommands.Update, false, playerObjectId, 10f, 10f, 10f, 10f).GetData();

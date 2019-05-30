@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    class Net : GameObject
+    public class Net : GameObject
     {
         public uint TeamId;
 
         public Net(GameServer server, float Height, float Width)
             : base((int)InternalObjectsId.Net, server, Height, Width)
         {
-
+            RigidBody.Type = (uint)ColliderType.Net;
         }
 
         public override void Destroy()
