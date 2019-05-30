@@ -116,11 +116,10 @@ public class ClientManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
-            CalculatePing();
 
         Receiver();
 
+        CalculatePing();
         if (isGettingPing)
             calculatePing += Time.deltaTime;
 
@@ -211,14 +210,14 @@ public class ClientManager : MonoBehaviour
         Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
     }
 
-    private void CalculatePing()
+    public void CalculatePing()
     {
         calculatePing = 0.0f;
         isGettingPing = true;
-        Send(new Packet(PacketsCommands.Ping));
+        Send(new Packet((byte)PacketsCommands.Ping));
     }
 
-    private float GetPing()
+    public float GetPing()
     {
         currentPing = calculatePing;
         return currentPing;
@@ -289,7 +288,9 @@ public class ClientManager : MonoBehaviour
                     float x = BitConverter.ToSingle(data, 9);
                     float y = BitConverter.ToSingle(data, 13);
 
-                    spawnedObjects[id].transform.position = new Vector2(x, y);
+                    Vector2 newPosition = new Vector2(x, y);
+                    spawnedObjects[id].transform.position = newPosition;
+                    spawnedObjects[id].GetComponent<SmoothingManager>().GetNextUpdate(newPosition);
                 }
                 else if (command == (byte)PacketsCommands.Pong)
                 {
@@ -341,6 +342,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<PlayerManager>().NetId = id;
         objectToSpawn.GetComponent<PlayerManager>().Team = team;
         objectToSpawn.GetComponent<SpriteRenderer>().color = color;
+        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
             teamManager.AddPlayer(objectToSpawn);
@@ -383,6 +385,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<PlayerManager>().NetId = id;
         objectToSpawn.GetComponent<PlayerManager>().Team = team;
         objectToSpawn.GetComponent<SpriteRenderer>().color = color;
+        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
             teamManager.AddPlayer(objectToSpawn);
@@ -424,7 +427,7 @@ public class ClientManager : MonoBehaviour
             objectToSpawn.GetComponent<SpriteRenderer>().color = Color.blue;
             objectToSpawn.name = "BLUE_GOAL";
         }
- 
+
         objectToSpawn.transform.position = new Vector2(x, y);
         objectToSpawn.transform.localScale = new Vector2(width, height);
         spawnedObjects.Add(id, objectToSpawn);
@@ -439,6 +442,7 @@ public class ClientManager : MonoBehaviour
         float width = BitConverter.ToSingle(data, 25);
 
         GameObject objectToSpawn = Instantiate(BallPrefab);
+        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
         objectToSpawn.name = "BALL";
         objectToSpawn.transform.position = new Vector2(x, y);
         objectToSpawn.transform.localScale = new Vector2(width, height);
