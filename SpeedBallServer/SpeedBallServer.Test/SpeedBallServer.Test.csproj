@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EngineTests\CollisionTests.cs" />
+    <Compile Include="EngineTests\PlayerTests.cs" />
     <Compile Include="ServerTests\AckTests.cs" />
     <Compile Include="ServerTests\DisconnectionTests.cs" />
     <Compile Include="ServerTests\GameInfoTests.cs" />

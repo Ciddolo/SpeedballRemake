@@ -45,10 +45,13 @@ namespace SpeedBallServer
             }
         }
 
-        public Timer(float interval, Action callback ,bool autoRestart=false)
+        public Timer(float interval, Action callback, bool autoRestart = false)
         {
             AutomaticRestart = autoRestart;
-            Interval = interval;
+            if (interval < 0f)
+                this.Interval = 0f;
+            else
+                this.Interval = interval;
             isStarted = false;
             this.callbackToCall = callback;
         }
@@ -68,6 +71,17 @@ namespace SpeedBallServer
         public void Stop()
         {
             isStarted = false;
+        }
+
+        /// <summary>
+        /// Reset clock with new interval.
+        /// </summary>
+        public void Reset(float interval = -1f, bool autoRestart = false)
+        {
+            if (interval < 0f)
+                this.Interval = 0f;
+            else
+                this.Interval = interval;
         }
 
         /// <summary>

@@ -195,7 +195,7 @@ namespace SpeedBallServer
             TeamTwoNet.Position = levelData.NetTeamTwo.Position;
             physicsHandler.AddItem(TeamTwoNet.RigidBody);
 
-            Ball Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);
+            Ball = server.Spawn<Ball>(levelData.Ball.Height, levelData.Ball.Width);
             Ball.Name = levelData.Ball.Name;
             Ball.gameLogic = this;
             Ball.SetStartingPosition(levelData.Ball.Position);
@@ -320,21 +320,19 @@ namespace SpeedBallServer
         private void Tackle(byte[] data, GameClient sender)
         {
             Console.WriteLine("TACKLE");
+            //Console.WriteLine("tackle input");
             uint playerId = Clients[sender].ControlledPlayerId;
             Player currentPlayer = (Player)server.GameObjectsTable[playerId];
-            Player other = null;
 
-            if (currentPlayer.ColliderPlayer != null)
-                other = currentPlayer.ColliderPlayer;
+            if (currentPlayer.HasBall || currentPlayer.State != PlayerState.Idle)
+            {
+                //Console.WriteLine("cant tackle if u have the ball or u are stunned/already tackling");
+                return;
+            }
             else
-                return;
-
-            if (currentPlayer.TeamId == other.TeamId || currentPlayer.Ball != null || other.Ball == null)
-                return;
-
-            Ball ball = other.Ball;
-            ball.RemoveToPlayer();
-            ball.AttachToPlayer(currentPlayer);
+            {
+                currentPlayer.StartTackling();
+            }
         }
 
         private Dictionary<byte, GameCommand> inputCommandsTable;
@@ -389,11 +387,12 @@ namespace SpeedBallServer
         public void Update()
         {
             physicsHandler.Update(server.UpdateFrequency);
+            physicsHandler.CheckCollisions();
+
             foreach (IUpdatable item in updatableItems)
             {
                 item.Update(server.UpdateFrequency);
             }
-            physicsHandler.CheckCollisions();
 
             server.SendToAllClients(this.GetGameInfoPacket());
         }
