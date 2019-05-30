@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(BallMove))]
 public class BallBehaviour : MonoBehaviour
 {
     private const float MAGNIFY_VALUE = 10.0f;
@@ -23,18 +21,18 @@ public class BallBehaviour : MonoBehaviour
         isCatchable = true;
     }
 
-    void Update()
-    {
-        if (Owner != null)
-            return;
+    //void Update()
+    //{
+    //    if (Owner != null)
+    //        return;
 
-        if (ballMove.Force >= MAGNIFY_FORCE)
-            transform.localScale = Vector3.Lerp(transform.localScale, maxSize, MAGNIFY_VALUE * Time.deltaTime);
-        else
-            transform.localScale = Vector3.Lerp(transform.localScale, defaulSize, DEMAGNIFY_VALUE * Time.deltaTime);
+    //    if (ballMove.Force >= MAGNIFY_FORCE)
+    //        transform.localScale = Vector3.Lerp(transform.localScale, maxSize, MAGNIFY_VALUE * Time.deltaTime);
+    //    else
+    //        transform.localScale = Vector3.Lerp(transform.localScale, defaulSize, DEMAGNIFY_VALUE * Time.deltaTime);
 
-        isCatchable = transform.localScale.x <= MAX_SIZE_CATCH;
-    }
+    //    isCatchable = transform.localScale.x <= MAX_SIZE_CATCH;
+    //}
 
     void OnTriggerEnter2D(Collider2D other)
     {
