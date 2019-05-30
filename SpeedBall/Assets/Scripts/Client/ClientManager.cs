@@ -185,7 +185,8 @@ public class ClientManager : MonoBehaviour
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
-            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Tackle));
+            if (Input.GetKeyDown(tackle))
+                SendTackle();
         }
     }
 

@@ -205,7 +205,7 @@ namespace SpeedBallServer
 
         public void OnBallTaken(Player playerTakingBall)
         {
-            Console.WriteLine("changing team" + playerTakingBall.TeamId + " controlled" + playerTakingBall.Id);
+            Console.WriteLine("BALL POSSESSION CHANGED! NEW TEAM ID:[" + playerTakingBall.TeamId + "] NEW PLAYER ID:[" + playerTakingBall.Id + "]");
             uint playerTeamId = playerTakingBall.TeamId;
             teams[playerTeamId].ControlledPlayer.SetMovingDirection(Vector2.Zero);
             teams[playerTeamId].ControlledPlayerId = playerTakingBall.Id;
@@ -299,29 +299,42 @@ namespace SpeedBallServer
 
         private void Shot(byte[] data, GameClient sender)
         {
+            Console.WriteLine("SHOT");
             uint playerId = Clients[sender].ControlledPlayerId;
-            Player player = (Player)server.GameObjectsTable[playerId];
+            Player currentPlayer = (Player)server.GameObjectsTable[playerId];
 
-            if (player.Ball != null)
+            if (currentPlayer.Ball != null)
             {
-                Ball ball = player.Ball;
+                Ball ball = currentPlayer.Ball;
                 float offset = 3.0f;
                 float directionX = BitConverter.ToSingle(data, 6);
                 float directionY = BitConverter.ToSingle(data, 10);
                 float force = BitConverter.ToSingle(data, 14);
 
-                ball.SetBallOwner(null);
-                ball.Position += new System.Numerics.Vector2(directionX, directionY) * offset;
-                ball.RigidBody.IsCollisionsAffected = true;
-                ball.RigidBody.Velocity = new System.Numerics.Vector2(directionX, directionY) * force;
-
-                player.Ball = null;
+                ball.Position += new Vector2(directionX, directionY) * offset;
+                ball.RemoveToPlayer();
+                ball.RigidBody.Velocity = new Vector2(directionX, directionY) * force;
             }
         }
 
         private void Tackle(byte[] data, GameClient sender)
         {
+            Console.WriteLine("TACKLE");
             uint playerId = Clients[sender].ControlledPlayerId;
+            Player currentPlayer = (Player)server.GameObjectsTable[playerId];
+            Player other = null;
+
+            if (currentPlayer.ColliderPlayer != null)
+                other = currentPlayer.ColliderPlayer;
+            else
+                return;
+
+            if (currentPlayer.TeamId == other.TeamId || currentPlayer.Ball != null || other.Ball == null)
+                return;
+
+            Ball ball = other.Ball;
+            ball.RemoveToPlayer();
+            ball.AttachToPlayer(currentPlayer);
         }
 
         private Dictionary<byte, GameCommand> inputCommandsTable;

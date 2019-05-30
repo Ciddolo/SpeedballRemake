@@ -100,8 +100,8 @@ namespace SpeedBallServer
 
             //max velocity of the ball should be 20, over 15 the ball should be in "air" 
             Magnification = RigidBody.Velocity.Length() - velocityMagnificationTreshold;
-            Console.WriteLine(Magnification);
-            Console.WriteLine(RigidBody.Velocity.Length());
+            //Console.WriteLine(Magnification);
+            //Console.WriteLine(RigidBody.Velocity.Length());
             if (Magnification <= 0f)
                 Magnification = 0f;
             else
@@ -119,12 +119,23 @@ namespace SpeedBallServer
                 Id, X, Y, Magnification);//could send owner and float magnify value
         }
 
-        public void SetBallOwner(Player newOwner)
+        public void AttachToPlayer(Player newOwner)
         {
-            this.RigidBody.IsCollisionsAffected = false;
+            RigidBody.IsCollisionsAffected = false;
             PlayerWhoOwnsTheBall = newOwner;
+            PlayerWhoOwnsTheBall.Ball = this;
             if (gameLogic != null && newOwner != null)
                 gameLogic.OnBallTaken(newOwner);
+        }
+
+        public void RemoveToPlayer()
+        {
+            if (PlayerWhoOwnsTheBall == null)
+                return;
+
+            PlayerWhoOwnsTheBall.Ball = null;
+            PlayerWhoOwnsTheBall = null;
+            RigidBody.IsCollisionsAffected = true;
         }
     }
 }

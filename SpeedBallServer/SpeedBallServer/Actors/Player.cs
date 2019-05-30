@@ -21,6 +21,7 @@ namespace SpeedBallServer
         private Vector2 lastUpdatePosition;
         public uint TeamId;
         public PlayerState State;
+        public Player ColliderPlayer;
 
         private Ball ball;
         public Ball Ball { get { return ball; } set { ball = value; } }
@@ -120,7 +121,11 @@ namespace SpeedBallServer
                     return;
 
                 ball = (Ball)collisionInfo.Collider;
-                ((Ball)collisionInfo.Collider).SetBallOwner(this);
+                ((Ball)collisionInfo.Collider).AttachToPlayer(this);
+            }
+            else if (collisionInfo.Collider is Player)
+            {
+                ColliderPlayer = (Player)collisionInfo.Collider;                
             }
         }
     }
