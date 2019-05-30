@@ -41,7 +41,7 @@ namespace SpeedBallServer
                 pingTotal -= pingToRemove;
                 pingCount--;
             }
-            Console.WriteLine("Aver "+PingAverage+" add "+newPing+" count"+pingCount);
+            //Console.WriteLine("PING AVERAGE:[" + PingAverage + "] ADD:[" + newPing + "] COUNT:[" + pingCount + "]");
             PingAverage = pingTotal / pingCount;
         }
 
