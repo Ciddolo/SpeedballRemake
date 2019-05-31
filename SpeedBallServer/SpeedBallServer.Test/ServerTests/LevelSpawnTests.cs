@@ -5,7 +5,7 @@ using System.IO;
 
 namespace SpeedBallServer.Test.ServerTests
 {
-    class LevelSpawnTest
+    class LevelSpawnTests
     {
         private GameServer server;
         private FakeClock clock;
@@ -82,6 +82,30 @@ namespace SpeedBallServer.Test.ServerTests
             Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.EqualTo(new Vector2(10f, 10f)));
         }
 
+        [Test]
+        public void BallExist()
+        {
+            GameLogic gameLogic = server.GameLogic;
 
+            Assert.That(gameLogic.Ball, Is.Not.EqualTo(null));
+        }
+
+        [Test]
+        public void TeamsExist()
+        {
+            GameLogic gameLogic = server.GameLogic;
+
+            Assert.That(gameLogic.Teams[0], Is.Not.EqualTo(null));
+            Assert.That(gameLogic.Teams[1], Is.Not.EqualTo(null));
+        }
+
+        [Test]
+        public void TeamsAreCorrect()
+        {
+            GameLogic gameLogic = server.GameLogic;
+
+            Assert.That(gameLogic.Teams[0].ControllablePlayers.Count, Is.EqualTo(5));
+            Assert.That(gameLogic.Teams[1].ControllablePlayers.Count, Is.EqualTo(5));
+        }
     }
 }

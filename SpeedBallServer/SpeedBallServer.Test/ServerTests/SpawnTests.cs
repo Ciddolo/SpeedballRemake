@@ -107,10 +107,14 @@ namespace SpeedBallServer.Test.ServerTests
             Assert.That(clientId, Is.EqualTo(playerClientId));
         }
 
+        [Test]
         public void ClientDoesNotOwnPlayer()
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
+
+            //dequeue ping packet
+            transport.ClientDequeue();
 
             //welcome packet
             byte[] output = transport.ClientDequeue().data;

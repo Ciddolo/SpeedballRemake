@@ -16,11 +16,6 @@ namespace SpeedBallServer
             RigidBody.Type = (uint)ColliderType.Net;
         }
 
-        public override void Destroy()
-        {
-            throw new NotImplementedException();
-        }
-
         public override Packet GetSpawnPacket()
         {
             return new Packet((byte)PacketsCommands.Spawn, true, ObjectType, Id, X, Y, Height, Width, TeamId);

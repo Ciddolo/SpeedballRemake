@@ -8,6 +8,7 @@ namespace SpeedBallServer
 {
     public interface IUpdatable
     {
+        Packet GetUpdatePacket();
         void Update(float deltaTime);
         void Reset();
     }

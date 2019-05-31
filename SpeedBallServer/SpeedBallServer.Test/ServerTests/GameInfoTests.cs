@@ -83,20 +83,12 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
-            //while(true)
-            //{
-            //    byte[] outp = transport.ClientDequeue().data;
-            //    Console.WriteLine(outp[0]);
-            //}
-
             //dequeue ping
             transport.ClientDequeue();
 
             byte[] welcomePacket = (transport.ClientDequeue()).data;
 
             uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
-
-            Console.WriteLine(playerObjectId);
 
             //spawn updates and welcome
             transport.ClientDequeue();
@@ -247,6 +239,8 @@ namespace SpeedBallServer.Test.ServerTests
             uint teamTwoScore = BitConverter.ToUInt32(gameInfoPacket, 9);
 
             Assert.That(server.GetBall().Position, Is.EqualTo(new Vector2(30f, 30f)));
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            Assert.That(((Player)server.GameObjectsTable[myObjId]).Ball, Is.EqualTo(null));
             Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.EqualTo(new Vector2(-1, 0f)));
         }
     }
