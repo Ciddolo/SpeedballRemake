@@ -33,7 +33,8 @@ namespace SpeedBallServer
         public float Y { get { return Position.Y; } }
 
         public bool IsActive { get; set; }
-        public float Width, Height;
+        public float Width { get; private set; }
+        public float Height { get; private set; }
         public String Name;
 
         protected GameClient owner;
@@ -102,7 +103,6 @@ namespace SpeedBallServer
         }
 
         public abstract Packet GetSpawnPacket();
-        public abstract void Destroy();
         public abstract void OnCollide(Collision collisionInfo);
 
         public override string ToString()

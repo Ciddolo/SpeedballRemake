@@ -53,6 +53,18 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
+        public void MaliciusInput()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Input,false, (byte)InputType.Tackle).GetData();
+            packet.endPoint = secondClient;
+
+            transport.ClientEnqueue(packet);
+
+            Assert.That(() => server.SingleStep(), Throws.Nothing);
+        }
+
+        [Test]
         public void DefaultControlledPlayer()
         {
             byte[] welcomePacketData = transport.ClientDequeue().data;

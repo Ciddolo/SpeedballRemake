@@ -30,11 +30,6 @@ namespace SpeedBallServer
             velocityMagnificationTreshold = 15f;
         }
 
-        public override void Destroy()
-        {
-            throw new NotImplementedException();
-        }
-
         public override Packet GetSpawnPacket()
         {
             return new Packet((byte)PacketsCommands.Spawn, true, ObjectType, Id, X, Y, Height, Width);
@@ -109,19 +104,18 @@ namespace SpeedBallServer
 
             if (PlayerWhoOwnsTheBall != null)
                 this.Position = PlayerWhoOwnsTheBall.Position;
-
-            server.SendToAllClients(GetUpdatePacket());
         }
 
-        protected Packet GetUpdatePacket()
+        public Packet GetUpdatePacket()
         {
             return new Packet(PacketsCommands.Update, false,
-                Id, X, Y, Magnification);//could send owner and float magnify value
+                Id, X, Y, Magnification);//could send owner
         }
 
         public void AttachToPlayer(Player newOwner)
         {
             RigidBody.IsCollisionsAffected = false;
+            this.RigidBody.Velocity = Vector2.Zero;
             PlayerWhoOwnsTheBall = newOwner;
             PlayerWhoOwnsTheBall.Ball = this;
             if (gameLogic != null && newOwner != null)
@@ -136,6 +130,13 @@ namespace SpeedBallServer
             PlayerWhoOwnsTheBall.Ball = null;
             PlayerWhoOwnsTheBall = null;
             RigidBody.IsCollisionsAffected = true;
+        }
+
+        public void Shot(Vector2 startPos, Vector2 velocity)
+        {
+            this.Position = startPos;
+            RemoveToPlayer();
+            RigidBody.Velocity = velocity;
         }
     }
 }

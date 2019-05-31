@@ -11,7 +11,7 @@ namespace SpeedBallServer
         /// <summary>
         /// If the timer is counting the passed time.
         /// </summary>
-        private bool isStarted;
+        public bool IsStarted { get; private set; }
 
         /// <summary>
         /// After how much time the timer will call the given callback.
@@ -52,7 +52,7 @@ namespace SpeedBallServer
                 this.Interval = 0f;
             else
                 this.Interval = interval;
-            isStarted = false;
+            IsStarted = false;
             this.callbackToCall = callback;
         }
 
@@ -62,7 +62,7 @@ namespace SpeedBallServer
         public void Start()
         {
             accumulatedTime = 0f;
-            isStarted = true;
+            IsStarted = true;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace SpeedBallServer
         /// </summary>
         public void Stop()
         {
-            isStarted = false;
+            IsStarted = false;
         }
 
         /// <summary>
@@ -82,6 +82,8 @@ namespace SpeedBallServer
                 this.Interval = 0f;
             else
                 this.Interval = interval;
+
+            AutomaticRestart = true;
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace SpeedBallServer
         /// <param name="deltaTime"></param>
         public void Update(float deltaTime)
         {
-            if(!isStarted)
+            if(!IsStarted)
                 return;
 
             accumulatedTime += deltaTime;

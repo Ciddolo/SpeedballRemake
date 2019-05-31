@@ -18,6 +18,7 @@ namespace SpeedBallServer
     {
         public static float TacklingTime = .3f;
         public static float StunnedTime = .8f;
+        public static float ThrowOffset = 3f;
 
         private Timer stateTimer;
         private Vector2 startingPosition;
@@ -41,6 +42,13 @@ namespace SpeedBallServer
             RigidBody.AddCollision((uint)ColliderType.Ball);
             stateTimer = new Timer(0f, ResetState);
             this.Reset();
+        }
+
+        public void ThrowBall(Vector2 direction,float force)
+        {
+            Vector2 ballStartingPos = this.Position + (direction * ThrowOffset);
+
+            ball.Shot(ballStartingPos, direction * force);
         }
 
         public void SetStartingPosition(Vector2 startingPos)
@@ -101,19 +109,12 @@ namespace SpeedBallServer
             this.SetMovingDirection(Vector2.Zero);
         }
 
-        public override void Destroy()
-        {
-            throw new NotImplementedException();
-        }
-
         public void Update(float deltaTime)
         {
             stateTimer.Update(deltaTime);
-            if (server != null)
-                server.SendToAllClients(GetUpdatePacket());
         }
 
-        protected Packet GetUpdatePacket()
+        public Packet GetUpdatePacket()
         {
             return new Packet((byte)PacketsCommands.Update, false,
                 Id, X, Y, (uint)State);

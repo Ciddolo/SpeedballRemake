@@ -8,19 +8,6 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    public enum PacketsCommands
-    {
-        Join=0,
-        Welcome=1,
-        Spawn=2,
-        Update=3,
-        Input=4,
-        GameInfo=5,
-        Pong = 253,
-        Ping = 254,
-        Ack =255
-    }
-
     public class GameServer
     {
         private Timer gameLogicTimer;
@@ -31,7 +18,7 @@ namespace SpeedBallServer
         private Dictionary<byte, GameCommand> commandsTable;
         private delegate void GameCommand(byte[] data, EndPoint sender);
         private Dictionary<EndPoint, GameClient> clientsTable;
-        private GameLogic gameLogic;
+        public GameLogic GameLogic { get; protected set; }
         private Dictionary<uint, GameObject> gameObjectsTable;
         public Dictionary<uint, GameObject> GameObjectsTable
         {
@@ -43,12 +30,12 @@ namespace SpeedBallServer
 
         public Ball GetBall()
         {
-            return gameLogic.Ball;
+            return GameLogic.Ball;
         }
 
         public GameState CurrentGameState()
         {
-            return gameLogic.GameStatus;
+            return GameLogic.GameStatus;
         }
 
         private int maxPlayers;
@@ -63,7 +50,6 @@ namespace SpeedBallServer
 
         public float UpdateFrequency;
         public float LastServerTickTimestamp;
-        public float MaxTimeOfInactivity;
 
         public float MaxAttemptsForPacket;
         public float SendAfterTimeForPackets;
@@ -129,10 +115,10 @@ namespace SpeedBallServer
 
         public uint GetClientControlledPlayer(EndPoint client)
         {
-            return gameLogic.GetClientControlledPlayerId(clientsTable[client]);
+            return GameLogic.GetClientControlledPlayerId(clientsTable[client]);
         }
 
-        public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1,string startingLevel=null)
+        public GameServer(IGameTransport gameTransport, IMonotonicClock clock, int ticksAmount = 1, string startingLevel = null)
         {         
             this.transport = gameTransport;
             this.clock = clock;
@@ -144,7 +130,6 @@ namespace SpeedBallServer
 
             UpdateFrequency = 1f/ticksAmount;
             maxPlayers = 2;
-            MaxTimeOfInactivity = 30f;
             MaxAttemptsForPacket = 3;
             SendAfterTimeForPackets = .1f;
 
@@ -156,8 +141,8 @@ namespace SpeedBallServer
             commandsTable[(byte)PacketsCommands.Pong] = Pong;
             commandsTable[(byte)PacketsCommands.Input] = Input;
 
-            gameLogic = new GameLogic(this);
-            gameLogic.SpawnLevel(startingLevel);
+            GameLogic = new GameLogic(this);
+            GameLogic.SpawnLevel(startingLevel);
 
             gameLogicTimer = new Timer(UpdateFrequency, GameLogicTick, true);
             gameLogicTimer.Start();
@@ -172,7 +157,7 @@ namespace SpeedBallServer
                 return;
             }
 
-            gameLogic.GetPlayerInput(data,clientsTable[sender]);
+            GameLogic.GetPlayerInput(data,clientsTable[sender]);
         }
 
         public bool CheckGameObjectOwner(uint id,EndPoint owner)
@@ -199,7 +184,7 @@ namespace SpeedBallServer
         private void GameLogicTick()
         {
             //Console.WriteLine("tick :" + currentNow);
-            gameLogic.Update();
+            GameLogic.Update();
 
             List<EndPoint> deadClients = new List<EndPoint>();
 
@@ -218,7 +203,7 @@ namespace SpeedBallServer
 
             foreach (EndPoint deadClient in deadClients)
             {
-                gameLogic.RemovePlayer(clientsTable[deadClient]);
+                GameLogic.RemovePlayer(clientsTable[deadClient]);
                 clientsTable.Remove(deadClient);
             }
 
@@ -309,7 +294,7 @@ namespace SpeedBallServer
             clientsTable[sender] = newClient;
 
             uint controlledPlayerId;
-            uint clientId = gameLogic.AddClient(newClient,out controlledPlayerId);
+            uint clientId = GameLogic.AddClient(newClient,out controlledPlayerId);
 
             Packet welcome = new Packet((byte)PacketsCommands.Welcome, true,clientId, controlledPlayerId);
             newClient.Enqueue(welcome);
@@ -336,7 +321,7 @@ namespace SpeedBallServer
             if (gameObjectsTable.ContainsKey(netId))
             {
                 //Console.WriteLine("object found");
-                gameLogic.ClientUpdate(data, client);
+                GameLogic.ClientUpdate(data, client);
             }
             else
             {

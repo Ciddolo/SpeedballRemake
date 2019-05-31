@@ -134,8 +134,6 @@ namespace SpeedBallServer.Test.ServerTests
 
             uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
 
-            Console.WriteLine(playerObjectId);
-
             ////moving ball on second player of the first client
             server.GetBall().SetPosition(3f, 0f);
 
@@ -144,6 +142,32 @@ namespace SpeedBallServer.Test.ServerTests
 
             Assert.That(server.GetBall().gameLogic, Is.Not.EqualTo(null));
             Assert.That(server.GetClientControlledPlayer(firstClient), Is.Not.EqualTo(playerObjectId));
+        }
+
+        [Test]
+        public void BallExist()
+        {
+            GameLogic gameLogic = server.GameLogic;
+
+            Assert.That(gameLogic.Ball, Is.Not.EqualTo(null));
+        }
+
+        [Test]
+        public void TeamsExist()
+        {
+            GameLogic gameLogic = server.GameLogic;
+
+            Assert.That(gameLogic.Teams[0], Is.Not.EqualTo(null));
+            Assert.That(gameLogic.Teams[1], Is.Not.EqualTo(null));
+        }
+
+        [Test]
+        public void TeamsAreCorrect()
+        {
+            GameLogic gameLogic = server.GameLogic;
+
+            Assert.That(gameLogic.Teams[0].ControllablePlayers.Count, Is.EqualTo(2));
+            Assert.That(gameLogic.Teams[1].ControllablePlayers.Count, Is.EqualTo(1));
         }
     }
 }

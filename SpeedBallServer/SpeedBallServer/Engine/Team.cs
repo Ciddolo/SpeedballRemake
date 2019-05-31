@@ -44,6 +44,7 @@ namespace SpeedBallServer
 
         public void AddPlayer(Player newPlayer)
         {
+            newPlayer.SetOwner(this.Owner);
             ControllablePlayers.Add(newPlayer.Id,newPlayer);
         }
 

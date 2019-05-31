@@ -83,20 +83,12 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
-            //while(true)
-            //{
-            //    byte[] outp = transport.ClientDequeue().data;
-            //    Console.WriteLine(outp[0]);
-            //}
-
             //dequeue ping
             transport.ClientDequeue();
 
             byte[] welcomePacket = (transport.ClientDequeue()).data;
 
             uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
-
-            Console.WriteLine(playerObjectId);
 
             //spawn updates and welcome
             transport.ClientDequeue();
