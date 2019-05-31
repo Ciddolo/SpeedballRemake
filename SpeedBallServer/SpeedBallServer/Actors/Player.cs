@@ -107,6 +107,8 @@ namespace SpeedBallServer
             this.stateTimer.Reset();
             ResetState();
             this.SetMovingDirection(Vector2.Zero);
+            if (this.HasBall)
+                this.ball.RemoveToPlayer();
         }
 
         public void Update(float deltaTime)

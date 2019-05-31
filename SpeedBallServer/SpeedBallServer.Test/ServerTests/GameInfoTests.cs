@@ -239,6 +239,8 @@ namespace SpeedBallServer.Test.ServerTests
             uint teamTwoScore = BitConverter.ToUInt32(gameInfoPacket, 9);
 
             Assert.That(server.GetBall().Position, Is.EqualTo(new Vector2(30f, 30f)));
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            Assert.That(((Player)server.GameObjectsTable[myObjId]).Ball, Is.EqualTo(null));
             Assert.That(server.GameObjectsTable[playerObjectId].Position, Is.EqualTo(new Vector2(-1, 0f)));
         }
     }

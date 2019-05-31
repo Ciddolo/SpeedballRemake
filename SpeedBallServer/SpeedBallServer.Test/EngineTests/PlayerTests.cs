@@ -18,6 +18,19 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
+        public void Reset()
+        {
+            Ball myBall = new Ball(null, 1, 1);
+
+            myBall.AttachToPlayer(myPlayer);
+
+            myPlayer.Reset();
+
+            Assert.That(myPlayer.Ball, Is.EqualTo(null));
+            Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
+        }
+
+        [Test]
         public void RigidBodyType()
         {
             Assert.That(myPlayer.RigidBody.Type, Is.EqualTo((uint)ColliderType.Player));

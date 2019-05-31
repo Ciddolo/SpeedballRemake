@@ -56,7 +56,6 @@ namespace SpeedBallServer.Test.EngineTests
         public void AttachingBallToPlayer()
         {
             Player myPlayer = new Player(null, 1, 1);
-            myBall.Shot(new Vector2(1f, 1f), new Vector2(1f, 0f) * 15f);
 
             myBall.AttachToPlayer(myPlayer);
 
@@ -64,6 +63,19 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myPlayer.Ball, Is.EqualTo(myBall));
             Assert.That(myPlayer.Ball.RigidBody.Velocity, Is.EqualTo(Vector2.Zero));
             Assert.That(myPlayer.Ball.RigidBody.IsCollisionsAffected, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void BallFollowingPlayerWhoOwnsTheBall()
+        {
+            Player myPlayer = new Player(null, 1, 1);
+
+            myPlayer.Position = new Vector2(100f,100f);
+            myBall.AttachToPlayer(myPlayer);
+
+            myBall.Update(0f);
+
+            Assert.That(myPlayer.Position, Is.EqualTo(new Vector2(100f, 100f)));
         }
 
         [Test]
@@ -90,10 +102,25 @@ namespace SpeedBallServer.Test.EngineTests
             myBall.RigidBody.Update(1f);
             myBall.Update(1f);
 
-            Assert.That(myBall.RigidBody.IsGravityAffected,Is.EqualTo(true));
+            Assert.That(myBall.RigidBody.IsGravityAffected, Is.EqualTo(true));
             Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
-            Assert.That(myBall.Position, Is.EqualTo(new Vector2(21f,0f)));
-            Assert.That(myBall.Magnification, Is.EqualTo(1/5f));
+            Assert.That(myBall.Position, Is.EqualTo(new Vector2(21f, 0f)));
+            Assert.That(myBall.Magnification, Is.EqualTo(1 / 5f));
+        }
+
+        [Test]
+        public void Reset()
+        {
+            Player myPlayer = new Player(null, 1, 1);
+
+            myBall.AttachToPlayer(myPlayer);
+            myBall.Shot(Vector2.Zero,new Vector2(20f,20f));
+
+            myBall.Reset();
+
+            Assert.That(myPlayer.Ball, Is.EqualTo(null));
+            Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(Vector2.Zero));
         }
 
         [Test]

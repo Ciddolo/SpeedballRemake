@@ -10,6 +10,7 @@ namespace SpeedBallServer
     public class Ball : GameObject, IUpdatable
     {
         public Player PlayerWhoOwnsTheBall { get; private set; }
+        public bool HasPlayer { get { return PlayerWhoOwnsTheBall != null; } }
         private Vector2 startingPosition;
 
         public GameLogic gameLogic;
@@ -87,6 +88,9 @@ namespace SpeedBallServer
         {
             this.Position = startingPosition;
             this.RigidBody.Velocity = Vector2.Zero;
+            this.RigidBody.IsCollisionsAffected = true;
+            if (this.HasPlayer)
+                this.RemoveToPlayer();
         }
 
         public void Update(float deltaTime)
