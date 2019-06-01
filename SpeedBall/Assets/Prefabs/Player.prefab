@@ -326,3 +326,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ClientMng: {fileID: 0}
+  IsStarted: 0

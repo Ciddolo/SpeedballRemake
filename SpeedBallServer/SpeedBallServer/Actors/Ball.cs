@@ -9,7 +9,7 @@ namespace SpeedBallServer
 {
     public class Ball : GameObject, IUpdatable
     {
-        public Player PlayerWhoOwnsTheBall { get; private set; }
+        public GameObject PlayerWhoOwnsTheBall { get; private set; }
         public bool HasPlayer { get { return PlayerWhoOwnsTheBall != null; } }
         private Vector2 startingPosition;
 
@@ -116,12 +116,15 @@ namespace SpeedBallServer
                 Id, X, Y, Magnification);//could send owner
         }
 
-        public void AttachToPlayer(Player newOwner)
+        public void AttachToPlayer(GameObject newOwner)
         {
             RigidBody.IsCollisionsAffected = false;
             this.RigidBody.Velocity = Vector2.Zero;
             PlayerWhoOwnsTheBall = newOwner;
-            PlayerWhoOwnsTheBall.Ball = this;
+            if (newOwner is Player)
+                ((Player)PlayerWhoOwnsTheBall).Ball = this;
+            else
+                ((Goalkeeper)PlayerWhoOwnsTheBall).Ball = this;
             if (gameLogic != null && newOwner != null)
                 gameLogic.OnBallTaken(newOwner);
         }
@@ -131,7 +134,11 @@ namespace SpeedBallServer
             if (PlayerWhoOwnsTheBall == null)
                 return;
 
-            PlayerWhoOwnsTheBall.Ball = null;
+            if (PlayerWhoOwnsTheBall is Player)
+                ((Player)PlayerWhoOwnsTheBall).Ball = null;
+            else
+                ((Goalkeeper)PlayerWhoOwnsTheBall).Ball = null;
+
             PlayerWhoOwnsTheBall = null;
             RigidBody.IsCollisionsAffected = true;
         }
