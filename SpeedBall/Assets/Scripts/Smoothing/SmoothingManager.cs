@@ -38,9 +38,9 @@ public class SmoothingManager : MonoBehaviour
         if (!isStarted)
             return;
 
-        Debug.Log("GRADIENT:[" + gradient + "]");
-        Debug.Log("PING:[" + ClientMng.GetPing() + "]");
+        //Debug.Log("GRADIENT:[" + gradient + "]");
+        //Debug.Log("PING:[" + ClientMng.GetPing() + "]");
         transform.position = Vector2.Lerp(currentServerPosition, predictedServerPosition, gradient);
-        gradient += ClientMng.GetPing() * InfoPerSecond;
+        gradient += Time.deltaTime * InfoPerSecond;
     }
 }

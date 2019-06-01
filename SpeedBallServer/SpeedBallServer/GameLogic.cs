@@ -30,7 +30,7 @@ namespace SpeedBallServer
         public GameState GameStatus;
         public Dictionary<GameClient, Team> Clients;
         private float startTimestamp;
-        public Ball Ball { get; protected set; }
+        public static Ball Ball { get; protected set; }
 
         public uint[] Score;
 
@@ -150,37 +150,74 @@ namespace SpeedBallServer
             {
                 SimpleLevelObject data = levelData.TeamOneSpawnPositions[i];
 
-                Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
-                player.SetStartingPosition(data.Position);
+                if (i == 0)
+                {
+                    Goalkeeper player = server.Spawn<Goalkeeper>(playerInfo.Height, playerInfo.Width);
+                    player.SetStartingPosition(data.Position);
 
-                player.TeamId = 0;
-                Teams[0].AddPlayer(player);
+                    player.TeamId = 0;
 
-                updatableItems.Add(player);
-                physicsHandler.AddItem(player.RigidBody);
+                    updatableItems.Add(player);
+                    physicsHandler.AddItem(player.RigidBody);
 
-                player.Name = levelData.TeamOneSpawnPositions[i].Name;
+                    player.Name = levelData.TeamOneSpawnPositions[i].Name;
 
-                if ((uint)playerInfo.DefaultPlayerIndex == i)
-                    (Teams[0]).DefaultControlledPlayerId = player.Id;
+                    if ((uint)playerInfo.DefaultPlayerIndex == i)
+                        (Teams[0]).DefaultControlledPlayerId = player.Id;
+                }
+                else
+                {
+                    Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
+                    player.SetStartingPosition(data.Position);
+
+                    player.TeamId = 0;
+                    Teams[0].AddPlayer(player);
+
+                    updatableItems.Add(player);
+                    physicsHandler.AddItem(player.RigidBody);
+
+                    player.Name = levelData.TeamOneSpawnPositions[i].Name;
+
+                    if ((uint)playerInfo.DefaultPlayerIndex == i)
+                        (Teams[0]).DefaultControlledPlayerId = player.Id;
+                }
             }
 
             for (int i = 0; i < levelData.TeamTwoSpawnPositions.Count; i++)
             {
                 SimpleLevelObject data = levelData.TeamTwoSpawnPositions[i];
-                Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
-                player.SetStartingPosition(data.Position);
 
-                player.TeamId = 1;
-                Teams[1].AddPlayer(player);
+                if (i == 0)
+                {
+                    Goalkeeper player = server.Spawn<Goalkeeper>(playerInfo.Height, playerInfo.Width);
+                    player.SetStartingPosition(data.Position);
 
-                updatableItems.Add(player);
-                physicsHandler.AddItem(player.RigidBody);
+                    player.TeamId = 1;
 
-                player.Name = levelData.TeamOneSpawnPositions[i].Name;
+                    updatableItems.Add(player);
+                    physicsHandler.AddItem(player.RigidBody);
 
-                if ((uint)playerInfo.DefaultPlayerIndex == i)
-                    (Teams[1]).DefaultControlledPlayerId = player.Id;
+                    player.Name = levelData.TeamOneSpawnPositions[i].Name;
+
+                    if ((uint)playerInfo.DefaultPlayerIndex == i)
+                        (Teams[1]).DefaultControlledPlayerId = player.Id;
+                }
+                else
+                {
+                    Player player = server.Spawn<Player>(playerInfo.Height, playerInfo.Width);
+                    player.SetStartingPosition(data.Position);
+
+                    player.TeamId = 1;
+                    Teams[1].AddPlayer(player);
+
+                    updatableItems.Add(player);
+                    physicsHandler.AddItem(player.RigidBody);
+
+                    player.Name = levelData.TeamOneSpawnPositions[i].Name;
+
+                    if ((uint)playerInfo.DefaultPlayerIndex == i)
+                        (Teams[1]).DefaultControlledPlayerId = player.Id;
+                }
             }
 
             Net TeamOneNet = server.Spawn<Net>(levelData.NetTeamOne.Height, levelData.NetTeamOne.Width);
@@ -203,12 +240,21 @@ namespace SpeedBallServer
             updatableItems.Add(Ball);
         }
 
-        public void OnBallTaken(Player playerTakingBall)
+        public void OnBallTaken(GameObject playerTakingBall)
         {
-            Console.WriteLine("BALL POSSESSION CHANGED! NEW TEAM ID:[" + playerTakingBall.TeamId + "] NEW PLAYER ID:[" + playerTakingBall.Id + "]");
-            uint playerTeamId = playerTakingBall.TeamId;
-            Teams[playerTeamId].ControlledPlayer.SetMovingDirection(Vector2.Zero);
-            Teams[playerTeamId].ControlledPlayerId = playerTakingBall.Id;
+            uint playerTeamId;
+            if (playerTakingBall is Player)
+            {
+                Console.WriteLine("BALL POSSESSION CHANGED! NEW TEAM ID:[" + ((Player)playerTakingBall).TeamId + "] NEW PLAYER ID:[" + playerTakingBall.Id + "]");
+                playerTeamId = ((Player)playerTakingBall).TeamId;
+                Teams[playerTeamId].ControlledPlayer.SetMovingDirection(Vector2.Zero);
+                Teams[playerTeamId].ControlledPlayerId = playerTakingBall.Id;
+            }
+            else
+            {
+                Console.WriteLine("BALL POSSESSION CHANGED! NEW TEAM ID:[" + ((Goalkeeper)playerTakingBall).TeamId + "] NEW PLAYER ID:[" + playerTakingBall.Id + "]");
+                playerTeamId = ((Goalkeeper)playerTakingBall).TeamId;
+            }
         }
 
         public void OnGoal(Net collidedNet)
