@@ -105,6 +105,7 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myBall.RigidBody.IsGravityAffected, Is.EqualTo(true));
             Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
             Assert.That(myBall.Position, Is.EqualTo(new Vector2(21f, 0f)));
+            Assert.That(myPlayer.Ball, Is.EqualTo(null));
             Assert.That(myBall.Magnification, Is.EqualTo(1 / 5f));
         }
 

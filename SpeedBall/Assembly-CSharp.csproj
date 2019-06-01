@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Camera\CameraManager.cs" />
      <Compile Include="Assets\Scripts\Client\ClientManager.cs" />
      <Compile Include="Assets\Scripts\Client\Packet.cs" />
+     <Compile Include="Assets\Scripts\Client\SmoothingManager.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\JsonifyLevel.cs" />
      <Compile Include="Assets\Scripts\Player\GoalkeeperAI.cs" />

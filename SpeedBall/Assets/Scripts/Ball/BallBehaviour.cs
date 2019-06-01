@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(BallMove))]
 public class BallBehaviour : MonoBehaviour
 {
     private const float MAGNIFY_VALUE = 10.0f;
@@ -23,33 +21,33 @@ public class BallBehaviour : MonoBehaviour
         isCatchable = true;
     }
 
-    void Update()
-    {
-        if (Owner != null)
-            return;
+    //void Update()
+    //{
+    //    if (Owner != null)
+    //        return;
 
-        if (ballMove.Force >= MAGNIFY_FORCE)
-            transform.localScale = Vector3.Lerp(transform.localScale, maxSize, MAGNIFY_VALUE * Time.deltaTime);
-        else
-            transform.localScale = Vector3.Lerp(transform.localScale, defaulSize, DEMAGNIFY_VALUE * Time.deltaTime);
+    //    if (ballMove.Force >= MAGNIFY_FORCE)
+    //        transform.localScale = Vector3.Lerp(transform.localScale, maxSize, MAGNIFY_VALUE * Time.deltaTime);
+    //    else
+    //        transform.localScale = Vector3.Lerp(transform.localScale, defaulSize, DEMAGNIFY_VALUE * Time.deltaTime);
 
-        isCatchable = transform.localScale.x <= MAX_SIZE_CATCH;
-    }
+    //    isCatchable = transform.localScale.x <= MAX_SIZE_CATCH;
+    //}
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Goal")
-        {
-            if (other.gameObject.name == "BlueGoal")
-                GameManager.TeamScore(1);
-            else if (other.gameObject.name == "RedGoal")
-                GameManager.TeamScore(2);
+        //if (other.gameObject.tag == "Goal")
+        //{
+        //    if (other.gameObject.name == "BlueGoal")
+        //        GameManager.TeamScore(1);
+        //    else if (other.gameObject.name == "RedGoal")
+        //        GameManager.TeamScore(2);
 
-            if (Owner != null)
-                RemoveBall();
+        //    if (Owner != null)
+        //        RemoveBall();
 
-            ResetPosition();
-        }
+        //    ResetPosition();
+        //}
 
         if (Owner != null)
             return;
@@ -76,7 +74,7 @@ public class BallBehaviour : MonoBehaviour
         Owner = target;
         Owner.GetComponent<PlayerManager>().BallReceived();
         transform.localScale = defaulSize;
-        transform.parent = target.transform;
+        //transform.parent = target.transform;
         Vector2 lastDirection = transform.position - Owner.transform.position;
         Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
         target.GetComponent<PlayerManager>().Ball = gameObject;
@@ -86,7 +84,7 @@ public class BallBehaviour : MonoBehaviour
     {
         Owner.GetComponent<PlayerManager>().Ball = null;
         Owner = null;
-        transform.parent = null;
+        //transform.parent = null;
     }
 
     public void ResetPosition()

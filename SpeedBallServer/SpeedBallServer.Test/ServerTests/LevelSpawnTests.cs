@@ -87,7 +87,7 @@ namespace SpeedBallServer.Test.ServerTests
         {
             GameLogic gameLogic = server.GameLogic;
 
-            Assert.That(gameLogic.Ball, Is.Not.EqualTo(null));
+            Assert.That(GameLogic.Ball, Is.Not.EqualTo(null));
         }
 
         [Test]
