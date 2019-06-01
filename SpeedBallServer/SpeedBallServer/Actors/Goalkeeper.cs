@@ -67,7 +67,21 @@ namespace SpeedBallServer
         {
             if (Vector2.Distance(startingPosition, GameLogic.Ball.Position) <= 8.0f)
             {
-                SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                if (GameLogic.Ball.PlayerWhoOwnsTheBall != null)
+                {
+                    if (GameLogic.Ball.PlayerWhoOwnsTheBall is Player)
+                    {
+                        if (((Player)(GameLogic.Ball.PlayerWhoOwnsTheBall)).TeamId != TeamId)
+                            SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                    }
+                    else if (GameLogic.Ball.PlayerWhoOwnsTheBall is Goalkeeper)
+                    {
+                        if (((Goalkeeper)(GameLogic.Ball.PlayerWhoOwnsTheBall)).TeamId != TeamId)
+                            SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                    }
+                }
+                else
+                    SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
             }
             else
             {

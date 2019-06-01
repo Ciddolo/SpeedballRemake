@@ -36,18 +36,18 @@ public class BallBehaviour : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Goal")
-        {
-            if (other.gameObject.name == "BlueGoal")
-                GameManager.TeamScore(1);
-            else if (other.gameObject.name == "RedGoal")
-                GameManager.TeamScore(2);
+        //if (other.gameObject.tag == "Goal")
+        //{
+        //    if (other.gameObject.name == "BlueGoal")
+        //        GameManager.TeamScore(1);
+        //    else if (other.gameObject.name == "RedGoal")
+        //        GameManager.TeamScore(2);
 
-            if (Owner != null)
-                RemoveBall();
+        //    if (Owner != null)
+        //        RemoveBall();
 
-            ResetPosition();
-        }
+        //    ResetPosition();
+        //}
 
         if (Owner != null)
             return;

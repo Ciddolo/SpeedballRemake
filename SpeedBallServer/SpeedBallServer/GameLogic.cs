@@ -401,11 +401,11 @@ namespace SpeedBallServer
 
         public void ClientUpdate(byte[] packetData, GameClient client)
         {
-            if (GameStatus != GameState.Playing)
-            {
-                client.Malus++;
-                return;
-            }
+            //if (GameStatus != GameState.Playing)
+            //{
+            //    client.Malus++;
+            //    return;
+            //}
 
             uint netId = BitConverter.ToUInt32(packetData, 5);
             GameObject gameObject = server.GameObjectsTable[netId];

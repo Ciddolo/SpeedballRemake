@@ -19,7 +19,8 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         Score();
-        Timer();
+        if (GameManager.StateOfGame == GameState.Playing)
+            Timer();
     }
 
     private void Score()

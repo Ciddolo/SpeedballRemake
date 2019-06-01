@@ -299,6 +299,20 @@ public class ClientManager : MonoBehaviour
                         spawnedObjects[id].transform.localScale = new Vector3(newScale, newScale, newScale);
                     }
                 }
+                else if (command == (byte)PacketsCommands.GameInfo)
+                {
+                    uint teamRedScore = BitConverter.ToUInt32(data, 5);
+                    uint teamBlueScore = BitConverter.ToUInt32(data, 9);
+                    uint currentRedPlayer = BitConverter.ToUInt32(data, 13);
+                    uint currentBluePlayer = BitConverter.ToUInt32(data, 17);
+                    uint currentGameState = BitConverter.ToUInt32(data, 21);
+
+                    GameManager.StateOfGame = (GameState)currentGameState;
+                    teamManager.EnlightenPlayer(currentRedPlayer, 0);
+                    teamManager.EnlightenPlayer(currentBluePlayer, 1);
+                    GameManager.RedScore = teamRedScore;
+                    GameManager.BlueScore = teamBlueScore;
+                }
                 else if (command == (byte)PacketsCommands.Pong)
                 {
                     uint packetId = BitConverter.ToUInt32(data, 2);
@@ -352,9 +366,13 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
-            teamManager.AddPlayer(objectToSpawn);
-        if (currentPlayerId == id)
-            teamManager.SelectPlayer(objectToSpawn);
+        {
+            teamManager.AddMyPlayer(objectToSpawn);
+            if (currentPlayerId == id)
+                teamManager.SelectPlayer(objectToSpawn);
+        }
+        else
+            teamManager.AddEnemyPlayer(objectToSpawn);
     }
 
     private void SpawnGoalkeeper(byte[] data)
@@ -395,7 +413,9 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
-            teamManager.AddPlayer(objectToSpawn);
+            teamManager.AddMyPlayer(objectToSpawn);
+        else
+            teamManager.AddEnemyPlayer(objectToSpawn);
     }
 
     private void SpawnWall(byte[] data)
