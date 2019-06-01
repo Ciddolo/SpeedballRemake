@@ -7,6 +7,19 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
+    public enum PacketsCommands
+    {
+        Join = 0,
+        Welcome = 1,
+        Spawn = 2,
+        Update = 3,
+        Input = 4,
+        GameInfo = 5,
+        Pong = 253,
+        Ping = 254,
+        Ack = 255
+    }
+
     public class Packet
     {
         private MemoryStream stream;

@@ -124,5 +124,45 @@ namespace SpeedBallServer.Test.EngineTests
 
             Assert.That(callbackCount, Is.EqualTo(0));
         }
+
+        [Test]
+        public void Reset()
+        {
+            myTimer = new Timer(1, myCallback);
+            myTimer.Start();
+
+            myTimer.Reset(-5f, true);
+
+            Assert.That(myTimer.Interval, Is.EqualTo(0));
+            Assert.That(myTimer.AutomaticRestart, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void GoodInitialization()
+        {
+            myTimer = new Timer(10f, myCallback,true);
+
+            Assert.That(myTimer.Interval, Is.EqualTo(10f));
+            Assert.That(myTimer.AutomaticRestart, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void MaliciusInitialization()
+        {
+            myTimer = new Timer(-50f, myCallback);
+
+            Assert.That(myTimer.IsStarted, Is.EqualTo(false));
+            Assert.That(myTimer.Interval, Is.EqualTo(0));
+            Assert.That(myTimer.AutomaticRestart, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void TimerStart()
+        {
+            myTimer = new Timer(-50f, myCallback);
+            myTimer.Start();
+
+            Assert.That(myTimer.IsStarted, Is.EqualTo(true));
+        }
     }
 }

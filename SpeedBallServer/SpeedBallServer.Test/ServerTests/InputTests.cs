@@ -53,6 +53,18 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
+        public void MaliciusInput()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Input,false, (byte)InputType.Tackle).GetData();
+            packet.endPoint = secondClient;
+
+            transport.ClientEnqueue(packet);
+
+            Assert.That(() => server.SingleStep(), Throws.Nothing);
+        }
+
+        [Test]
         public void DefaultControlledPlayer()
         {
             byte[] welcomePacketData = transport.ClientDequeue().data;
@@ -309,7 +321,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void PlayerInAirNotCatchable()
+        public void BallInAirNotCatchable()
         {
             FakeData packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
@@ -334,13 +346,131 @@ namespace SpeedBallServer.Test.ServerTests
             transport.ClientEnqueue(fakePack);
             server.SingleStep();
 
-            server.GetBall().Position = new Vector2(-1,0);
+            server.GetBall().Position = new Vector2(-1, 0);
             float updateTime = 1f;
 
             clock.IncreaseTimeStamp(updateTime);
             server.SingleStep();
 
             Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+        }
+
+        [Test]
+        public void UnsuccessfullTackle()
+        {
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            Player myPlayer = (Player)server.GameObjectsTable[playerObjectId];
+            Player opponent = (Player)server.GameObjectsTable[playerObjectId + 2];
+            myPlayer.Position = new Vector2(1, 1);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+
+            myPlayer.Position = new Vector2(500f, 500f);
+            server.GetBall().SetPosition(1f, 1f);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(opponent));
+
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Input, false, (byte)InputType.Tackle).GetData();
+            packet.endPoint = firstClient;
+
+            transport.ClientEnqueue(packet);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(opponent));
+        }
+
+        [Test]
+        public void SuccessfullTackle()
+        {
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            Player myPlayer = (Player)server.GameObjectsTable[playerObjectId];
+            Player opponent = (Player)server.GameObjectsTable[playerObjectId + 2];
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            //Assert.That(myPlayer.ColliderPlayer, Is.EqualTo(opponent));
+
+            server.GetBall().SetPosition(opponent.Position);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(opponent));
+
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Input, false, (byte)InputType.Tackle).GetData();
+            packet.endPoint = firstClient;
+
+            myPlayer.Position = new Vector2(1f, 1f);
+
+            transport.ClientEnqueue(packet);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(myPlayer));
+        }
+
+        [Test]
+        public void SuccessfullTackleNotStartingIdle()
+        {
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacket = (transport.ClientDequeue()).data;
+
+            uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
+
+            Player myPlayer = (Player)server.GameObjectsTable[playerObjectId];
+            Player opponent = (Player)server.GameObjectsTable[playerObjectId + 2];
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            //Assert.That(myPlayer.ColliderPlayer, Is.EqualTo(opponent));
+
+            server.GetBall().SetPosition(opponent.Position);
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(opponent));
+
+            myPlayer.GetStunned();
+
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Input, false, (byte)InputType.Tackle).GetData();
+            packet.endPoint = firstClient;
+
+            myPlayer.Position = new Vector2(1f, 1f);
+
+            transport.ClientEnqueue(packet);
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(opponent));
         }
     }
 }

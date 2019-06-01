@@ -20,7 +20,7 @@ namespace SpeedBallServer
         public bool IsCollisionsAffected { get; set; }
         
         public uint Type { get; set; }
-        protected uint CollisionMask;
+        public uint CollisionMask { get; protected set; }
 
         private Vector2 gravity = new Vector2(4.0f, 4.0f);
 
@@ -33,6 +33,16 @@ namespace SpeedBallServer
             IsGravityAffected = gravityAffected;
 
             BoundingBox = new Rect(this, GameObject.Width, GameObject.Height);
+        }
+
+        public void ResetCollisionMask()
+        {
+            CollisionMask = 0;
+        }
+
+        public void AddCollision(ColliderType mask)
+        {
+            AddCollision((uint)mask);
         }
 
         public void AddCollision(uint mask)
