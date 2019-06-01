@@ -23,5 +23,6 @@ namespace SpeedBallServer
         public CollisionType Type;
         public Vector2 Delta;
         public GameObject Collider;
+        public GameObject WhoIsPushing;
     }
 }

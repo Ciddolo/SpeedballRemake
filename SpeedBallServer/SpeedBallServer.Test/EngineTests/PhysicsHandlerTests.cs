@@ -119,5 +119,35 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myPlayer.State, Is.EqualTo(PlayerState.Tackling));
             Assert.That(myTeammate.State, Is.EqualTo(PlayerState.Idle));
         }
+
+        [Test]
+        public void SuccessfulCollisionBetweenPlayersWhoIsPushing()
+        {
+            myPlayer.Position = new Vector2(10, 10);
+            myPlayer.RigidBody.Velocity = new Vector2(10, 10);
+
+            myOpponent.Position = new Vector2(10, 10);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myOpponent.Position, Is.EqualTo(new Vector2(10, 10)));
+            Assert.That(myOpponent.RigidBody.Velocity, Is.EqualTo(Vector2.Zero));
+            Assert.That(myPlayer.Position, Is.Not.EqualTo(new Vector2(10, 10)));
+        }
+
+        [Test]
+        public void SuccessfulCollisionBetweenPlayersWhoIsPushingSameTeam()
+        {
+            myPlayer.Position = new Vector2(10, 10);
+            myPlayer.RigidBody.Velocity = new Vector2(10, 10);
+
+            myTeammate.Position = new Vector2(10, 10);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myTeammate.Position, Is.EqualTo(new Vector2(10, 10)));
+            Assert.That(myTeammate.RigidBody.Velocity, Is.Not.EqualTo(Vector2.Zero));
+            Assert.That(myPlayer.Position, Is.Not.EqualTo(new Vector2(10, 10)));
+        }
     }
 }

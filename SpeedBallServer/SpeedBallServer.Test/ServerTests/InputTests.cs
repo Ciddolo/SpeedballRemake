@@ -73,7 +73,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void ControlledPlayerAfterSelectPlayer()
+        public void ControlledPlayerAfterSelectPlayerGameNotStarted()
         {
             byte[] welcomePacketData = transport.ClientDequeue().data;
             uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
@@ -165,7 +165,7 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(updateTime);
             server.SingleStep();
 
-            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+            Assert.That(startPos + (new Vector2(updateTime* 6.5f, 0f)), Is.EqualTo(server.GameObjectsTable[playerId].Position));
         }
 
         [Test]
@@ -196,8 +196,6 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(updateTime);
             server.SingleStep();
 
-            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
-
             Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.SelectPlayer, playerId + 1);
             fakePack = new FakeData();
             fakePack.data = SelectPlayerPacket.GetData();
@@ -215,7 +213,7 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
 
             Assert.That(playerId, Is.Not.EqualTo(server.GetClientControlledPlayer(firstClient)));
-            Assert.That(startPos + (new Vector2(1f, 0f) * updateTime * 5), Is.EqualTo(server.GameObjectsTable[playerId].Position));
+            Assert.That(Vector2.Zero, Is.EqualTo(server.GameObjectsTable[playerId].RigidBody.Velocity));
         }
 
         [Test]
@@ -317,7 +315,7 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(updateTime);
             server.SingleStep();
 
-            Assert.That(server.GetBall().Magnification, Is.EqualTo(1/5f));
+            Assert.That(server.GetBall().Magnification, Is.EqualTo(6/10f));
         }
 
         [Test]

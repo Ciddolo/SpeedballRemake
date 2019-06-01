@@ -51,6 +51,12 @@ namespace SpeedBallServer
                 //setting collision's info
                 collisionInfo.Type = Collision.CollisionType.RectsIntersection;
                 collisionInfo.Delta = new Vector2(-deltaX, -deltaY);
+
+                if (this.RigidBody.Velocity.Length() > rect.RigidBody.Velocity.Length())
+                    collisionInfo.WhoIsPushing = this.RigidBody.GameObject;
+                else
+                    collisionInfo.WhoIsPushing = rect.RigidBody.GameObject;
+
                 return true;
             }
             return false;

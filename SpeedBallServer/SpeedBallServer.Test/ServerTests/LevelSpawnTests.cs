@@ -104,8 +104,8 @@ namespace SpeedBallServer.Test.ServerTests
         {
             GameLogic gameLogic = server.GameLogic;
 
-            Assert.That(gameLogic.Teams[0].ControllablePlayers.Count, Is.EqualTo(5));
-            Assert.That(gameLogic.Teams[1].ControllablePlayers.Count, Is.EqualTo(5));
+            Assert.That(gameLogic.Teams[0].ControllablePlayers.Count, Is.EqualTo(4));
+            Assert.That(gameLogic.Teams[1].ControllablePlayers.Count, Is.EqualTo(4));
         }
     }
 }
