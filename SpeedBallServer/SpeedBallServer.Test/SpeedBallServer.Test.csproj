@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="EngineTests\BallTests.cs" />
     <Compile Include="EngineTests\CollisionTests.cs" />
+    <Compile Include="EngineTests\GoallkeeperTests.cs" />
     <Compile Include="EngineTests\NetTests.cs" />
     <Compile Include="EngineTests\ObstacleTests.cs" />
     <Compile Include="EngineTests\PlayerTests.cs" />

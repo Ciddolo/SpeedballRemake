@@ -40,6 +40,7 @@ namespace SpeedBallServer
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
             RigidBody.AddCollision((uint)ColliderType.Player);
             RigidBody.AddCollision((uint)ColliderType.Ball);
+            RigidBody.AddCollision((uint)ColliderType.Net);
             stateTimer = new Timer(0f, ResetState);
             this.Reset();
         }
@@ -135,7 +136,7 @@ namespace SpeedBallServer
         {
             //Console.WriteLine(State + " " + this.Id);
 
-            if (collisionInfo.Collider is Obstacle)
+            if (collisionInfo.Collider is Obstacle || collisionInfo.Collider is Net)
             {
                 float deltaX = -collisionInfo.Delta.X;
                 float deltaY = -collisionInfo.Delta.Y;

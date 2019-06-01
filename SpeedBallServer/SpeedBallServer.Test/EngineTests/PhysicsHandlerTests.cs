@@ -9,6 +9,7 @@ namespace SpeedBallServer.Test.EngineTests
         private Player myPlayer;
         private Player myOpponent;
         private Player myTeammate;
+        private Goalkeeper myGoalkeeper;
         private Ball myBall;
         private Obstacle obstacle;
         private PhysicsHandler physicsHandler;
@@ -25,6 +26,10 @@ namespace SpeedBallServer.Test.EngineTests
             myOpponent = new Player(null, 1, 1);
             myOpponent.TeamId = 1;
 
+            myGoalkeeper = new Goalkeeper(null, 1, 1);
+            myGoalkeeper.TeamId = 0;
+            myGoalkeeper.Ball = myBall;
+
             obstacle = new Obstacle(null, 10, 10);
             myBall = new Ball(null, 1, 1);
             myBall.Position = new Vector2(200f, 200f);
@@ -35,6 +40,7 @@ namespace SpeedBallServer.Test.EngineTests
             physicsHandler.AddItem(myOpponent.RigidBody);
             physicsHandler.AddItem(obstacle.RigidBody);
             physicsHandler.AddItem(myBall.RigidBody);
+            physicsHandler.AddItem(myGoalkeeper.RigidBody);
 
             physicsHandler.CheckCollisions();
         }
@@ -148,6 +154,71 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myTeammate.Position, Is.EqualTo(new Vector2(10, 10)));
             Assert.That(myTeammate.RigidBody.Velocity, Is.Not.EqualTo(Vector2.Zero));
             Assert.That(myPlayer.Position, Is.Not.EqualTo(new Vector2(10, 10)));
+        }
+
+        [Test]
+        public void SuccessfulCollisionBetweenPlayerGoalkeeper()
+        {
+            myPlayer.Position = new Vector2(10, 10);
+
+            myGoalkeeper.Position = new Vector2(10, 10);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myGoalkeeper.Position, Is.EqualTo(new Vector2(10, 10)));
+            Assert.That(myPlayer.Position, Is.Not.EqualTo(new Vector2(10, 10)));
+        }
+
+        [Test]
+        public void SuccessfulCollisionBetweenPlayerWithBallGoalkeeper()
+        {
+            Player myPlayer = new Player(null, 1, 1);
+            Ball myBall = new Ball(null, 1, 1);
+            Goalkeeper myGoalkeeper = new Goalkeeper(null, 1, 1);
+            myGoalkeeper.Ball = myBall;
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(myGoalkeeper.RigidBody);
+            physicsHandler.AddItem(myPlayer.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myPlayer.Position = new Vector2(100, 100);
+            myGoalkeeper.TeamId = 1;
+            myBall.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            myGoalkeeper.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(0f, -12.5f)));
+            Assert.That(myGoalkeeper.Position, Is.EqualTo(new Vector2(100, 100)));
+        }
+
+        [Test]
+        public void SuccessfulCollisionBetweenBallGoalkeeper()
+        {
+            Ball myBall = new Ball(null, 1, 1);
+            Goalkeeper myGoalkeeper = new Goalkeeper(null, 1, 1);
+            myGoalkeeper.Ball = myBall;
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(myGoalkeeper.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            myGoalkeeper.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(0f, -12.5f)));
+            Assert.That(myGoalkeeper.Position, Is.EqualTo(new Vector2(100, 100)));
         }
     }
 }
