@@ -33,6 +33,14 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
+        public void AddVelocityWithVector2()
+        {
+            myRigidbody.AddVelocity(new Vector2(25f, 0f));
+            myRigidbody.AddVelocity(new Vector2(25f, -25f));
+            Assert.That(myRigidbody.Velocity, Is.EqualTo(new Vector2(50f, -25f)));
+        }
+
+        [Test]
         public void UpdateNoGravity()
         {
             myRigidbody.Velocity = new Vector2(20f, 0f);

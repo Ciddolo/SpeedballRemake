@@ -34,17 +34,18 @@ namespace SpeedBallServer
         public Player(GameServer server, float Width, float Height)
             : base((int)InternalObjectsId.Player, server, Height, Width)
         {
-
-            velocity = 5;
+            this.RigidBody.IsGravityAffected = true;
+            velocity = 6.5f;
             RigidBody.Type = (uint)ColliderType.Player;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
             RigidBody.AddCollision((uint)ColliderType.Player);
             RigidBody.AddCollision((uint)ColliderType.Ball);
+            RigidBody.AddCollision((uint)ColliderType.Net);
             stateTimer = new Timer(0f, ResetState);
             this.Reset();
         }
 
-        public void ThrowBall(Vector2 direction,float force)
+        public void ThrowBall(Vector2 direction, float force)
         {
             Vector2 ballStartingPos = this.Position + (direction * ThrowOffset);
 
@@ -66,7 +67,10 @@ namespace SpeedBallServer
 
         public void StartTackling()
         {
+            if (this.State != PlayerState.Idle)
+                return;
             State = PlayerState.Tackling;
+
             //Console.WriteLine("start tackling");
             stateTimer.Reset(TacklingTime);
             stateTimer.Start();
@@ -74,8 +78,12 @@ namespace SpeedBallServer
 
         public void GetStunned()
         {
+            if (this.State == PlayerState.Stunned)
+                return;
+
             State = PlayerState.Stunned;
-            //Console.WriteLine("getting stunned");
+            this.RigidBody.Velocity = Vector2.Zero;
+            //Console.WriteLine("getting stunned"+this.Id);
             stateTimer.Reset(StunnedTime);
             stateTimer.Start();
         }
@@ -87,6 +95,8 @@ namespace SpeedBallServer
 
         public void SetMovingDirection(Vector2 newMovingDirection)
         {
+            if (this.State == PlayerState.Stunned)
+                return;
             this.RigidBody.Velocity = newMovingDirection * velocity;
         }
 
@@ -126,7 +136,7 @@ namespace SpeedBallServer
         {
             //Console.WriteLine(State + " " + this.Id);
 
-            if (collisionInfo.Collider is Obstacle)
+            if (collisionInfo.Collider is Obstacle || collisionInfo.Collider is Net)
             {
                 float deltaX = -collisionInfo.Delta.X;
                 float deltaY = -collisionInfo.Delta.Y;
@@ -147,6 +157,7 @@ namespace SpeedBallServer
 
                         this.Position -= new Vector2(0, deltaY);
                     }
+
                 }
             }
             else if (collisionInfo.Collider is Ball)
@@ -161,34 +172,45 @@ namespace SpeedBallServer
             else if (collisionInfo.Collider is Player)
             {
                 //Console.WriteLine("collision with player player");
+                Player other = (Player)collisionInfo.Collider;
 
-                //getting out of collided player
-                float deltaX = -collisionInfo.Delta.X;
-                float deltaY = -collisionInfo.Delta.Y;
+                float deltaX = collisionInfo.Delta.X;
+                float deltaY = collisionInfo.Delta.Y;
 
-                if (deltaX < 0 && deltaY < 0)
+                if (collisionInfo.WhoIsPushing == this)
                 {
-                    if (deltaX > deltaY)
-                    {
-                        if (this.Position.X < collisionInfo.Collider.Position.X)
-                            deltaX = -deltaX;
 
-                        this.Position -= new Vector2(deltaX, 0);
+                    if (deltaX < deltaY)
+                    {
+                        //horizontal collision
+                        if (Position.X < collisionInfo.Collider.Position.X)
+                            deltaX = -deltaX;//from right
+
+                        Position = new Vector2(Position.X + deltaX, Position.Y);
                     }
                     else
                     {
-                        if (this.Position.Y < collisionInfo.Collider.Position.Y)
-                            deltaY = -deltaY;
+                        {
+                            //vertical collision
+                            if (Position.Y < collisionInfo.Collider.Position.Y)
+                            {
+                                deltaY = -deltaY;//from top
+                            }
+                            Position = new Vector2(Position.X, Position.Y + deltaY);
+                        }
+                    }
 
-                        this.Position -= new Vector2(0, deltaY);
+                    if (this.TeamId == other.TeamId && other.RigidBody.Velocity.Length() < (this.RigidBody.Velocity * new Vector2(1f, 1f)).Length())
+                    {
+                        other.RigidBody.Velocity = (this.RigidBody.Velocity * new Vector2(1f, 1f));
+                        //Console.WriteLine("hitting"+ other.RigidBody.Velocity);
                     }
                 }
 
                 //if tackling 
                 if (State == PlayerState.Tackling)
                 {
-                    Player other = (Player)collisionInfo.Collider;
-
+                    //Console.WriteLine("tackilng");
                     if (this.TeamId == other.TeamId)
                     {
                         //Console.WriteLine("hitting teammate" + this.TeamId + " " + other.TeamId);

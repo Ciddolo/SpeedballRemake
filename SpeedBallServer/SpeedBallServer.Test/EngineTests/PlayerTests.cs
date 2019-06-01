@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,7 @@ namespace SpeedBallServer.Test.EngineTests
         [Test]
         public void RigidBodyCollisionMask()
         {
-            Assert.That(myPlayer.RigidBody.CollisionMask, Is.EqualTo(11));
+            Assert.That(myPlayer.RigidBody.CollisionMask, Is.EqualTo(15));
         }
 
         [SetUp]
@@ -154,6 +155,7 @@ namespace SpeedBallServer.Test.EngineTests
 
             myPlayer.ThrowBall(new System.Numerics.Vector2(1f,0f),20);
 
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(20f, 0f)));
             Assert.That(myBall.PlayerWhoOwnsTheBall,Is.EqualTo(null));
         }
 

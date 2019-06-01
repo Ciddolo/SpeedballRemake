@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SpeedBallServer
 {
-    public enum ColliderType : uint { Player = 1, Ball = 2, Net = 4, Obstacle = 8}
+    public enum ColliderType : uint { Player = 1, Ball = 2, Net = 4, Obstacle = 8, Goalkeeper = 16}
 
 
     public struct Collision
@@ -23,5 +23,6 @@ namespace SpeedBallServer
         public CollisionType Type;
         public Vector2 Delta;
         public GameObject Collider;
+        public GameObject WhoIsPushing;
     }
 }

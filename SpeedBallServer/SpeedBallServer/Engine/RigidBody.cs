@@ -72,7 +72,12 @@ namespace SpeedBallServer
 
         public void AddVelocity(float vX, float vY)
         {
-            Velocity += new Vector2(vX, vY);
+            AddVelocity(new Vector2(vX, vY));
+        }
+
+        public void AddVelocity(Vector2 newVelocity)
+        {
+            Velocity += newVelocity;
         }
 
         public void SetXVelocity(float vX)

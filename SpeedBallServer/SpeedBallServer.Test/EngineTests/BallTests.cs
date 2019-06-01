@@ -47,7 +47,7 @@ namespace SpeedBallServer.Test.EngineTests
         [Test]
         public void NoMagnification()
         {
-            myBall.Shot(new Vector2(1f, 1f), new Vector2(1f, 0f) * 15f);
+            myBall.Shot(new Vector2(1f, 1f), new Vector2(1f, 0f) * 9f);
             myBall.Update(0f);
             Assert.That(myBall.Magnification, Is.EqualTo(0f));
         }
@@ -106,7 +106,7 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
             Assert.That(myBall.Position, Is.EqualTo(new Vector2(21f, 0f)));
             Assert.That(myPlayer.Ball, Is.EqualTo(null));
-            Assert.That(myBall.Magnification, Is.EqualTo(1 / 5f));
+            Assert.That(myBall.Magnification, Is.EqualTo(6 / 10f));
         }
 
         [Test]
