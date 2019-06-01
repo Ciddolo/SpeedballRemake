@@ -20,8 +20,8 @@ public class PlayerShot : MonoBehaviour
 
     void Update()
     {
-        if (gameObject.GetComponent<PlayerManager>().Ball == null)
-            return;
+        //if (gameObject.GetComponent<PlayerManager>().Ball == null)
+        //    return;
 
         //gameObject.GetComponent<PlayerManager>().Ball.transform.localPosition = LastDirection;
         if (AimDirection.magnitude > 0.5f)
@@ -42,11 +42,15 @@ public class PlayerShot : MonoBehaviour
 
     private void Shot()
     {
-        gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Direction = AimDirection;
-        gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Force = currentForce;
-        gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().RemoveBall();
-        GetComponent<PlayerManager>().BallThrown();
+        if (GetComponent<PlayerManager>().Ball != null)
+        {
+            gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Direction = AimDirection;
+            gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Force = currentForce;
+            gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().RemoveBall();
+            GetComponent<PlayerManager>().BallThrown();
+        }
         GetComponent<PlayerManager>().Team.ClientOwner.GetComponent<ClientManager>().SendShot(AimDirection.x, AimDirection.y, currentForce);
+        //reset currentForce
         currentForce = FORCE;
         InputKey = false;
         InputKeyUp = false;

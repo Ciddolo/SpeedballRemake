@@ -9,13 +9,14 @@ namespace SpeedBallServer
 {
     public enum InternalObjectsId
     {
-        Player=1,
+        Player = 1,
         Obstacle,
         Net,
-        Ball
+        Ball,
+        Goalkeeper
     }
 
-    public abstract class GameObject: IActivable
+    public abstract class GameObject : IActivable
     {
         public Vector2 Position
         {

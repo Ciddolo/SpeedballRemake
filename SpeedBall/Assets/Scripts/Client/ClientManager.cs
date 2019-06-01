@@ -172,14 +172,14 @@ public class ClientManager : MonoBehaviour
             Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Movement, direction.x, direction.y));
         }
         //SHOT
-        if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
+        if (true)
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
         }
-        else //TACKLE
+        if (true) //TACKLE
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
@@ -291,6 +291,27 @@ public class ClientManager : MonoBehaviour
                     Vector2 newPosition = new Vector2(x, y);
                     spawnedObjects[id].transform.position = newPosition;
                     spawnedObjects[id].GetComponent<SmoothingManager>().GetNextUpdate(newPosition);
+
+                    if (spawnedObjects[id].GetComponent<BallBehaviour>() != null)
+                    {
+                        float scale = BitConverter.ToSingle(data, 17);
+                        float newScale = 1.0f + scale;
+                        spawnedObjects[id].transform.localScale = new Vector3(newScale, newScale, newScale);
+                    }
+                }
+                else if (command == (byte)PacketsCommands.GameInfo)
+                {
+                    uint teamRedScore = BitConverter.ToUInt32(data, 5);
+                    uint teamBlueScore = BitConverter.ToUInt32(data, 9);
+                    uint currentRedPlayer = BitConverter.ToUInt32(data, 13);
+                    uint currentBluePlayer = BitConverter.ToUInt32(data, 17);
+                    uint currentGameState = BitConverter.ToUInt32(data, 21);
+
+                    GameManager.StateOfGame = (GameState)currentGameState;
+                    teamManager.EnlightenPlayer(currentRedPlayer, 0);
+                    teamManager.EnlightenPlayer(currentBluePlayer, 1);
+                    GameManager.RedScore = teamRedScore;
+                    GameManager.BlueScore = teamBlueScore;
                 }
                 else if (command == (byte)PacketsCommands.Pong)
                 {
@@ -345,9 +366,13 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
-            teamManager.AddPlayer(objectToSpawn);
-        if (currentPlayerId == id)
-            teamManager.SelectPlayer(objectToSpawn);
+        {
+            teamManager.AddMyPlayer(objectToSpawn);
+            if (currentPlayerId == id)
+                teamManager.SelectPlayer(objectToSpawn);
+        }
+        else
+            teamManager.AddEnemyPlayer(objectToSpawn);
     }
 
     private void SpawnGoalkeeper(byte[] data)
@@ -388,7 +413,9 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
 
         if (teamId == teamNetId)
-            teamManager.AddPlayer(objectToSpawn);
+            teamManager.AddMyPlayer(objectToSpawn);
+        else
+            teamManager.AddEnemyPlayer(objectToSpawn);
     }
 
     private void SpawnWall(byte[] data)

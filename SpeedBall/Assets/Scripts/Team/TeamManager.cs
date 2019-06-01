@@ -6,17 +6,21 @@ public class TeamManager : MonoBehaviour
 
     public bool IsInBallPossession { get; set; }
     public GameObject CurrentPlayer { get; set; }
+    public GameObject CurrentEnemyPlayer { get; set; }
     public GameObject ClientOwner { get; set; }
     public bool IsSpawned { get; private set; }
 
     [SerializeField]
-    private GameObject[] players;
+    private GameObject[] myPlayers;
+    [SerializeField]
+    private GameObject[] enemyPlayers;
     private int index;
     private CameraManager cameraManager;
 
     void Awake()
     {
-        players = new GameObject[NUMBER_OF_PLAYERS];
+        myPlayers = new GameObject[NUMBER_OF_PLAYERS];
+        enemyPlayers = new GameObject[NUMBER_OF_PLAYERS];
         cameraManager = Camera.main.GetComponent<CameraManager>();
     }
 
@@ -57,7 +61,7 @@ public class TeamManager : MonoBehaviour
     {
         this.index = index;
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = players[index];
+        CurrentPlayer = myPlayers[index];
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
         return CurrentPlayer;
@@ -65,12 +69,13 @@ public class TeamManager : MonoBehaviour
 
     public GameObject SelectPlayer(uint netId)
     {
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < myPlayers.Length; i++)
         {
-            if (players[i].GetComponent<PlayerManager>().NetId == netId)
+            if (myPlayers[i].GetComponent<PlayerManager>().NetId == netId)
             {
-                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-                CurrentPlayer = players[i];
+                if (CurrentPlayer != null)
+                    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                CurrentPlayer = myPlayers[i];
                 CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
                 index = CurrentPlayer.GetComponent<PlayerManager>().Index;
                 cameraManager.CurrentPlayer = CurrentPlayer;
@@ -78,6 +83,38 @@ public class TeamManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void EnlightenPlayer(uint netId, uint team)
+    {
+        if (team == 0)
+        {
+            for (int i = 0; i < myPlayers.Length; i++)
+            {
+                if (myPlayers[i].GetComponent<PlayerManager>().NetId == netId)
+                {
+                    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                    CurrentPlayer = myPlayers[i];
+                    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+                    index = CurrentPlayer.GetComponent<PlayerManager>().Index;
+                    cameraManager.CurrentPlayer = CurrentPlayer;
+                }
+            }
+
+        }
+        else
+        {
+            for (int i = 0; i < enemyPlayers.Length; i++)
+            {
+                if (enemyPlayers[i].GetComponent<PlayerManager>().NetId == netId)
+                {
+                    if (CurrentEnemyPlayer != null)
+                        CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                    CurrentEnemyPlayer = enemyPlayers[i];
+                    CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = true;
+                }
+            }
+        }
     }
 
     public GameObject SelectPlayer(GameObject player)
@@ -93,10 +130,10 @@ public class TeamManager : MonoBehaviour
 
     public GameObject SelectNextPlayer()
     {
-        if (++index > players.Length - 1)
+        if (++index > myPlayers.Length - 1)
             index = 1;
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = players[index];
+        CurrentPlayer = myPlayers[index];
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
         return CurrentPlayer;
@@ -107,19 +144,32 @@ public class TeamManager : MonoBehaviour
         if (--index < 1)
             index = 4;
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = players[index];
+        CurrentPlayer = myPlayers[index];
         CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
         cameraManager.CurrentPlayer = CurrentPlayer;
         return CurrentPlayer;
     }
 
-    public int AddPlayer(GameObject player)
+    public int AddMyPlayer(GameObject player)
     {
-        for (int i = 0; i < players.Length; i++)
+        for (int i = 0; i < myPlayers.Length; i++)
         {
-            if (players[i] == null)
+            if (myPlayers[i] == null)
             {
-                players[i] = player;
+                myPlayers[i] = player;
+                return 1;
+            }
+        }
+        return -1;
+    }
+
+    public int AddEnemyPlayer(GameObject player)
+    {
+        for (int i = 0; i < enemyPlayers.Length; i++)
+        {
+            if (enemyPlayers[i] == null)
+            {
+                enemyPlayers[i] = player;
                 return 1;
             }
         }

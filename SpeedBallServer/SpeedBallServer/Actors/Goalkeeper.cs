@@ -24,7 +24,7 @@ namespace SpeedBallServer
         public bool HasBall { get { return ball != null; } }
 
         public Goalkeeper(GameServer server, float Width, float Height)
-            : base((int)InternalObjectsId.Player, server, Height, Width)
+            : base((int)InternalObjectsId.Goalkeeper, server, Height, Width)
         {
             velocity = 5.0f;
             RigidBody.Type = (uint)ColliderType.Player;
@@ -67,7 +67,21 @@ namespace SpeedBallServer
         {
             if (Vector2.Distance(startingPosition, GameLogic.Ball.Position) <= 8.0f)
             {
-                SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                if (GameLogic.Ball.PlayerWhoOwnsTheBall != null)
+                {
+                    if (GameLogic.Ball.PlayerWhoOwnsTheBall is Player)
+                    {
+                        if (((Player)(GameLogic.Ball.PlayerWhoOwnsTheBall)).TeamId != TeamId)
+                            SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                    }
+                    else if (GameLogic.Ball.PlayerWhoOwnsTheBall is Goalkeeper)
+                    {
+                        if (((Goalkeeper)(GameLogic.Ball.PlayerWhoOwnsTheBall)).TeamId != TeamId)
+                            SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
+                    }
+                }
+                else
+                    SetMovingDirection(Vector2.Normalize(GameLogic.Ball.Position - Position));
             }
             else
             {

@@ -1,9 +1,18 @@
 ﻿using UnityEngine;
 
+public enum GameState
+{
+    WaitingForPlayers,
+    ResettingPlayersPositions,
+    Playing,
+    Ended
+}
+
 public class GameManager : MonoBehaviour
 {
     public GameObject BallPrefab;
 
+    public static GameState StateOfGame { get; set; }
     public static uint RedScore { get; set; }
     public static uint BlueScore { get; set; }
     public static GameObject Ball { get; private set; }
@@ -22,16 +31,14 @@ public class GameManager : MonoBehaviour
         //cameraManager.Ball = Ball;
     }
 
+    //public static void TeamScore(int team)
+    //{
+    //    if (team == 1)
+    //        RedScore++;
+    //    else
+    //        BlueScore++;
 
-
-    public static void TeamScore(int team)
-    {
-        if (team == 1)
-            RedScore++;
-        else
-            BlueScore++;
-
-        redTeamManager.ResetPositions();
-        blueTeamManager.ResetPositions();
-    }
+    //    redTeamManager.ResetPositions();
+    //    blueTeamManager.ResetPositions();
+    //}
 }

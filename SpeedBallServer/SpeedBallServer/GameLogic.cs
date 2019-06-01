@@ -161,9 +161,6 @@ namespace SpeedBallServer
                     physicsHandler.AddItem(player.RigidBody);
 
                     player.Name = levelData.TeamOneSpawnPositions[i].Name;
-
-                    if ((uint)playerInfo.DefaultPlayerIndex == i)
-                        (Teams[0]).DefaultControlledPlayerId = player.Id;
                 }
                 else
                 {
@@ -404,11 +401,11 @@ namespace SpeedBallServer
 
         public void ClientUpdate(byte[] packetData, GameClient client)
         {
-            if (GameStatus != GameState.Playing)
-            {
-                client.Malus++;
-                return;
-            }
+            //if (GameStatus != GameState.Playing)
+            //{
+            //    client.Malus++;
+            //    return;
+            //}
 
             uint netId = BitConverter.ToUInt32(packetData, 5);
             GameObject gameObject = server.GameObjectsTable[netId];
