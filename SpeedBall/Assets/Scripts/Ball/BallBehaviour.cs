@@ -74,7 +74,7 @@ public class BallBehaviour : MonoBehaviour
         Owner = target;
         Owner.GetComponent<PlayerManager>().BallReceived();
         transform.localScale = defaulSize;
-        transform.parent = target.transform;
+        //transform.parent = target.transform;
         Vector2 lastDirection = transform.position - Owner.transform.position;
         Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
         target.GetComponent<PlayerManager>().Ball = gameObject;
@@ -84,7 +84,7 @@ public class BallBehaviour : MonoBehaviour
     {
         Owner.GetComponent<PlayerManager>().Ball = null;
         Owner = null;
-        transform.parent = null;
+        //transform.parent = null;
     }
 
     public void ResetPosition()

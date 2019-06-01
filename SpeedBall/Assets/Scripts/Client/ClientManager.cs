@@ -172,14 +172,14 @@ public class ClientManager : MonoBehaviour
             Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Movement, direction.x, direction.y));
         }
         //SHOT
-        if (teamManager.CurrentPlayer.GetComponent<PlayerManager>().Ball != null)
+        if (true)
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
             teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
         }
-        else //TACKLE
+        if (true) //TACKLE
         {
             Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
             teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
@@ -291,6 +291,13 @@ public class ClientManager : MonoBehaviour
                     Vector2 newPosition = new Vector2(x, y);
                     spawnedObjects[id].transform.position = newPosition;
                     spawnedObjects[id].GetComponent<SmoothingManager>().GetNextUpdate(newPosition);
+
+                    if (spawnedObjects[id].GetComponent<BallBehaviour>() != null)
+                    {
+                        float scale = BitConverter.ToSingle(data, 17);
+                        float newScale = 1.0f + scale;
+                        spawnedObjects[id].transform.localScale = new Vector3(newScale, newScale, newScale);
+                    }
                 }
                 else if (command == (byte)PacketsCommands.Pong)
                 {

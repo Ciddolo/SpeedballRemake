@@ -24,7 +24,7 @@ namespace SpeedBallServer
         public bool HasBall { get { return ball != null; } }
 
         public Goalkeeper(GameServer server, float Width, float Height)
-            : base((int)InternalObjectsId.Player, server, Height, Width)
+            : base((int)InternalObjectsId.Goalkeeper, server, Height, Width)
         {
             velocity = 5.0f;
             RigidBody.Type = (uint)ColliderType.Player;

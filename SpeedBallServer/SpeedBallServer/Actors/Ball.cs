@@ -12,6 +12,7 @@ namespace SpeedBallServer
         public GameObject PlayerWhoOwnsTheBall { get; private set; }
         public bool HasPlayer { get { return PlayerWhoOwnsTheBall != null; } }
         private Vector2 startingPosition;
+        private float scale;
 
         public GameLogic gameLogic;
 
@@ -28,7 +29,9 @@ namespace SpeedBallServer
             RigidBody.IsGravityAffected = true;
 
             maxVelocity = 20f;
-            velocityMagnificationTreshold = 15f;
+            velocityMagnificationTreshold = 10f;
+
+            scale = 1.0f;
         }
 
         public override Packet GetSpawnPacket()
@@ -97,7 +100,7 @@ namespace SpeedBallServer
         {
             //Console.WriteLine(Id + " im at" + this.Position);
 
-            //max velocity of the ball should be 20, over 15 the ball should be in "air" 
+            //max velocity of the ball should be 20, over velocityMagnificationTreshold the ball should be in "air" 
             Magnification = RigidBody.Velocity.Length() - velocityMagnificationTreshold;
             //Console.WriteLine(Magnification);
             //Console.WriteLine(RigidBody.Velocity.Length());
@@ -119,6 +122,7 @@ namespace SpeedBallServer
         public void AttachToPlayer(GameObject newOwner)
         {
             RigidBody.IsCollisionsAffected = false;
+            Magnification = 0.0f;
             this.RigidBody.Velocity = Vector2.Zero;
             PlayerWhoOwnsTheBall = newOwner;
             if (newOwner is Player)

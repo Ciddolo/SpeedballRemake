@@ -161,9 +161,6 @@ namespace SpeedBallServer
                     physicsHandler.AddItem(player.RigidBody);
 
                     player.Name = levelData.TeamOneSpawnPositions[i].Name;
-
-                    if ((uint)playerInfo.DefaultPlayerIndex == i)
-                        (Teams[0]).DefaultControlledPlayerId = player.Id;
                 }
                 else
                 {

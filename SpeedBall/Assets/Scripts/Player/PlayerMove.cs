@@ -20,13 +20,13 @@ public class PlayerMove : MonoBehaviour
         speed = DEFAULT_SPEED;
     }
 
-    void FixedUpdate()
-    {
-        if (!playerManager.IsSelected)
-            rigidBody2D.velocity = Vector2.zero;
-        else
-            rigidBody2D.velocity = velocity;
-    }
+    //void FixedUpdate()
+    //{
+    //    if (!playerManager.IsSelected)
+    //        rigidBody2D.velocity = Vector2.zero;
+    //    else
+    //        rigidBody2D.velocity = velocity;
+    //}
 
     void Update()
     {
