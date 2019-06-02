@@ -14,8 +14,8 @@ public class GoalkeeperAI : MonoBehaviour
     private float speed;
     private float yValue;
 
-    void Start()
-    {
+    //void Start()
+    //{
     //    rigidBody2D = GetComponentInParent<Rigidbody2D>();
     //    speed = DEFAULT_SPEED;
     //    if (gameObject.name == "RED_GK")
@@ -76,5 +76,5 @@ public class GoalkeeperAI : MonoBehaviour
     //{
     //    gameObject.GetComponent<PlayerShot>().GKShot(shotDirection);
     //    transform.parent.GetComponent<TeamManager>().SelectPlayer((int)Random.Range(1.0f, 4.0f));
-    }
+    //}
 }

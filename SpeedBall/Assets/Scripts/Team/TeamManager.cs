@@ -4,17 +4,17 @@ public class TeamManager : MonoBehaviour
 {
     private const int NUMBER_OF_PLAYERS = 5;
 
-    public bool IsInBallPossession { get; set; }
+    //public bool IsInBallPossession { get; set; }
     public GameObject CurrentPlayer { get; set; }
     public GameObject CurrentEnemyPlayer { get; set; }
     public GameObject ClientOwner { get; set; }
     public bool IsSpawned { get; private set; }
+    public int Index { get; set; }
 
     [SerializeField]
     private GameObject[] myPlayers;
     [SerializeField]
     private GameObject[] enemyPlayers;
-    private int index;
     private CameraManager cameraManager;
 
     void Awake()
@@ -57,15 +57,15 @@ public class TeamManager : MonoBehaviour
     //    IsSpawned = true;
     //}
 
-    public GameObject SelectPlayer(int index)
-    {
-        this.index = index;
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = myPlayers[index];
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-        cameraManager.CurrentPlayer = CurrentPlayer;
-        return CurrentPlayer;
-    }
+    //public GameObject SelectPlayer(int index)
+    //{
+    //    this.index = index;
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+    //    CurrentPlayer = myPlayers[index];
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+    //    cameraManager.CurrentPlayer = CurrentPlayer;
+    //    return CurrentPlayer;
+    //}
 
     public GameObject SelectPlayer(uint netId)
     {
@@ -73,11 +73,10 @@ public class TeamManager : MonoBehaviour
         {
             if (myPlayers[i].GetComponent<PlayerManager>().NetId == netId)
             {
-                if (CurrentPlayer != null)
-                    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                //if (CurrentPlayer != null)
+                //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
                 CurrentPlayer = myPlayers[i];
-                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-                index = CurrentPlayer.GetComponent<PlayerManager>().Index;
+                //CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
                 cameraManager.CurrentPlayer = CurrentPlayer;
                 return CurrentPlayer;
             }
@@ -96,7 +95,7 @@ public class TeamManager : MonoBehaviour
                     CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
                     CurrentPlayer = myPlayers[i];
                     CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-                    index = CurrentPlayer.GetComponent<PlayerManager>().Index;
+                    //index = CurrentPlayer.GetComponent<PlayerManager>().Index;
                     cameraManager.CurrentPlayer = CurrentPlayer;
                 }
             }
@@ -117,37 +116,55 @@ public class TeamManager : MonoBehaviour
         }
     }
 
-    public GameObject SelectPlayer(GameObject player)
+    //public GameObject SelectPlayer(GameObject player)
+    //{
+    //    index = player.GetComponent<PlayerManager>().Index;
+    //    if (CurrentPlayer)
+    //        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+    //    CurrentPlayer = player;
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+    //    cameraManager.CurrentPlayer = CurrentPlayer;
+    //    return CurrentPlayer;
+    //}
+
+    //public GameObject SelectNextPlayer()
+    //{
+    //    if (++index > myPlayers.Length - 1)
+    //        index = 1;
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+    //    CurrentPlayer = myPlayers[index];
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+    //    cameraManager.CurrentPlayer = CurrentPlayer;
+    //    Debug.Log("[N] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+    //    return CurrentPlayer;
+    //}
+
+    //public GameObject SelectPreviousPlayer()
+    //{
+    //    if (--index < 1)
+    //        index = 4;
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
+    //    CurrentPlayer = myPlayers[index];
+    //    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+    //    cameraManager.CurrentPlayer = CurrentPlayer;
+    //    Debug.Log("[P] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+    //    return CurrentPlayer;
+    //}
+
+    public uint SelectNextPlayer()
     {
-        index = player.GetComponent<PlayerManager>().Index;
-        if (CurrentPlayer)
-            CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = player;
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-        cameraManager.CurrentPlayer = CurrentPlayer;
-        return CurrentPlayer;
+        if (++Index > myPlayers.Length - 1)
+            Index = 1;
+        Debug.Log("[N] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+        return myPlayers[Index].GetComponent<PlayerManager>().NetId;
     }
 
-    public GameObject SelectNextPlayer()
+    public uint SelectPreviousPlayer()
     {
-        if (++index > myPlayers.Length - 1)
-            index = 1;
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = myPlayers[index];
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-        cameraManager.CurrentPlayer = CurrentPlayer;
-        return CurrentPlayer;
-    }
-
-    public GameObject SelectPreviousPlayer()
-    {
-        if (--index < 1)
-            index = 4;
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-        CurrentPlayer = myPlayers[index];
-        CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-        cameraManager.CurrentPlayer = CurrentPlayer;
-        return CurrentPlayer;
+        if (--Index < 1)
+            Index = 4;
+        Debug.Log("[P] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+        return myPlayers[Index].GetComponent<PlayerManager>().NetId;
     }
 
     public int AddMyPlayer(GameObject player)
@@ -176,13 +193,13 @@ public class TeamManager : MonoBehaviour
         return -1;
     }
 
-    public void ResetPositions()
-    {
-        //if (players == null)
-        //    return;
-        //for (int i = 0; i < players.Length; i++)
-        //{
-        //    transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
-        //}
-    }
+    //public void ResetPositions()
+    //{
+    //    if (players == null)
+    //        return;
+    //    for (int i = 0; i < players.Length; i++)
+    //    {
+    //        transform.GetChild(i).transform.localPosition = TeamPositions.transform.GetChild(i).transform.localPosition;
+    //    }
+    //}
 }

@@ -147,18 +147,15 @@ public class ClientManager : MonoBehaviour
 
     private void TeamInput()
     {
-        if (!teamManager.IsInBallPossession)
+        if (Input.GetKeyDown(selectPreviousPlayer))
         {
-            if (Input.GetKeyDown(selectPreviousPlayer))
-            {
-                uint playerId = teamManager.SelectPreviousPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
-            }
-            if (Input.GetKeyDown(selectNextPlayer))
-            {
-                uint playerId = teamManager.SelectNextPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
-            }
+            uint playerId = teamManager.SelectPreviousPlayer();
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
+        }
+        if (Input.GetKeyDown(selectNextPlayer))
+        {
+            uint playerId = teamManager.SelectNextPlayer();
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
         }
     }
 
@@ -369,7 +366,10 @@ public class ClientManager : MonoBehaviour
         {
             teamManager.AddMyPlayer(objectToSpawn);
             if (currentPlayerId == id)
-                teamManager.SelectPlayer(objectToSpawn);
+            {
+                teamManager.SelectPlayer(id);
+                teamManager.Index = 3;
+            }
         }
         else
             teamManager.AddEnemyPlayer(objectToSpawn);

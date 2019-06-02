@@ -1024,7 +1024,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ce713dd06067b45a4610fa8350ea72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  players: []
+  myPlayers: []
+  enemyPlayers: []
 --- !u!1 &853149857
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,7 +1069,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ce713dd06067b45a4610fa8350ea72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  players: []
+  myPlayers: []
+  enemyPlayers: []
 --- !u!1 &859300746
 GameObject:
   m_ObjectHideFlags: 0

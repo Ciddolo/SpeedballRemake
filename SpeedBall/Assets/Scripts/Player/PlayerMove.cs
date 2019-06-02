@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(PlayerManager))]
 public class PlayerMove : MonoBehaviour
 {
     private const float DEFAULT_SPEED = 400.0f;
