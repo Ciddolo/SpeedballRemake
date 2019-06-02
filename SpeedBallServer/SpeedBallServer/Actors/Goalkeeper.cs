@@ -148,8 +148,6 @@ namespace SpeedBallServer
                     ThrowBall(new Vector2(0.0f, -1.0f), 12.5f);
                 else
                     ThrowBall(new Vector2(0.0f, 1.0f), 12.5f);
-
-                Console.WriteLine(Ball.RigidBody.Velocity);
             }
             else if (collisionInfo.Collider is Player)
             {

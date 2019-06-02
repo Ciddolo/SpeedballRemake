@@ -12,7 +12,6 @@ namespace SpeedBallServer
         public GameObject PlayerWhoOwnsTheBall { get; private set; }
         public bool HasPlayer { get { return PlayerWhoOwnsTheBall != null; } }
         private Vector2 startingPosition;
-        private float scale;
 
         public GameLogic gameLogic;
 
@@ -30,8 +29,6 @@ namespace SpeedBallServer
 
             maxVelocity = 20f;
             velocityMagnificationTreshold = 10f;
-
-            scale = 1.0f;
         }
 
         public override Packet GetSpawnPacket()
@@ -149,9 +146,30 @@ namespace SpeedBallServer
 
         public void Shot(Vector2 startPos, Vector2 velocity)
         {
-            this.Position = startPos;
+            Vector2 trueStartPos = startPos;
+
+            if(gameLogic!=null)
+            {
+                Vector2 direction = Vector2.Normalize(velocity);
+
+                PhysicsHandler.RaycastHitInfo hitInfo = gameLogic.PhysicsHandler.RayCast(this.Position,
+                    direction, this.RigidBody, (uint)ColliderType.Obstacle);
+
+                if (hitInfo.Collider != null)
+                {
+                    if (hitInfo.Distance < Player.ThrowOffset)
+                    {
+                        trueStartPos = hitInfo.Point - (direction * this.RigidBody.BoundingBox.HalfWidth);
+                        Console.WriteLine("Adjusting shot");
+                    }
+                }
+            }
+
+            this.Position = trueStartPos;
             RemoveToPlayer();
             RigidBody.Velocity = velocity;
+            //force update to update magnification
+            this.Update(0f);
         }
     }
 }

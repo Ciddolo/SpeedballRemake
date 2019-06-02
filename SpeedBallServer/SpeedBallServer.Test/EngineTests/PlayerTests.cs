@@ -153,7 +153,7 @@ namespace SpeedBallServer.Test.EngineTests
             Ball myBall = new Ball(null, 1, 1);
             myBall.AttachToPlayer(myPlayer);
 
-            myPlayer.ThrowBall(new System.Numerics.Vector2(1f,0f),20);
+            myPlayer.ThrowBall(new Vector2(1f,0f),20);
 
             Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(20f, 0f)));
             Assert.That(myBall.PlayerWhoOwnsTheBall,Is.EqualTo(null));

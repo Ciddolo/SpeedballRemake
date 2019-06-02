@@ -113,6 +113,37 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
+        public void ControlledPlayerAfterSelectPlayerGameStartedBallTaken()
+        {
+            FakeData packet = new FakeData();
+            packet.data = new Packet(PacketsCommands.Join).GetData();
+            packet.endPoint = secondClient;
+            transport.ClientEnqueue(packet);
+
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            byte[] welcomePacketData = transport.ClientDequeue().data;
+            uint playerId = BitConverter.ToUInt32(welcomePacketData, 9);
+            server.GameLogic.Ball.Position = server.GameObjectsTable[playerId].Position;
+
+            clock.IncreaseTimeStamp(1f);
+            server.SingleStep();
+
+            Assert.That(server.GameLogic.Ball.PlayerWhoOwnsTheBall.Id, Is.EqualTo(playerId));
+
+            Packet SelectPlayerPacket = new Packet(PacketsCommands.Input, false, (byte)InputType.SelectPlayer, playerId + 1);
+            FakeData fakePack = new FakeData();
+            fakePack.data = SelectPlayerPacket.GetData();
+            fakePack.endPoint = firstClient;
+            transport.ClientEnqueue(fakePack);
+            server.SingleStep();
+
+            Assert.That(playerId, Is.EqualTo(server.GetClientControlledPlayer(firstClient)));
+        }
+
+        [Test]
         public void ControlledPlayerAfterMaliciusSelectPlayerGameStarted()
         {
             FakeData packet = new FakeData();
