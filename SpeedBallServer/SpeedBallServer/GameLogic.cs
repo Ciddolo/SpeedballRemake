@@ -32,6 +32,7 @@ namespace SpeedBallServer
         private float startTimestamp;
         public Ball Ball { get; protected set; }
         public PhysicsHandler PhysicsHandler { get; protected set; }
+        public Timer GameTime;
 
         public uint[] Score;
 
@@ -285,6 +286,8 @@ namespace SpeedBallServer
             Teams[0] = new Team(0);
             Teams[1] = new Team(1);
 
+            GameTime = new Timer(200.0f, SetGameStatusToEnded);
+
             //teamOneControllablePlayers = new List<Player>();
             //teamTwoControllablePlayers = new List<Player>();
             updatableItems = new List<IUpdatable>();
@@ -295,6 +298,11 @@ namespace SpeedBallServer
             inputCommandsTable[(byte)InputType.Movement] = MovementDir;
             inputCommandsTable[(byte)InputType.Shot] = Shot;
             inputCommandsTable[(byte)InputType.Tackle] = Tackle;
+        }
+
+        private void SetGameStatusToEnded()
+        {
+            GameStatus = GameState.Ended;
         }
 
         private void SelectPlayer(byte[] data, GameClient sender)
@@ -437,6 +445,12 @@ namespace SpeedBallServer
 
         public void Update()
         {
+            if (GameStatus == GameState.Playing && !GameTime.IsStarted)
+                GameTime.Start();
+
+            if (GameStatus == GameState.Playing && GameTime.IsStarted)
+                GameTime.Update(server.UpdateFrequency);
+
             PhysicsHandler.Update(server.UpdateFrequency);
             PhysicsHandler.CheckCollisions();
 

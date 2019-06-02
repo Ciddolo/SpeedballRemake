@@ -423,7 +423,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void SuccessfullTackle()
+        public void SuccessfulTackle()
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
@@ -462,7 +462,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void SuccessfullTackleNotStartingIdle()
+        public void SuccessfulTackleNotStartingIdle()
         {
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();

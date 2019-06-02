@@ -13,6 +13,7 @@ namespace SpeedBallServer.Test.ServerTests
         private FakeClock clock;
         private FakeTransport transport;
         private FakeEndPoint firstClient, secondClient, thirdClient;
+        private FakeData packet;
 
         [SetUp]
         public void SetUpTest()
@@ -27,7 +28,7 @@ namespace SpeedBallServer.Test.ServerTests
             secondClient = new FakeEndPoint("192.168.1.2", 5002);
             thirdClient = new FakeEndPoint("192.168.1.3", 5003);
 
-            FakeData packet = new FakeData();
+            packet = new FakeData();
             packet.data = new Packet(PacketsCommands.Join).GetData();
             packet.endPoint = firstClient;
 
@@ -168,6 +169,32 @@ namespace SpeedBallServer.Test.ServerTests
 
             Assert.That(gameLogic.Teams[0].ControllablePlayers.Count, Is.EqualTo(2));
             Assert.That(gameLogic.Teams[1].ControllablePlayers.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GameTimeAtZeroInWaitingForPlayers()
+        {
+            GameLogic gameLogic = server.GameLogic;
+            gameLogic.GameStatus = GameState.WaitingForPlayers;
+            gameLogic.GameTime.Start();
+
+            clock.IncreaseTimeStamp(1.0f);
+            server.SingleStep();
+
+            Assert.That(gameLogic.GameTime.GetCurrentTime, Is.EqualTo(0.0f));
+        }
+
+        [Test]
+        public void GameTimeMoreThantZeroInPlaying()
+        {
+            GameLogic gameLogic = server.GameLogic;
+            gameLogic.GameStatus = GameState.Playing;
+            gameLogic.GameTime.Start();
+
+            clock.IncreaseTimeStamp(1.0f);
+            server.SingleStep();
+
+            Assert.That(gameLogic.GameTime.GetCurrentTime, Is.GreaterThan(0.0f));
         }
     }
 }
