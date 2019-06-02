@@ -170,9 +170,6 @@ namespace SpeedBallServer
 
                 RaycastHitInfo? p = RectRayIntersection(collider.BoundingBox.BottomLeft, collider.BoundingBox.TopRight, origin, direction);
 
-                Console.WriteLine(collider.BoundingBox.BottomLeft);
-                Console.WriteLine(collider.BoundingBox.TopRight);
-
                 if (p != null)
                 {
                     if (p.Value.Distance < raycastHit.Distance)
