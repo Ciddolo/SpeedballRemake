@@ -298,6 +298,12 @@ namespace SpeedBallServer
 
         private void SelectPlayer(byte[] data, GameClient sender)
         {
+            if (Clients[sender].ControlledPlayer.HasBall)
+            {
+                sender.Malus++;
+                return;
+            }
+
             uint playerId = BitConverter.ToUInt32(data, 6);
 
             GameObject playerToControl = server.GameObjectsTable[playerId];
