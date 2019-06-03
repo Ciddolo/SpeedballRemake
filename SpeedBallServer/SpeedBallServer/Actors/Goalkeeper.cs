@@ -9,6 +9,9 @@ namespace SpeedBallServer
 {
     public class Goalkeeper : GameObject, IUpdatable
     {
+        private const float MOVEMENT_SPEED = 5.0f;
+        private const float SAVE_SPEED = 10.0f;
+
         public static float ThrowOffset = 3f;
 
         private Vector2 startingPosition;
@@ -22,7 +25,7 @@ namespace SpeedBallServer
         public Goalkeeper(GameServer server, float Width, float Height)
             : base((int)InternalObjectsId.Goalkeeper, server, Height, Width)
         {
-            velocity = 6.5f;
+            velocity = MOVEMENT_SPEED;
             RigidBody.Type = (uint)ColliderType.Goalkeeper;
             RigidBody.AddCollision((uint)ColliderType.Obstacle);
             RigidBody.AddCollision((uint)ColliderType.Player);
@@ -61,21 +64,23 @@ namespace SpeedBallServer
 
         private void AI()
         {
-            if (Vector2.Distance(startingPosition, Ball.Position) <= 8.0f)
+            float distanceFromGoalToBall = Vector2.Distance(startingPosition, Ball.Position);
+
+            if (distanceFromGoalToBall <= 5.0f)
+                velocity = SAVE_SPEED;
+            else
+                velocity = MOVEMENT_SPEED;
+
+            if (Vector2.Distance(startingPosition, Ball.Position) <= 9.0f)
             {
                 if (Ball.PlayerWhoOwnsTheBall != null)
                 {
                     if (Ball.PlayerWhoOwnsTheBall is Player)
                     {
                         if (((Player)(Ball.PlayerWhoOwnsTheBall)).TeamId != TeamId)
-                        {
                             SetMovingDirection(Vector2.Normalize(Ball.Position - Position));
-
-                        }
                         else
-                        {
                             SetMovingDirection(Vector2.Zero);
-                        }
                     }
                 }
                 else
@@ -83,7 +88,7 @@ namespace SpeedBallServer
             }
             else
             {
-                if (Vector2.Distance(startingPosition, Position) > .5f)
+                if (Vector2.Distance(startingPosition, Position) > 0.5f)
                     SetMovingDirection(Vector2.Normalize(startingPosition - Position));
                 else if (Vector2.Distance(startingPosition, Position) <= 0.1f)
                     Position = startingPosition;
