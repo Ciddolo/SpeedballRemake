@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EngineTests\BallTests.cs" />
+    <Compile Include="EngineTests\BumperTests.cs" />
     <Compile Include="EngineTests\CollisionTests.cs" />
     <Compile Include="EngineTests\GoallkeeperTests.cs" />
     <Compile Include="EngineTests\NetTests.cs" />
@@ -83,6 +84,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="TestData\BumpersTestLevel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="TestData\TestLevel.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

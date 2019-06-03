@@ -155,6 +155,15 @@ namespace SpeedBallServer
                 myObstacle.Name = obstacleInfo.Name;
             }
 
+            foreach (var bumperInfo in levelData.Bumpers)
+            {
+                Bumper myBumper = server.Spawn<Bumper>(bumperInfo.Height, bumperInfo.Width);
+                PhysicsHandler.AddItem(myBumper.RigidBody);
+                myBumper.SetPosition(bumperInfo.Position);
+
+                myBumper.Name = bumperInfo.Name;
+            }
+
             Warp warpRight = server.Spawn<Warp>(levelData.WarpRight.Height, levelData.WarpRight.Width);
             PhysicsHandler.AddItem(warpRight.RigidBody);
             warpRight.SetPosition(levelData.WarpRight.Position);

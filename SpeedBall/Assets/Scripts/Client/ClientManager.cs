@@ -25,7 +25,8 @@ public enum NetPrefab
     Goal,
     Ball,
     Goalkeeper,
-    Warp
+    Warp,
+    Bumper
 }
 
 public enum InputType
@@ -46,6 +47,7 @@ public class ClientManager : MonoBehaviour
     public GameObject GoalPrefab;
     public GameObject BallPrefab;
     public GameObject WarpPrefab;
+    public GameObject BumperPrefab;
     public string Address;
     public int Port;
 
@@ -77,6 +79,7 @@ public class ClientManager : MonoBehaviour
     private uint bluePlayers;
     private uint walls;
     private uint warps;
+    private uint bumpers;
     private float calculatePing;
     private float currentPing;
 
@@ -92,6 +95,7 @@ public class ClientManager : MonoBehaviour
         spawnTable[(int)NetPrefab.Goal] = SpawnGoal;
         spawnTable[(int)NetPrefab.Ball] = SpawnBall;
         spawnTable[(int)NetPrefab.Warp] = SpawnWarp;
+        spawnTable[(int)NetPrefab.Bumper] = SpawnBumper;
 
         isInitialized = false;
 
@@ -281,6 +285,8 @@ public class ClientManager : MonoBehaviour
                             spawnTable[(int)NetPrefab.Ball](data);
                         else if (type == (uint)NetPrefab.Warp)
                             spawnTable[(int)NetPrefab.Warp](data);
+                        else if (type == (uint)NetPrefab.Bumper)
+                            spawnTable[(int)NetPrefab.Bumper](data);
                     }
                 }
                 else if (command == (byte)PacketsCommands.Update)
@@ -496,4 +502,20 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.transform.localScale = new Vector2(width, height);
         spawnedObjects.Add(id, objectToSpawn);
     }
+
+    private void SpawnBumper(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+
+        GameObject objectToSpawn = Instantiate(BumperPrefab, GameObject.Find("Bumpers").transform);
+        objectToSpawn.name = "Bumper_" + ++bumpers;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+    }
+
 }

@@ -12,7 +12,7 @@ namespace SpeedBallServer
         public PlayersInfo PlayerInfo;
         public ComplexLevelObject Ball, NetTeamOne, NetTeamTwo, WarpRight, WarpLeft;
         public List<SimpleLevelObject> TeamOneSpawnPositions, TeamTwoSpawnPositions;
-        public List<ComplexLevelObject> Walls;
+        public List<ComplexLevelObject> Walls, Bumpers;
     }
 
     public class SimpleLevelObject

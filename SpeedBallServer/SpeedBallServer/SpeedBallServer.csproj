@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Actors\Ball.cs" />
+    <Compile Include="Actors\Bumper.cs" />
     <Compile Include="Actors\Goalkeeper.cs" />
     <Compile Include="Actors\Net.cs" />
     <Compile Include="Actors\Player.cs" />
@@ -66,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="BumpersLevel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Level.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

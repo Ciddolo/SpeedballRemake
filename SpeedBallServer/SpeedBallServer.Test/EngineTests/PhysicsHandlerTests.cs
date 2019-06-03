@@ -267,5 +267,25 @@ namespace SpeedBallServer.Test.EngineTests
 
             Assert.That(myBall.Position, Is.EqualTo(new Vector2(100, 100.8f)));
         }
+
+        [Test]
+        public void SuccessfulCollisionBetweenBallBumper()
+        {
+            Ball myBall = new Ball(null, 1, 1);
+            Bumper myBumper = new Bumper(null, 1, 1);
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(myBumper.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(99.5f, 100f);
+            myBall.RigidBody.Velocity = new Vector2(1f, 0f);
+            myBumper.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(-1f, 0f)));
+        }
     }
 }
