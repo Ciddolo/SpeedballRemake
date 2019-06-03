@@ -11,11 +11,11 @@ public enum CameraMode
 
 public class CameraManager : MonoBehaviour
 {
-    private const float SPEED = 50.0f;
+    private const float SPEED = 5.0f;
     private const float MIN_Y = -21.0f;
     private const float MAX_Y = 21.0f;
 
-    public GameObject Ball { get; set; }
+    public static GameObject Ball { get; set; }
     public GameObject CurrentPlayer { get; set; }
 
     private delegate void Mode();
@@ -29,6 +29,7 @@ public class CameraManager : MonoBehaviour
         modeTable[(int)CameraMode.Between] = BetweenBallAndCurrentPlayerMode;
         modeTable[(int)CameraMode.Ball] = BallMode;
         modeTable[(int)CameraMode.Player] = CurrentPlayerMode;
+        index = 1;
     }
 
     void Update()
@@ -54,8 +55,8 @@ public class CameraManager : MonoBehaviour
 
     public void IncreaseIndex()
     {
-        if (++index == (int)CameraMode.MAX)
-            index = 0;
+        //if (++index == (int)CameraMode.MAX)
+        //    index = 0;
     }
 
     private void BallMode()

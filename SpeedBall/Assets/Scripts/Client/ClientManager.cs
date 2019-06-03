@@ -44,11 +44,9 @@ public class ClientManager : MonoBehaviour
     public GameObject WallPrefab;
     public GameObject GoalPrefab;
     public GameObject BallPrefab;
+    public string Address;
+    public int Port;
 
-    [SerializeField]
-    private string address;
-    [SerializeField]
-    private int port;
     private Socket socket;
     private IPEndPoint endPoint;
 
@@ -95,7 +93,7 @@ public class ClientManager : MonoBehaviour
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Blocking = false;
-        endPoint = new IPEndPoint(IPAddress.Parse(address), port);
+        endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
 
         Packet join = new Packet((byte)PacketsCommands.Join);
         socket.SendTo(join.GetData(), endPoint);
@@ -139,7 +137,7 @@ public class ClientManager : MonoBehaviour
         if (teamNetId == 0)
             teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         else if (teamNetId == 1)
-            teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+            teamManager = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
 
         teamManager.ClientOwner = gameObject;
         isInitialized = true;
@@ -147,18 +145,15 @@ public class ClientManager : MonoBehaviour
 
     private void TeamInput()
     {
-        if (!teamManager.IsInBallPossession)
+        if (Input.GetKeyDown(selectPreviousPlayer))
         {
-            if (Input.GetKeyDown(selectPreviousPlayer))
-            {
-                uint playerId = teamManager.SelectPreviousPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
-            }
-            if (Input.GetKeyDown(selectNextPlayer))
-            {
-                uint playerId = teamManager.SelectNextPlayer().GetComponent<PlayerManager>().NetId;
-                Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
-            }
+            uint playerId = teamManager.SelectPreviousPlayer();
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
+        }
+        if (Input.GetKeyDown(selectNextPlayer))
+        {
+            uint playerId = teamManager.SelectNextPlayer();
+            Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.SelectPlayer, playerId));
         }
     }
 
@@ -369,7 +364,10 @@ public class ClientManager : MonoBehaviour
         {
             teamManager.AddMyPlayer(objectToSpawn);
             if (currentPlayerId == id)
-                teamManager.SelectPlayer(objectToSpawn);
+            {
+                teamManager.SelectPlayer(id);
+                teamManager.Index = 3;
+            }
         }
         else
             teamManager.AddEnemyPlayer(objectToSpawn);
@@ -474,5 +472,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.transform.position = new Vector2(x, y);
         objectToSpawn.transform.localScale = new Vector2(width, height);
         spawnedObjects.Add(id, objectToSpawn);
+
+        CameraManager.Ball = objectToSpawn;
     }
 }

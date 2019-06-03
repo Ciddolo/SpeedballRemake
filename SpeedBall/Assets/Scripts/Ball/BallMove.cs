@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(BallBehaviour))]
 public class BallMove : MonoBehaviour
 {
     private const float DEFAULT_FRICTION = 250.0f;

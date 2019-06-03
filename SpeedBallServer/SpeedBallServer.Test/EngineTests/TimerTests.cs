@@ -23,7 +23,7 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void UnsucessfulCallback()
+        public void UnsuccessfulCallback()
         {
             myTimer = new Timer(1, myCallback);
             myTimer.Start();
@@ -113,7 +113,7 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void UnsucessfullCalbackOnTimerNotStarted()
+        public void UnsuccessfullCalbackOnTimerNotStarted()
         {
             myTimer = new Timer(1, myCallback);
 
@@ -163,6 +163,26 @@ namespace SpeedBallServer.Test.EngineTests
             myTimer.Start();
 
             Assert.That(myTimer.IsStarted, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void SuccessfulGetTime()
+        {
+            myTimer = new Timer(10.0f, myCallback);
+            myTimer.Start();
+            myTimer.Update(10.0f);
+
+            Assert.That(myTimer.GetCurrentTime(), Is.EqualTo(10.0f));
+        }
+
+        [Test]
+        public void UnsuccessfulGetTime()
+        {
+            myTimer = new Timer(10.0f, myCallback);
+            myTimer.Start();
+            myTimer.Update(10.0f);
+
+            Assert.AreNotSame(myTimer.GetCurrentTime(), 10.0f);
         }
     }
 }

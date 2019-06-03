@@ -87,6 +87,14 @@ namespace SpeedBallServer
         }
 
         /// <summary>
+        /// Get current accumulated time.
+        /// </summary>
+        public float GetCurrentTime()
+        {
+            return accumulatedTime;
+        }
+
+        /// <summary>
         /// Update accumulated time by the clock.
         /// </summary>
         /// <param name="deltaTime"></param>

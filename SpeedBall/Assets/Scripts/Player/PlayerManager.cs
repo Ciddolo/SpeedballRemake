@@ -5,7 +5,7 @@ public class PlayerManager : MonoBehaviour
     public TeamManager Team;
 
     public uint NetId { get; set; }
-    public int Index { get; set; }
+    //public int Index { get; set; }
     public bool IsSelected { get; set; }
     public GameObject Ball { get; set; }
 
@@ -23,20 +23,20 @@ public class PlayerManager : MonoBehaviour
         selection.SetActive(IsSelected);
     }
 
-    public void BallReceived()
-    {
-        Team.SelectPlayer(gameObject);
-        Team.IsInBallPossession = true;
-    }
+    //public void BallReceived()
+    //{
+    //    Team.SelectPlayer(gameObject);
+    //    Team.IsInBallPossession = true;
+    //}
 
-    public void BallThrown()
-    {
-        Team.IsInBallPossession = false;
-    }
+    //public void BallThrown()
+    //{
+    //    Team.IsInBallPossession = false;
+    //}
 
-    public void BallLost()
-    {
-        Team.IsInBallPossession = false;
-        Ball.GetComponent<BallBehaviour>().RemoveBall();
-    }
+    //public void BallLost()
+    //{
+    //    Team.IsInBallPossession = false;
+    //    Ball.GetComponent<BallBehaviour>().RemoveBall();
+    //}
 }

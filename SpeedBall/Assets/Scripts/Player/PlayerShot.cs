@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(PlayerManager))]
 public class PlayerShot : MonoBehaviour
 {
     private const float FORCE = 10.0f;
@@ -47,7 +46,7 @@ public class PlayerShot : MonoBehaviour
             gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Direction = AimDirection;
             gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallMove>().Force = currentForce;
             gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().RemoveBall();
-            GetComponent<PlayerManager>().BallThrown();
+            //GetComponent<PlayerManager>().BallThrown();
         }
         GetComponent<PlayerManager>().Team.ClientOwner.GetComponent<ClientManager>().SendShot(AimDirection.x, AimDirection.y, currentForce);
         //reset currentForce
@@ -56,11 +55,11 @@ public class PlayerShot : MonoBehaviour
         InputKeyUp = false;
     }
 
-    public void GKShot(Vector2 direction)
-    {
-        AimDirection = direction;
-        currentForce = MAX_SHOOT_FORCE;
-        gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().SetMaxSize();
-        Shot();
-    }
+    //public void GKShot(Vector2 direction)
+    //{
+    //    AimDirection = direction;
+    //    currentForce = MAX_SHOOT_FORCE;
+    //    gameObject.GetComponent<PlayerManager>().Ball.GetComponent<BallBehaviour>().SetMaxSize();
+    //    Shot();
+    //}
 }
