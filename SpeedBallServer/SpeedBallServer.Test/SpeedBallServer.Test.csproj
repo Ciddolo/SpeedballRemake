@@ -61,6 +61,7 @@
     <Compile Include="EngineTests\PlayerTests.cs" />
     <Compile Include="EngineTests\RigidBodyTests.cs" />
     <Compile Include="EngineTests\TeamTests.cs" />
+    <Compile Include="EngineTests\WarpTests.cs" />
     <Compile Include="ServerTests\AckTests.cs" />
     <Compile Include="ServerTests\DisconnectionTests.cs" />
     <Compile Include="ServerTests\GameInfoTests.cs" />
@@ -84,6 +85,9 @@
     <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="TestData\TestLevel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestData\WarpTestLevel.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

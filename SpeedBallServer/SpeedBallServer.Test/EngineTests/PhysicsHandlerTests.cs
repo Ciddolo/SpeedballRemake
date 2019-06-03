@@ -220,5 +220,52 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(0f, -12.5f)));
             Assert.That(myGoalkeeper.Position, Is.EqualTo(new Vector2(100, 100)));
         }
+
+
+        [Test]
+        public void SuccessfulCollisionBetweenBallWarp()
+        {
+            Ball myBall = new Ball(null, 1, 1);
+            Warp myWarp = new Warp(null, 1, 1);
+            Warp aWarp = new Warp(null, 1, 1);
+            myWarp.ConnectedWarp = aWarp;
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(aWarp.RigidBody);
+            physicsHandler.AddItem(myWarp.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(100, 100);
+            myBall.RigidBody.Velocity = new Vector2(1f, 0f);
+            myWarp.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.Position, Is.Not.EqualTo(new Vector2(100, 100)));
+        }
+
+        [Test]
+        public void UnsuccessfulCollisionBetweenBallWarp()
+        {
+            Ball myBall = new Ball(null, 1, 1);
+            Warp myWarp = new Warp(null, 1, 1);
+            Warp aWarp = new Warp(null, 1, 1);
+            myWarp.ConnectedWarp = aWarp;
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(aWarp.RigidBody);
+            physicsHandler.AddItem(myWarp.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(100, 100.8f);
+            myBall.RigidBody.Velocity = new Vector2(1f, 0f);
+            myWarp.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.Position, Is.EqualTo(new Vector2(100, 100.8f)));
+        }
     }
 }

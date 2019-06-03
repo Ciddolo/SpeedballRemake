@@ -13,7 +13,8 @@ namespace SpeedBallServer
         Obstacle,
         Net,
         Ball,
-        Goalkeeper
+        Goalkeeper,
+        Warp
     }
 
     public abstract class GameObject : IActivable

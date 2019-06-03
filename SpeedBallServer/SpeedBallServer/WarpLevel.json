@@ -1,0 +1,238 @@
+{
+  "PlayerInfo": {
+    "IsCircle": false,
+    "Width": 2.0,
+    "Height": 2.0,
+    "DefaultPlayerIndex": 3,
+    "GoalkeeperIndex": 0
+  },
+  "Ball": {
+    "Position": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "Name": "Ball",
+    "Width": 1.0,
+    "Height": 1.0
+  },
+  "NetTeamOne": {
+    "Position": {
+      "x": 0.0,
+      "y": -28.0
+    },
+    "Name": "RED_GOAL",
+    "Width": 10.0,
+    "Height": 4.0
+  },
+  "NetTeamTwo": {
+    "Position": {
+      "x": 0.0,
+      "y": 28.0
+    },
+    "Name": "BLUE_GOAL",
+    "Width": 10.0,
+    "Height": 4.0
+  },
+  "WarpRight": {
+    "Position": {
+      "x": 17.5,
+      "y": 0.0
+    },
+    "Name": "WarpRight",
+    "Width": 5.0,
+    "Height": 10.0
+  },
+  "WarpLeft": {
+    "Position": {
+      "x": -17.5,
+      "y": 0.0
+    },
+    "Name": "WarpLeft",
+    "Width": 5.0,
+    "Height": 10.0
+  },
+  "TeamTwoSpawnPositions": [
+    {
+      "Position": {
+        "x": 0.0,
+        "y": 23.0
+      },
+      "Name": "Position0"
+    },
+    {
+      "Position": {
+        "x": 7.5,
+        "y": 8.5
+      },
+      "Name": "Position1"
+    },
+    {
+      "Position": {
+        "x": -7.5,
+        "y": 4.25
+      },
+      "Name": "Position2"
+    },
+    {
+      "Position": {
+        "x": 7.5,
+        "y": -4.25
+      },
+      "Name": "Position3"
+    },
+    {
+      "Position": {
+        "x": -7.5,
+        "y": -8.5
+      },
+      "Name": "Position4"
+    }
+  ],
+  "TeamOneSpawnPositions": [
+    {
+      "Position": {
+        "x": 0.0,
+        "y": -23.0
+      },
+      "Name": "Position0"
+    },
+    {
+      "Position": {
+        "x": -7.5,
+        "y": 8.5
+      },
+      "Name": "Position1"
+    },
+    {
+      "Position": {
+        "x": 7.5,
+        "y": 4.25
+      },
+      "Name": "Position2"
+    },
+    {
+      "Position": {
+        "x": -7.5,
+        "y": -4.25
+      },
+      "Name": "Position3"
+    },
+    {
+      "Position": {
+        "x": 7.5,
+        "y": -8.5
+      },
+      "Name": "Position4"
+    }
+  ],
+  "Walls": [
+    {
+      "Position": {
+        "x": -15.0,
+        "y": 27.5
+      },
+      "Name": "WALL_1",
+      "Width": 20.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": 15.0,
+        "y": 27.5
+      },
+      "Name": "WALL_2",
+      "Width": 20.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": 0.0,
+        "y": 32.5
+      },
+      "Name": "WALL_3",
+      "Width": 50.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": -15.0,
+        "y": -27.5
+      },
+      "Name": "WALL_4",
+      "Width": 20.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": 15.0,
+        "y": -27.5
+      },
+      "Name": "WALL_5",
+      "Width": 20.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": 0.0,
+        "y": -32.5
+      },
+      "Name": "WALL_6",
+      "Width": 50.0,
+      "Height": 5.0
+    },
+    {
+      "Position": {
+        "x": -17.5,
+        "y": -15.0
+      },
+      "Name": "WALL_7",
+      "Width": 5.0,
+      "Height": 20.0
+    },
+    {
+      "Position": {
+        "x": 22.5,
+        "y": 0.0
+      },
+      "Name": "WALL_8",
+      "Width": 5.0,
+      "Height": 50.0
+    },
+    {
+      "Position": {
+        "x": -22.5,
+        "y": 0.0
+      },
+      "Name": "WALL_9",
+      "Width": 5.0,
+      "Height": 50.0
+    },
+    {
+      "Position": {
+        "x": -17.5,
+        "y": 15.0
+      },
+      "Name": "WALL_10",
+      "Width": 5.0,
+      "Height": 20.0
+    },
+    {
+      "Position": {
+        "x": 17.5,
+        "y": 15.0
+      },
+      "Name": "WALL_11",
+      "Width": 5.0,
+      "Height": 20.0
+    },
+    {
+      "Position": {
+        "x": 17.5,
+        "y": -15.0
+      },
+      "Name": "WALL_12",
+      "Width": 5.0,
+      "Height": 20.0
+    }
+  ]
+}

@@ -18,14 +18,14 @@ namespace SpeedBallServer.Test.ServerTests
             clock = new FakeClock();
             transport.Bind("127.0.0.1", 5000);
 
-            string level = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\TestData\\TestLevel.json");
+            string level = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\TestData\\WarpTestLevel.json");
             server = new GameServer(transport, clock, 1, level);
         }
 
         [Test]
         public void CheckSpawnedGameObjects()
         {
-            Assert.That(server.GameObjectsAmount,Is.EqualTo(21));
+            Assert.That(server.GameObjectsAmount, Is.EqualTo(27));
         }
 
         [Test]
