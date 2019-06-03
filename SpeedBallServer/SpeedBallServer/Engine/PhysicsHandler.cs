@@ -156,7 +156,7 @@ namespace SpeedBallServer
             return raycastHit;
         }
 
-        public RaycastHitInfo RayCast(Vector2 origin, Vector2 direction, RigidBody mySelf, uint raycastMask = 31)
+        public RaycastHitInfo RayCast(Vector2 origin, Vector2 direction, RigidBody mySelf, uint raycastMask = (uint)ColliderType.All)
         {
             RaycastHitInfo raycastHit = new RaycastHitInfo();
             raycastHit.Distance = float.MaxValue;

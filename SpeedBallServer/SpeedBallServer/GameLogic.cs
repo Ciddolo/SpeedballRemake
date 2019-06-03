@@ -155,6 +155,28 @@ namespace SpeedBallServer
                 myObstacle.Name = obstacleInfo.Name;
             }
 
+            foreach (var bumperInfo in levelData.Bumpers)
+            {
+                Bumper myBumper = server.Spawn<Bumper>(bumperInfo.Height, bumperInfo.Width);
+                PhysicsHandler.AddItem(myBumper.RigidBody);
+                myBumper.SetPosition(bumperInfo.Position);
+
+                myBumper.Name = bumperInfo.Name;
+            }
+
+            Warp warpRight = server.Spawn<Warp>(levelData.WarpRight.Height, levelData.WarpRight.Width);
+            PhysicsHandler.AddItem(warpRight.RigidBody);
+            warpRight.SetPosition(levelData.WarpRight.Position);
+            warpRight.Name = levelData.WarpRight.Name;
+
+            Warp warpLeft = server.Spawn<Warp>(levelData.WarpLeft.Height, levelData.WarpLeft.Width);
+            PhysicsHandler.AddItem(warpLeft.RigidBody);
+            warpLeft.SetPosition(levelData.WarpLeft.Position);
+            warpLeft.Name = levelData.WarpLeft.Name;
+
+            warpRight.ConnectedWarp = warpLeft;
+            warpLeft.ConnectedWarp = warpRight;
+
             for (int i = 0; i < levelData.TeamOneSpawnPositions.Count; i++)
             {
                 SimpleLevelObject data = levelData.TeamOneSpawnPositions[i];

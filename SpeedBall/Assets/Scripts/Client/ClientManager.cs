@@ -24,7 +24,9 @@ public enum NetPrefab
     Wall,
     Goal,
     Ball,
-    Goalkeeper
+    Goalkeeper,
+    Warp,
+    Bumper
 }
 
 public enum InputType
@@ -44,6 +46,8 @@ public class ClientManager : MonoBehaviour
     public GameObject WallPrefab;
     public GameObject GoalPrefab;
     public GameObject BallPrefab;
+    public GameObject WarpPrefab;
+    public GameObject BumperPrefab;
     public string Address;
     public int Port;
 
@@ -74,6 +78,8 @@ public class ClientManager : MonoBehaviour
     private uint redPlayers;
     private uint bluePlayers;
     private uint walls;
+    private uint warps;
+    private uint bumpers;
     private float calculatePing;
     private float currentPing;
 
@@ -88,6 +94,8 @@ public class ClientManager : MonoBehaviour
         spawnTable[(int)NetPrefab.Wall] = SpawnWall;
         spawnTable[(int)NetPrefab.Goal] = SpawnGoal;
         spawnTable[(int)NetPrefab.Ball] = SpawnBall;
+        spawnTable[(int)NetPrefab.Warp] = SpawnWarp;
+        spawnTable[(int)NetPrefab.Bumper] = SpawnBumper;
 
         isInitialized = false;
 
@@ -275,6 +283,10 @@ public class ClientManager : MonoBehaviour
                             spawnTable[(int)NetPrefab.Goal](data);
                         else if (type == (uint)NetPrefab.Ball)
                             spawnTable[(int)NetPrefab.Ball](data);
+                        else if (type == (uint)NetPrefab.Warp)
+                            spawnTable[(int)NetPrefab.Warp](data);
+                        else if (type == (uint)NetPrefab.Bumper)
+                            spawnTable[(int)NetPrefab.Bumper](data);
                     }
                 }
                 else if (command == (byte)PacketsCommands.Update)
@@ -475,4 +487,35 @@ public class ClientManager : MonoBehaviour
 
         CameraManager.Ball = objectToSpawn;
     }
+
+    private void SpawnWarp(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+
+        GameObject objectToSpawn = Instantiate(WarpPrefab, GameObject.Find("Warps").transform);
+        objectToSpawn.name = "Warp_" + ++warps;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+    }
+
+    private void SpawnBumper(byte[] data)
+    {
+        uint id = BitConverter.ToUInt32(data, 9);
+        float x = BitConverter.ToSingle(data, 13);
+        float y = BitConverter.ToSingle(data, 17);
+        float height = BitConverter.ToSingle(data, 21);
+        float width = BitConverter.ToSingle(data, 25);
+
+        GameObject objectToSpawn = Instantiate(BumperPrefab, GameObject.Find("Bumpers").transform);
+        objectToSpawn.name = "Bumper_" + ++bumpers;
+        objectToSpawn.transform.position = new Vector2(x, y);
+        objectToSpawn.transform.localScale = new Vector2(width, height);
+        spawnedObjects.Add(id, objectToSpawn);
+    }
+
 }
