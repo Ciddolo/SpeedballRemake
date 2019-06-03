@@ -5,8 +5,6 @@ public class PlayerTackle : MonoBehaviour
     public bool InputKeyDown { get; set; }
     public Vector2 AimDirection { get; set; }
 
-    private bool withRaycast = false;
-
     //void Update()
     //{
     //    if (!withRaycast || AimDirection.magnitude < 1.0f)
@@ -30,27 +28,24 @@ public class PlayerTackle : MonoBehaviour
     //    }
     //}
 
-    void OnTriggerStay2D(Collider2D other)
-    {
-        if (withRaycast)
-            return;
+    //void OnTriggerStay2D(Collider2D other)
+    //{
+    //    if (other.gameObject.tag == "Player")
+    //    {
+    //        //Debug.Log(transform.parent.gameObject.name + " -> " + other.gameObject.name);
+    //        if (other.GetComponent<PlayerManager>().Ball != null && InputKeyDown)
+    //        {
+    //            //Debug.Log(transform.parent.gameObject.name + " [BALL] " + other.gameObject.name);
+    //            Tackle(other.gameObject);
+    //        }
+    //    }
+    //}
 
-        if (other.gameObject.tag == "Player")
-        {
-            //Debug.Log(transform.parent.gameObject.name + " -> " + other.gameObject.name);
-            if (other.GetComponent<PlayerManager>().Ball != null && InputKeyDown)
-            {
-                //Debug.Log(transform.parent.gameObject.name + " [BALL] " + other.gameObject.name);
-                Tackle(other.gameObject);
-            }
-        }
-    }
-
-    public void Tackle(GameObject other)
-    {
-        GameObject ball = other.GetComponent<PlayerManager>().Ball;
-        other.GetComponent<PlayerManager>().BallLost();
-        ball.GetComponent<BallBehaviour>().AttachBall(transform.parent.gameObject);
-        transform.parent.GetComponent<PlayerManager>().BallReceived();
-    }
+    //public void Tackle(GameObject other)
+    //{
+    //    GameObject ball = other.GetComponent<PlayerManager>().Ball;
+    //    other.GetComponent<PlayerManager>().BallLost();
+    //    ball.GetComponent<BallBehaviour>().AttachBall(transform.parent.gameObject);
+    //    transform.parent.GetComponent<PlayerManager>().BallReceived();
+    //}
 }

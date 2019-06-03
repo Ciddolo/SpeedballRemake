@@ -34,51 +34,51 @@ public class BallBehaviour : MonoBehaviour
     //    isCatchable = transform.localScale.x <= MAX_SIZE_CATCH;
     //}
 
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        //if (other.gameObject.tag == "Goal")
-        //{
-        //    if (other.gameObject.name == "BlueGoal")
-        //        GameManager.TeamScore(1);
-        //    else if (other.gameObject.name == "RedGoal")
-        //        GameManager.TeamScore(2);
+    //void OnTriggerEnter2D(Collider2D other)
+    //{
+    //    //if (other.gameObject.tag == "Goal")
+    //    //{
+    //    //    if (other.gameObject.name == "BlueGoal")
+    //    //        GameManager.TeamScore(1);
+    //    //    else if (other.gameObject.name == "RedGoal")
+    //    //        GameManager.TeamScore(2);
 
-        //    if (Owner != null)
-        //        RemoveBall();
+    //    //    if (Owner != null)
+    //    //        RemoveBall();
 
-        //    ResetPosition();
-        //}
+    //    //    ResetPosition();
+    //    //}
 
-        if (Owner != null)
-            return;
+    //    if (Owner != null)
+    //        return;
 
-        if (other.gameObject.tag == "Player" || other.gameObject.tag == "Goalkeeper")
-        {
-            if (other.gameObject.tag == "Goalkeeper" || isCatchable)
-                AttachBall(other.gameObject);
-        }
-        else if (other.gameObject.tag == "Wall")
-        {
-            float deltaX = Mathf.Abs((transform.position - other.bounds.center).x) - (transform.localScale.x * 0.5f + other.bounds.extents.x);
-            float deltaY = Mathf.Abs((transform.position - other.bounds.center).y) - (transform.localScale.x * 0.5f + other.bounds.extents.y);
+    //    if (other.gameObject.tag == "Player" || other.gameObject.tag == "Goalkeeper")
+    //    {
+    //        if (other.gameObject.tag == "Goalkeeper" || isCatchable)
+    //            AttachBall(other.gameObject);
+    //    }
+    //    else if (other.gameObject.tag == "Wall")
+    //    {
+    //        float deltaX = Mathf.Abs((transform.position - other.bounds.center).x) - (transform.localScale.x * 0.5f + other.bounds.extents.x);
+    //        float deltaY = Mathf.Abs((transform.position - other.bounds.center).y) - (transform.localScale.x * 0.5f + other.bounds.extents.y);
 
-            if (deltaX > deltaY)
-                ballMove.Direction = new Vector2(-ballMove.Direction.x, ballMove.Direction.y);
-            else
-                ballMove.Direction = new Vector2(ballMove.Direction.x, -ballMove.Direction.y);
-        }
-    }
+    //        if (deltaX > deltaY)
+    //            ballMove.Direction = new Vector2(-ballMove.Direction.x, ballMove.Direction.y);
+    //        else
+    //            ballMove.Direction = new Vector2(ballMove.Direction.x, -ballMove.Direction.y);
+    //    }
+    //}
 
-    public void AttachBall(GameObject target)
-    {
-        Owner = target;
-        Owner.GetComponent<PlayerManager>().BallReceived();
-        transform.localScale = defaulSize;
-        //transform.parent = target.transform;
-        Vector2 lastDirection = transform.position - Owner.transform.position;
-        Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
-        target.GetComponent<PlayerManager>().Ball = gameObject;
-    }
+    //public void AttachBall(GameObject target)
+    //{
+    //    Owner = target;
+    //    Owner.GetComponent<PlayerManager>().BallReceived();
+    //    transform.localScale = defaulSize;
+    //    //transform.parent = target.transform;
+    //    Vector2 lastDirection = transform.position - Owner.transform.position;
+    //    Owner.GetComponent<PlayerShot>().LastDirection = lastDirection.normalized;
+    //    target.GetComponent<PlayerManager>().Ball = gameObject;
+    //}
 
     public void RemoveBall()
     {
@@ -87,16 +87,16 @@ public class BallBehaviour : MonoBehaviour
         //transform.parent = null;
     }
 
-    public void ResetPosition()
-    {
-        ballMove.Direction = Vector2.zero;
-        ballMove.Velocity = Vector2.zero;
-        ballMove.Force = 0.0f;
-        transform.localPosition = Vector3.zero;
-    }
+    //public void ResetPosition()
+    //{
+    //    ballMove.Direction = Vector2.zero;
+    //    ballMove.Velocity = Vector2.zero;
+    //    ballMove.Force = 0.0f;
+    //    transform.localPosition = Vector3.zero;
+    //}
 
-    public void SetMaxSize()
-    {
-        transform.localScale = maxSize;
-    }
+    //public void SetMaxSize()
+    //{
+    //    transform.localScale = maxSize;
+    //}
 }
