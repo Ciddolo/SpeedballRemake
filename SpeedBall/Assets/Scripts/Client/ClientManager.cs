@@ -44,11 +44,9 @@ public class ClientManager : MonoBehaviour
     public GameObject WallPrefab;
     public GameObject GoalPrefab;
     public GameObject BallPrefab;
+    public string Address;
+    public int Port;
 
-    [SerializeField]
-    private string address;
-    [SerializeField]
-    private int port;
     private Socket socket;
     private IPEndPoint endPoint;
 
@@ -95,7 +93,7 @@ public class ClientManager : MonoBehaviour
 
         socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         socket.Blocking = false;
-        endPoint = new IPEndPoint(IPAddress.Parse(address), port);
+        endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
 
         Packet join = new Packet((byte)PacketsCommands.Join);
         socket.SendTo(join.GetData(), endPoint);
@@ -139,7 +137,7 @@ public class ClientManager : MonoBehaviour
         if (teamNetId == 0)
             teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
         else if (teamNetId == 1)
-            teamManager = GameObject.Find("RedTeamPlayers").GetComponent<TeamManager>();
+            teamManager = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
 
         teamManager.ClientOwner = gameObject;
         isInitialized = true;
@@ -474,5 +472,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.transform.position = new Vector2(x, y);
         objectToSpawn.transform.localScale = new Vector2(width, height);
         spawnedObjects.Add(id, objectToSpawn);
+
+        CameraManager.Ball = objectToSpawn;
     }
 }

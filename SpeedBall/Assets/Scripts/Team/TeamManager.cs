@@ -86,32 +86,26 @@ public class TeamManager : MonoBehaviour
 
     public void EnlightenPlayer(uint netId, uint team)
     {
-        if (team == 0)
+        for (int i = 0; i < myPlayers.Length; i++)
         {
-            for (int i = 0; i < myPlayers.Length; i++)
+            if (myPlayers[i].GetComponent<PlayerManager>().NetId == netId)
             {
-                if (myPlayers[i].GetComponent<PlayerManager>().NetId == netId)
-                {
+                if (CurrentPlayer != null)
                     CurrentPlayer.GetComponent<PlayerManager>().IsSelected = false;
-                    CurrentPlayer = myPlayers[i];
-                    CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
-                    //index = CurrentPlayer.GetComponent<PlayerManager>().Index;
-                    cameraManager.CurrentPlayer = CurrentPlayer;
-                }
+                CurrentPlayer = myPlayers[i];
+                CurrentPlayer.GetComponent<PlayerManager>().IsSelected = true;
+                cameraManager.CurrentPlayer = CurrentPlayer;
             }
-
         }
-        else
+
+        for (int i = 0; i < enemyPlayers.Length; i++)
         {
-            for (int i = 0; i < enemyPlayers.Length; i++)
+            if (enemyPlayers[i].GetComponent<PlayerManager>().NetId == netId)
             {
-                if (enemyPlayers[i].GetComponent<PlayerManager>().NetId == netId)
-                {
-                    if (CurrentEnemyPlayer != null)
-                        CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = false;
-                    CurrentEnemyPlayer = enemyPlayers[i];
-                    CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = true;
-                }
+                if (CurrentEnemyPlayer != null)
+                    CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = false;
+                CurrentEnemyPlayer = enemyPlayers[i];
+                CurrentEnemyPlayer.GetComponent<PlayerManager>().IsSelected = true;
             }
         }
     }
