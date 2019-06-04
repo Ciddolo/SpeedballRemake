@@ -11,14 +11,14 @@ public class BallBehaviour : MonoBehaviour
     public GameObject Owner { get; set; }
 
     private BallMove ballMove;
-    private bool isCatchable;
+    //private bool isCatchable;
     private Vector3 defaulSize = Vector3.one;
     private Vector3 maxSize = new Vector3(MAX_SIZE, MAX_SIZE, MAX_SIZE);
 
     void Start()
     {
         ballMove = GetComponent<BallMove>();
-        isCatchable = true;
+        //isCatchable = true;
     }
 
     //void Update()

@@ -26,6 +26,8 @@ namespace SpeedBallServer
 
     public class GameLogic
     {
+        private const float DEFAULT_MATCH_TIME = 200.0f;
+
         private GameServer server;
         public GameState GameStatus;
         public Dictionary<GameClient, Team> Clients;
@@ -33,6 +35,7 @@ namespace SpeedBallServer
         public Ball Ball { get; protected set; }
         public PhysicsHandler PhysicsHandler { get; protected set; }
         public Timer GameTime;
+        private float matchTime;
         private float maxPlayers;
 
         public uint[] Score;
@@ -315,8 +318,9 @@ namespace SpeedBallServer
             Teams = new Team[2];
             Teams[0] = new Team(0);
             Teams[1] = new Team(1);
+            matchTime = DEFAULT_MATCH_TIME;
 
-            GameTime = new Timer(200.0f, SetGameStatusToEnded);
+            GameTime = new Timer(DEFAULT_MATCH_TIME, SetGameStatusToEnded);
 
             updatableItems = new List<IUpdatable>();
             PhysicsHandler = new PhysicsHandler();
@@ -430,12 +434,12 @@ namespace SpeedBallServer
         public void GetPlayerInput(byte[] data, GameClient client)
         {
             //Console.WriteLine("taking input");
-            if (GameStatus != GameState.Playing)
-            {
-                //Console.WriteLine("not playing");
-                client.Malus++;
-                return;
-            }
+            //if (GameStatus != GameState.Playing)
+            //{
+            //    //Console.WriteLine("not playing");
+            //    client.Malus++;
+            //    return;
+            //}
 
             byte inputCommand = data[5];
 
@@ -475,11 +479,15 @@ namespace SpeedBallServer
 
         public void Update()
         {
-            if (GameStatus == GameState.Playing && !GameTime.IsStarted)
-                GameTime.Start();
+            if (GameStatus == GameState.Playing)
+            {
+                matchTime -= server.UpdateFrequency;
 
-            if (GameStatus == GameState.Playing && GameTime.IsStarted)
-                GameTime.Update(server.UpdateFrequency);
+                if (matchTime <= 0.0f)
+                    SetGameStatusToEnded();
+
+                Console.WriteLine(matchTime);
+            }
 
             PhysicsHandler.Update(server.UpdateFrequency);
             PhysicsHandler.CheckCollisions();
@@ -514,7 +522,7 @@ namespace SpeedBallServer
             uint controlledPlayerIdTeamTwo = Teams[1].ControlledPlayerId;
 
             return new Packet(PacketsCommands.GameInfo, false, Score[0], Score[1],
-                controlledPlayerIdTeamOne, controlledPlayerIdTeamTwo, (uint)GameStatus);
+                controlledPlayerIdTeamOne, controlledPlayerIdTeamTwo, (uint)GameStatus, matchTime);
         }
     }
 }

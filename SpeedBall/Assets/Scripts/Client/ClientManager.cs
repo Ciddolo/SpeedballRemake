@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -48,20 +49,18 @@ public class ClientManager : MonoBehaviour
     public GameObject BallPrefab;
     public GameObject WarpPrefab;
     public GameObject BumperPrefab;
-    public string Address;
-    public int Port;
+    public Text Address;
+    public Text Port;
+
+    public static bool IsInitialized;
 
     private Socket socket;
     private IPEndPoint endPoint;
 
     private uint teamNetId;
     private uint currentPlayerId;
-
-    [SerializeField]
     private TeamManager teamManager;
-    [SerializeField]
-    private bool isInitialized;
-    private bool isGettingPing;
+    //private bool isGettingPing;
     private delegate void SpawnPrefab(byte[] data);
     private Dictionary<int, SpawnPrefab> spawnTable;
     private Dictionary<uint, GameObject> netPrefabs;
@@ -97,22 +96,15 @@ public class ClientManager : MonoBehaviour
         spawnTable[(int)NetPrefab.Warp] = SpawnWarp;
         spawnTable[(int)NetPrefab.Bumper] = SpawnBumper;
 
-        isInitialized = false;
-
-        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        socket.Blocking = false;
-        endPoint = new IPEndPoint(IPAddress.Parse(Address), Port);
-
-        Packet join = new Packet((byte)PacketsCommands.Join);
-        socket.SendTo(join.GetData(), endPoint);
+        IsInitialized = false;
     }
 
     void Start()
     {
-        horizontalAxisName = "RedHorizontal";
-        verticalAxisName = "RedVertical";
-        horizontalAimAxisName = "RedHorizontalAim";
-        verticalAimAxisName = "RedVerticalAim";
+        horizontalAxisName = "Horizontal";
+        verticalAxisName = "Vertical";
+        horizontalAimAxisName = "HorizontalAim";
+        verticalAimAxisName = "VerticalAim";
         selectPreviousPlayer = KeyCode.Q;
         selectNextPlayer = KeyCode.E;
         shot = KeyCode.Space;
@@ -125,11 +117,11 @@ public class ClientManager : MonoBehaviour
 
         Receiver();
 
-        CalculatePing();
-        if (isGettingPing)
-            calculatePing += Time.deltaTime;
+        //CalculatePing();
+        //if (isGettingPing)
+        //    calculatePing += Time.deltaTime;
 
-        if (!isInitialized)
+        if (!IsInitialized)
             return;
 
         TeamInput();
@@ -137,9 +129,25 @@ public class ClientManager : MonoBehaviour
         CameraInput();
     }
 
+    public void Connect()
+    {
+        if (Address == null || Port == null)
+            return;
+
+        if (!Int32.TryParse(Port.text, out int intPort))
+            return;
+
+        socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        socket.Blocking = false;
+        endPoint = new IPEndPoint(IPAddress.Parse(Address.text), intPort);
+
+        Packet join = new Packet((byte)PacketsCommands.Join);
+        socket.SendTo(join.GetData(), endPoint);
+    }
+
     private void Init()
     {
-        if (isInitialized)
+        if (IsInitialized)
             return;
 
         if (teamNetId == 0)
@@ -148,7 +156,7 @@ public class ClientManager : MonoBehaviour
             teamManager = GameObject.Find("BlueTeamPlayers").GetComponent<TeamManager>();
 
         teamManager.ClientOwner = gameObject;
-        isInitialized = true;
+        IsInitialized = true;
     }
 
     private void TeamInput()
@@ -174,22 +182,16 @@ public class ClientManager : MonoBehaviour
             teamManager.CurrentPlayer.GetComponent<PlayerMove>().Direction = direction;
             Send(new Packet((byte)PacketsCommands.Input, (byte)InputType.Movement, direction.x, direction.y));
         }
+
         //SHOT
-        if (true)
-        {
-            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
-            teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
-        }
-        if (true) //TACKLE
-        {
-            Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
-            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().AimDirection = aimDirection;
-            teamManager.CurrentPlayer.transform.GetChild(1).GetComponent<PlayerTackle>().InputKeyDown = Input.GetKeyDown(tackle);
-            if (Input.GetKeyDown(tackle))
-                SendTackle();
-        }
+        Vector2 aimDirection = new Vector2(Input.GetAxis(horizontalAimAxisName), Input.GetAxis(verticalAimAxisName)).normalized;
+        teamManager.CurrentPlayer.GetComponent<PlayerShot>().AimDirection = aimDirection;
+        teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKey = Input.GetKey(shot);
+        teamManager.CurrentPlayer.GetComponent<PlayerShot>().InputKeyUp = Input.GetKeyUp(shot);
+
+        //TACKLE
+        if (Input.GetKeyDown(tackle))
+            SendTackle();
     }
 
     private void CameraInput()
@@ -216,7 +218,7 @@ public class ClientManager : MonoBehaviour
     public void CalculatePing()
     {
         calculatePing = 0.0f;
-        isGettingPing = true;
+        //isGettingPing = true;
         Send(new Packet((byte)PacketsCommands.Ping));
     }
 
@@ -251,12 +253,12 @@ public class ClientManager : MonoBehaviour
                 byte command = data[0];
                 if (command == (byte)PacketsCommands.Welcome)
                 {
-                    if (isInitialized)
+                    if (IsInitialized)
                         continue;
 
                     teamNetId = BitConverter.ToUInt32(data, 5);
                     currentPlayerId = BitConverter.ToUInt32(data, 9);
-                    Init();
+                    Init();                    
 
                     uint packetId = BitConverter.ToUInt32(data, 1);
                     Packet ack = new Packet(PacketsCommands.Ack, packetId);
@@ -315,17 +317,19 @@ public class ClientManager : MonoBehaviour
                     uint currentRedPlayer = BitConverter.ToUInt32(data, 13);
                     uint currentBluePlayer = BitConverter.ToUInt32(data, 17);
                     uint currentGameState = BitConverter.ToUInt32(data, 21);
+                    float matchTime = BitConverter.ToSingle(data, 25);
 
                     GameManager.StateOfGame = (GameState)currentGameState;
                     teamManager.EnlightenPlayer(currentRedPlayer, 0);
                     teamManager.EnlightenPlayer(currentBluePlayer, 1);
                     GameManager.RedScore = teamRedScore;
                     GameManager.BlueScore = teamBlueScore;
+                    GameManager.MatchTime = matchTime;
                 }
                 else if (command == (byte)PacketsCommands.Pong)
                 {
                     uint packetId = BitConverter.ToUInt32(data, 2);
-                    isGettingPing = false;
+                    //isGettingPing = false;
                 }
                 else if (command == (byte)PacketsCommands.Ping)
                 {

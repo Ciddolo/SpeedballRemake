@@ -43,3 +43,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 928759988f408fa4f891e47e02d8f56a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerPrefab: {fileID: 0}
+  GoalkeeperPrefab: {fileID: 0}
+  WallPrefab: {fileID: 0}
+  GoalPrefab: {fileID: 0}
+  BallPrefab: {fileID: 0}
+  WarpPrefab: {fileID: 0}
+  BumperPrefab: {fileID: 0}
+  Address: 
+  Port: 0
+  teamManager: {fileID: 0}
+  isInitialized: 0
