@@ -19,20 +19,10 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void RigidBodyType()
+        public void DefaultValues()
         {
             Assert.That(myBall.RigidBody.Type, Is.EqualTo((uint)ColliderType.Ball));
-        }
-
-        [Test]
-        public void InternalObjId()
-        {
             Assert.That(myBall.ObjectType, Is.EqualTo((uint)InternalObjectsId.Ball));
-        }
-
-        [Test]
-        public void RigidBodyCollisionMask()
-        {
             Assert.That(myBall.RigidBody.CollisionMask, Is.EqualTo(12));
         }
 
@@ -53,7 +43,7 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void AttachingBallToPlayer()
+        public void AtachingBallToPlayer()
         {
             Player myPlayer = new Player(null, 1, 1);
 
@@ -79,7 +69,7 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void DeattachingBallFromPlayer()
+        public void DetachingBallFromPlayer()
         {
             Player myPlayer = new Player(null, 1, 1);
 
@@ -99,14 +89,41 @@ namespace SpeedBallServer.Test.EngineTests
             myBall.AttachToPlayer(myPlayer);
             myBall.Shot(new Vector2(1f, 0f), new Vector2(1f, 0f) * 20f);
 
-            myBall.RigidBody.Update(1f);
-            myBall.Update(1f);
+            Assert.That(myBall.RigidBody.IsGravityAffected, Is.EqualTo(true));
+            Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
+            Assert.That(myBall.Position, Is.EqualTo(new Vector2(1f, 0f)));
+            Assert.That(myBall.RigidBody.Velocity.Length(), Is.EqualTo(20f));
+            Assert.That(myBall.Magnification, Is.EqualTo(1f));
+            Assert.That(myPlayer.Ball, Is.EqualTo(null));
+        }
+
+        [Test]
+        public void ShotInsideWall()
+        {
+            FakeTransport transport = new FakeTransport();
+            FakeClock clock = new FakeClock();
+            GameServer server = new GameServer(transport, clock);
+
+            Player myPlayer = new Player(null, 1, 1);
+            Obstacle myObstacle = new Obstacle(null, 1, 1);
+            myObstacle.Position = new Vector2(0f,1f);
+            myBall.gameLogic = server.GameLogic;
+
+            PhysicsHandler physicsHandler = server.GameLogic.PhysicsHandler;
+
+            physicsHandler.AddItem(myPlayer.RigidBody);
+            physicsHandler.AddItem(myObstacle.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.AttachToPlayer(myPlayer);
+            myBall.Shot(new Vector2(0f, 1f), new Vector2(0f, 1f) * 20f);
 
             Assert.That(myBall.RigidBody.IsGravityAffected, Is.EqualTo(true));
             Assert.That(myBall.PlayerWhoOwnsTheBall, Is.EqualTo(null));
-            Assert.That(myBall.Position, Is.EqualTo(new Vector2(21f, 0f)));
+            Assert.That(myBall.Position, Is.Not.EqualTo(new Vector2(0f, 1f)));
+            Assert.That(myBall.RigidBody.Velocity.Length(), Is.EqualTo(20f));
+            Assert.That(myBall.Magnification, Is.EqualTo(1f));
             Assert.That(myPlayer.Ball, Is.EqualTo(null));
-            Assert.That(myBall.Magnification, Is.EqualTo(6 / 10f));
         }
 
         [Test]
@@ -158,6 +175,49 @@ namespace SpeedBallServer.Test.EngineTests
             Assert.That(netId, Is.EqualTo(myBall.Id));
             Assert.That(width, Is.EqualTo(myBall.Width));
             Assert.That(height, Is.EqualTo(myBall.Height));
+        }
+
+        [Test]
+        public void OnCollideWithObstacle()
+        {
+            Bumper myBumper = new Bumper(null, 1, 1);
+
+            PhysicsHandler physicsHandler = new PhysicsHandler();
+
+            physicsHandler.AddItem(myBumper.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(99.5f, 100f);
+            myBall.RigidBody.Velocity = new Vector2(1f, 0f);
+            myBumper.Position = new Vector2(100, 100);
+
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.RigidBody.Velocity, Is.EqualTo(new Vector2(-1f, 0f)));
+        }
+
+        [Test]
+        public void OnCollideWithNet()
+        {
+            FakeTransport transport = new FakeTransport();
+            FakeClock clock = new FakeClock();
+            GameServer server = new GameServer(transport, clock);
+
+            Net myNet = new Net(null, 1, 1);
+            myBall.gameLogic = server.GameLogic;
+
+            PhysicsHandler physicsHandler = server.GameLogic.PhysicsHandler;
+
+            physicsHandler.AddItem(myNet.RigidBody);
+            physicsHandler.AddItem(myBall.RigidBody);
+
+            myBall.Position = new Vector2(99.5f, 100f);
+            myBall.RigidBody.Velocity = new Vector2(1f, 0f);
+            myNet.Position = new Vector2(100, 100);
+            
+            physicsHandler.CheckCollisions();
+
+            Assert.That(myBall.gameLogic.Score[1], Is.EqualTo(1));
         }
     }
 }

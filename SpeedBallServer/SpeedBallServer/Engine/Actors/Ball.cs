@@ -40,7 +40,9 @@ namespace SpeedBallServer
 
         public override void OnCollide(Collision collisionInfo)
         {
-            if (collisionInfo.Collider.RigidBody.Type == (uint)ColliderType.Obstacle)
+            GameObject Collider = collisionInfo.Collider;
+
+            if (Collider.RigidBody.Type == (uint)ColliderType.Obstacle)
             {
                 float deltaX = -collisionInfo.Delta.X;
                 float deltaY = -collisionInfo.Delta.Y;
@@ -49,14 +51,14 @@ namespace SpeedBallServer
                 {
                     if (deltaX > deltaY)
                     {
-                        if (this.Position.X < collisionInfo.Collider.Position.X)
+                        if (this.Position.X < Collider.Position.X)
                             deltaX = -deltaX;
 
                         this.Position -= new Vector2(deltaX, 0);
                     }
                     else
                     {
-                        if (this.Position.Y < collisionInfo.Collider.Position.Y)
+                        if (this.Position.Y < Collider.Position.Y)
                             deltaY = -deltaY;
 
                         this.Position -= new Vector2(0, deltaY);
@@ -68,10 +70,12 @@ namespace SpeedBallServer
                 else
                     this.RigidBody.SetYVelocity(-RigidBody.Velocity.Y);
             }
-            else if (collisionInfo.Collider is Net)
+            else if (Collider is Net)
             {
                 if (gameLogic != null)
-                    gameLogic.OnGoal((Net)collisionInfo.Collider);
+                {
+                    gameLogic.OnGoal((Net)Collider);
+                }
             }
         }
 
