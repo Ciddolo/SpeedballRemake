@@ -19,6 +19,8 @@ namespace SpeedBallServer
 
         public float Magnification { get; private set; }
 
+        private float speed;
+
         public Ball(GameServer server, float Height, float Width)
             : base((int)InternalObjectsId.Ball, server, Height, Width)
         {
@@ -112,12 +114,15 @@ namespace SpeedBallServer
 
             if (PlayerWhoOwnsTheBall != null)
                 this.Position = PlayerWhoOwnsTheBall.Position;
+
+            Vector2 velocity = RigidBody.Velocity;
+            speed = (float)Math.Sqrt(velocity.X * velocity.X + velocity.Y * velocity.Y);
         }
 
         public Packet GetUpdatePacket()
         {
             return new Packet(PacketsCommands.Update, false,
-                Id, X, Y, Magnification);//could send owner
+                Id, X, Y, Magnification, speed);//could send owner
         }
 
         public void AttachToPlayer(Player newOwner)
