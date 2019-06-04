@@ -9,7 +9,7 @@ namespace SpeedBallServer
 {
     public class Ball : GameObject, IUpdatable
     {
-        public GameObject PlayerWhoOwnsTheBall { get; private set; }
+        public Player PlayerWhoOwnsTheBall { get; private set; }
         public bool HasPlayer { get { return PlayerWhoOwnsTheBall != null; } }
         private Vector2 startingPosition;
 
@@ -18,6 +18,8 @@ namespace SpeedBallServer
         private float maxVelocity, velocityMagnificationTreshold;
 
         public float Magnification { get; private set; }
+
+        private float speed;
 
         public Ball(GameServer server, float Height, float Width)
             : base((int)InternalObjectsId.Ball, server, Height, Width)
@@ -38,7 +40,7 @@ namespace SpeedBallServer
 
         public override void OnCollide(Collision collisionInfo)
         {
-            if (collisionInfo.Collider is Obstacle)
+            if (collisionInfo.Collider.RigidBody.Type == (uint)ColliderType.Obstacle)
             {
                 float deltaX = -collisionInfo.Delta.X;
                 float deltaY = -collisionInfo.Delta.Y;
@@ -108,24 +110,24 @@ namespace SpeedBallServer
 
             if (PlayerWhoOwnsTheBall != null)
                 this.Position = PlayerWhoOwnsTheBall.Position;
+
+            Vector2 velocity = RigidBody.Velocity;
+            speed = (float)Math.Sqrt(velocity.X * velocity.X + velocity.Y * velocity.Y);
         }
 
         public Packet GetUpdatePacket()
         {
             return new Packet(PacketsCommands.Update, false,
-                Id, X, Y, Magnification);//could send owner
+                Id, X, Y, Magnification, speed);//could send owner
         }
 
-        public void AttachToPlayer(GameObject newOwner)
+        public void AttachToPlayer(Player newOwner)
         {
             RigidBody.IsCollisionsAffected = false;
             Magnification = 0.0f;
             this.RigidBody.Velocity = Vector2.Zero;
             PlayerWhoOwnsTheBall = newOwner;
-            if (newOwner is Player)
-                ((Player)PlayerWhoOwnsTheBall).Ball = this;
-            else
-                ((Goalkeeper)PlayerWhoOwnsTheBall).Ball = this;
+            PlayerWhoOwnsTheBall.Ball = this;
             if (gameLogic != null && newOwner != null)
                 gameLogic.OnBallTaken(newOwner);
         }
@@ -135,10 +137,7 @@ namespace SpeedBallServer
             if (PlayerWhoOwnsTheBall == null)
                 return;
 
-            if (PlayerWhoOwnsTheBall is Player)
-                ((Player)PlayerWhoOwnsTheBall).Ball = null;
-            else
-                ((Goalkeeper)PlayerWhoOwnsTheBall).Ball = null;
+            PlayerWhoOwnsTheBall.Ball = null;
 
             PlayerWhoOwnsTheBall = null;
             RigidBody.IsCollisionsAffected = true;

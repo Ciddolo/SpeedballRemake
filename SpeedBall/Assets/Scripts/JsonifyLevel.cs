@@ -20,7 +20,7 @@ public class SimpleLevelObject
 [Serializable]
 public class ComplexLevelObject : SimpleLevelObject
 {
-    public float Width,Height;
+    public float Width, Height;
 
     public ComplexLevelObject(Transform go) : base(go)
     {
@@ -33,9 +33,9 @@ public class ComplexLevelObject : SimpleLevelObject
 public class Level
 {
     public PlayersInfo PlayerInfo;
-    public ComplexLevelObject Ball, NetTeamOne, NetTeamTwo;
+    public ComplexLevelObject Ball, NetTeamOne, NetTeamTwo, WarpRight, WarpLeft;
     public List<SimpleLevelObject> TeamOneSpawnPositions, TeamTwoSpawnPositions;
-    public List<ComplexLevelObject> Walls;
+    public List<ComplexLevelObject> Walls, Bumpers;
 }
 
 [Serializable]
@@ -43,7 +43,7 @@ public class PlayersInfo
 {
     public bool IsCircle;
     public float Width, Height;
-    public int DefaultPlayerIndex,GoalkeeperIndex;
+    public int DefaultPlayerIndex, GoalkeeperIndex;
 
     public PlayersInfo(Transform transform)
     {
@@ -62,18 +62,20 @@ public class JsonifyLevel : MonoBehaviour
 {
     public bool Execute = false;
 
-    public GameObject PlayerPrefab, BallPrefab, NetTeamOneGameObject, NetTeamTwoGameObject;
-    public GameObject WallsParentGameObject, PlayerOneTeamParent, PlayerTwoTeamParent;
+    public GameObject PlayerPrefab, BallPrefab, NetTeamOneGameObject, NetTeamTwoGameObject, WarpRight, WarpLeft;
+    public GameObject WallsParentGameObject, PlayerOneTeamParent, PlayerTwoTeamParent, BumpersParent;
 
     void Update()
     {
-        if(Execute)
+        if (Execute)
         {
             Execute = false;
 
             Level levelToSerialize = new Level();
 
-            levelToSerialize.Walls = GetComplexLevelObjects(WallsParentGameObject); ;
+            levelToSerialize.Walls = GetComplexLevelObjects(WallsParentGameObject);
+            levelToSerialize.Bumpers = GetComplexLevelObjects(BumpersParent);
+
 
             levelToSerialize.TeamTwoSpawnPositions = GetSimpleLevelObjects(PlayerOneTeamParent);
             levelToSerialize.TeamOneSpawnPositions = GetSimpleLevelObjects(PlayerTwoTeamParent);
@@ -84,7 +86,10 @@ public class JsonifyLevel : MonoBehaviour
             levelToSerialize.NetTeamTwo = new ComplexLevelObject(NetTeamTwoGameObject.transform);
             levelToSerialize.Ball = new ComplexLevelObject(BallPrefab.transform);
 
-            string serializedLevel = JsonUtility.ToJson(levelToSerialize,true);
+            levelToSerialize.WarpRight = new ComplexLevelObject(WarpRight.transform);
+            levelToSerialize.WarpLeft = new ComplexLevelObject(WarpLeft.transform);
+
+            string serializedLevel = JsonUtility.ToJson(levelToSerialize, true);
 
             string path = Application.dataPath + "/Level.json";
             File.WriteAllText(path, serializedLevel);
@@ -102,10 +107,10 @@ public class JsonifyLevel : MonoBehaviour
             if (parent.transform == child)
                 continue;
 
-                SimpleLevelObject ob;
-                ob = new SimpleLevelObject(child);
+            SimpleLevelObject ob;
+            ob = new SimpleLevelObject(child);
 
-                objects.Add(ob);
+            objects.Add(ob);
         }
 
         return objects;

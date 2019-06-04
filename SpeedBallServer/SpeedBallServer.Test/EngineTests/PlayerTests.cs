@@ -40,7 +40,7 @@ namespace SpeedBallServer.Test.EngineTests
         [Test]
         public void RigidBodyCollisionMask()
         {
-            Assert.That(myPlayer.RigidBody.CollisionMask, Is.EqualTo(15));
+            Assert.That(myPlayer.RigidBody.CollisionMask, Is.EqualTo(47));
         }
 
         [SetUp]

@@ -16,7 +16,9 @@ namespace SpeedBallServer
 
             MonotonicClock monotonicClock = new MonotonicClock();
 
-            string serializedLevel = File.ReadAllText("Level.json");
+            //string serializedLevel = File.ReadAllText("Level.json");
+            //string serializedLevel = File.ReadAllText("WarpLevel.json");
+            string serializedLevel = File.ReadAllText("BumpersLevel.json");
 
             GameServer server = new GameServer(transport, monotonicClock, 30, serializedLevel);
 
