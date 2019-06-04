@@ -21,7 +21,7 @@ namespace SpeedBallServer
 
         public override void OnCollide(Collision collisionInfo)
         {
-            throw new NotImplementedException();
+            throw new Exception("Wall on collide is not intended to be called.");
         }
     }
 }

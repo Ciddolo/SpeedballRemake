@@ -53,16 +53,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EngineTests\BallTests.cs" />
-    <Compile Include="EngineTests\BumperTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\BallTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\BumperTests.cs" />
     <Compile Include="EngineTests\CollisionTests.cs" />
-    <Compile Include="EngineTests\GoallkeeperTests.cs" />
-    <Compile Include="EngineTests\NetTests.cs" />
-    <Compile Include="EngineTests\ObstacleTests.cs" />
-    <Compile Include="EngineTests\PlayerTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\GoallkeeperTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\NetTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\ObstacleTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\PlayerTests.cs" />
     <Compile Include="EngineTests\RigidBodyTests.cs" />
     <Compile Include="EngineTests\TeamTests.cs" />
-    <Compile Include="EngineTests\WarpTests.cs" />
+    <Compile Include="EngineTests\ActorsTests\WarpTests.cs" />
     <Compile Include="ServerTests\AckTests.cs" />
     <Compile Include="ServerTests\DisconnectionTests.cs" />
     <Compile Include="ServerTests\GameInfoTests.cs" />
@@ -70,7 +70,7 @@
     <Compile Include="ServerTests\InputTests.cs" />
     <Compile Include="ServerTests\JoinTests.cs" />
     <Compile Include="ServerTests\LevelSpawnTests.cs" />
-    <Compile Include="ServerTests\RaycastTests.cs" />
+    <Compile Include="EngineTests\RaycastTests.cs" />
     <Compile Include="ServerTests\SpawnTests.cs" />
     <Compile Include="ServerTests\WelcomeTests.cs" />
     <Compile Include="FakeClock.cs" />
@@ -88,12 +88,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="TestData\TestLevel.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="TestData\WarpTestLevel.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SpeedBallServer\SpeedBallServer.csproj">

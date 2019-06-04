@@ -36,12 +36,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Actors\Ball.cs" />
-    <Compile Include="Actors\Bumper.cs" />
-    <Compile Include="Actors\Goalkeeper.cs" />
-    <Compile Include="Actors\Net.cs" />
-    <Compile Include="Actors\Player.cs" />
-    <Compile Include="Actors\Warp.cs" />
+    <Compile Include="Engine\Actors\Ball.cs" />
+    <Compile Include="Engine\Actors\Bumper.cs" />
+    <Compile Include="Engine\Actors\Goalkeeper.cs" />
+    <Compile Include="Engine\Actors\Net.cs" />
+    <Compile Include="Engine\Actors\Player.cs" />
+    <Compile Include="Engine\Actors\Warp.cs" />
     <Compile Include="Engine\Circle.cs" />
     <Compile Include="Engine\Collision.cs" />
     <Compile Include="Engine\GameObject.cs" />
@@ -59,7 +59,7 @@
     <Compile Include="IGameTransport.cs" />
     <Compile Include="IMonotonicClock.cs" />
     <Compile Include="MonotonicClock.cs" />
-    <Compile Include="Actors\Obstacle.cs" />
+    <Compile Include="Engine\Actors\Obstacle.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -71,12 +71,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="Level.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="WarpLevel.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

@@ -21,19 +21,16 @@ namespace SpeedBallServer.Test.EngineTests
         [Test]
         public void InternalObjId()
         {
-            Assert.That(myNet.ObjectType, Is.EqualTo((uint)InternalObjectsId.Net));
-        }
-
-        [Test]
-        public void RigidBodyType()
-        {
             Assert.That(myNet.RigidBody.Type, Is.EqualTo((uint)ColliderType.Net));
+            Assert.That(myNet.ObjectType, Is.EqualTo((uint)InternalObjectsId.Net));
+            Assert.That(myNet.RigidBody.CollisionMask, Is.EqualTo(0));
         }
 
         [Test]
-        public void RigidBodyCollisionMask()
+        public void OnCollideThrowException()
         {
-            Assert.That(myNet.RigidBody.CollisionMask, Is.EqualTo(0));
+            //since collision mask is 0, the on collide function should never be called
+            Assert.That(() => myNet.OnCollide(new Collision()), Throws.InstanceOf<Exception>());
         }
 
         [Test]

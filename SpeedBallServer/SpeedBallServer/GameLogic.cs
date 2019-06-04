@@ -33,6 +33,7 @@ namespace SpeedBallServer
         public Ball Ball { get; protected set; }
         public PhysicsHandler PhysicsHandler { get; protected set; }
         public Timer GameTime;
+        private float maxPlayers;
 
         public uint[] Score;
 
@@ -40,8 +41,15 @@ namespace SpeedBallServer
 
         public Team[] Teams { get; protected set; }
 
-        public uint AddClient(GameClient client, out uint controlledPlayerId)
+        public uint? AddClient(GameClient client, out uint controlledPlayerId)
         {
+            controlledPlayerId = 0;
+
+            if (Clients.Count >= maxPlayers)
+            {
+                return null;
+            }
+
             if (!Clients.ContainsKey(client))
             {
                 Team teamToAssign = null;
@@ -62,7 +70,7 @@ namespace SpeedBallServer
 
                 Clients.Add(client, teamToAssign);
 
-                if (Clients.Count >= server.MaxPlayers)
+                if (Clients.Count >= maxPlayers)
                 {
                     startTimestamp = server.Now;
                     GameStatus = GameState.Playing;
@@ -73,7 +81,6 @@ namespace SpeedBallServer
                 return teamToAssign.TeamId;
             }
 
-            controlledPlayerId = 0;
             return 0;
         }
 
@@ -281,7 +288,7 @@ namespace SpeedBallServer
 
         public void OnGoal(Net collidedNet)
         {
-            int scoreToIncrement = ((int)collidedNet.TeamId + 1) % server.MaxPlayers;
+            int scoreToIncrement = ((int)collidedNet.TeamId + 1) % 2;
             Score[scoreToIncrement]++;
 
             this.ResetPositions();
@@ -296,24 +303,25 @@ namespace SpeedBallServer
 
             Console.WriteLine("Loaded Level");
 
-            Score = new uint[server.MaxPlayers];
+            Score = new uint[2];
         }
 
-        public GameLogic(GameServer server)
+        public GameLogic(GameServer server,string level=null)
         {
             this.server = server;
+            maxPlayers = 2;
             Clients = new Dictionary<GameClient, Team>();
             GameStatus = GameState.WaitingForPlayers;
-            Teams = new Team[server.MaxPlayers];
+            Teams = new Team[2];
             Teams[0] = new Team(0);
             Teams[1] = new Team(1);
 
             GameTime = new Timer(200.0f, SetGameStatusToEnded);
 
-            //teamOneControllablePlayers = new List<Player>();
-            //teamTwoControllablePlayers = new List<Player>();
             updatableItems = new List<IUpdatable>();
             PhysicsHandler = new PhysicsHandler();
+
+            SpawnLevel(level);
 
             inputCommandsTable = new Dictionary<byte, GameCommand>();
             inputCommandsTable[(byte)InputType.SelectPlayer] = SelectPlayer;
@@ -422,12 +430,12 @@ namespace SpeedBallServer
         public void GetPlayerInput(byte[] data, GameClient client)
         {
             //Console.WriteLine("taking input");
-            //if (GameStatus != GameState.Playing)
-            //{
-            //    //Console.WriteLine("not playing");
-            //    client.Malus++;
-            //    return;
-            //}
+            if (GameStatus != GameState.Playing)
+            {
+                //Console.WriteLine("not playing");
+                client.Malus++;
+                return;
+            }
 
             byte inputCommand = data[5];
 

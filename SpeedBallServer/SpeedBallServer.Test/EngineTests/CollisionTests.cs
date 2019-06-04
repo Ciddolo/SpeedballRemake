@@ -7,6 +7,7 @@ namespace SpeedBallServer.Test.EngineTests
     public class CollisionTests
     {
         private Player myPlayer;
+        private Player myTeammate;
         private Ball myBall;
         private Obstacle obstacle;
 
@@ -14,6 +15,7 @@ namespace SpeedBallServer.Test.EngineTests
         public void SetUpTest()
         {
             myPlayer = new Player(null, 1, 1);
+            myTeammate = new Player(null, 1, 1);
             obstacle = new Obstacle(null, 1, 10);
             myBall = new Ball(null, 1, 1);
         }
@@ -34,12 +36,14 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void SuccessfulCollisionBallPlayer()
+        public void CollisionBetweenPlayerWhoIsPushing()
         {
             myPlayer.Position = new Vector2(10, 10);
-            myBall.Position = new Vector2(10, 10);
+            myPlayer.RigidBody.Velocity = new Vector2(10, 10);
+            myTeammate.Position = new Vector2(10, 10);
             Collision collisionInfo = new Collision();
-            Assert.That(myPlayer.RigidBody.Collides(myBall.RigidBody, ref collisionInfo), Is.EqualTo(true));
+            myPlayer.RigidBody.Collides(myTeammate.RigidBody, ref collisionInfo);
+            Assert.That(collisionInfo.WhoIsPushing, Is.EqualTo(myPlayer));
         }
 
     }

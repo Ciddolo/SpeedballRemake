@@ -428,6 +428,8 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
+            server.GameLogic.GameStatus = GameState.Playing;
+
             byte[] welcomePacket = (transport.ClientDequeue()).data;
 
             uint playerObjectId = BitConverter.ToUInt32(welcomePacket, 9);
@@ -439,7 +441,6 @@ namespace SpeedBallServer.Test.ServerTests
             server.SingleStep();
 
             Assert.That(server.GetBall().PlayerWhoOwnsTheBall, Is.EqualTo(null));
-            //Assert.That(myPlayer.ColliderPlayer, Is.EqualTo(opponent));
 
             server.GetBall().SetPosition(opponent.Position);
 

@@ -40,12 +40,6 @@ namespace SpeedBallServer.Test.ServerTests
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 
-            //while(true)
-            //{
-            //    byte[] outp = transport.ClientDequeue().data;
-            //    Console.WriteLine(outp[0]);
-            //}
-
             //dequeue ping
             transport.ClientDequeue();
 
@@ -112,6 +106,8 @@ namespace SpeedBallServer.Test.ServerTests
         [Test]
         public void TestAfterSelect()
         {
+            server.GameLogic.GameStatus = GameState.Playing;
+
             clock.IncreaseTimeStamp(1f);
             server.SingleStep();
 

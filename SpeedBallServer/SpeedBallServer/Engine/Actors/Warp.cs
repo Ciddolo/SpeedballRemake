@@ -28,7 +28,7 @@ namespace SpeedBallServer
             if (collisionInfo.Collider is Ball)
             {
                 if (ConnectedWarp == null)
-                    throw new Exception("Warps does not have a connected warp");
+                    throw new Exception("Warp does not have a connected warp.");
 
                 Ball ball = (Ball)collisionInfo.Collider;
 
@@ -39,7 +39,7 @@ namespace SpeedBallServer
                     return;
                 }
 
-                Vector2 distanceBetweenWarps = ConnectedWarp.Position - ball.Position;
+                Vector2 distanceBetweenWarps = ConnectedWarp.Position - this.Position;
                 int sign = -Math.Sign(distanceBetweenWarps.X);
                 ball.Position = new Vector2(ConnectedWarp.Position.X + (((ConnectedWarp.Width / 2f) + (ball.Width / 1.9f)) * sign), ball.Position.Y);
             }
