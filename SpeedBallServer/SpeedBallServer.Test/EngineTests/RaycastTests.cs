@@ -31,7 +31,7 @@ namespace SpeedBallServer.Test.ServerTests
         }
 
         [Test]
-        public void SuccessfullRaycastObstacleWithMask()
+        public void RaycastObstacleWithMask()
         {
             Obstacle obstacle = new Obstacle(null, 5, 5);
             Player myPlayer = new Player(null, 1, 1);
@@ -137,27 +137,6 @@ namespace SpeedBallServer.Test.ServerTests
 
         [Test]
         public void RaycastDiagonal()
-        {
-            Obstacle obstacle = new Obstacle(null, 5, 5);
-            Player myPlayer = new Player(null, 1, 1);
-            Player myTeammate = new Player(null, 1, 1);
-
-            obstacle.Position = new Vector2(10, 0);
-            myTeammate.Position = new Vector2(5, 0);
-            myPlayer.Position = new Vector2(1, 0);
-
-            PhysicsHandler physicsHandler = new PhysicsHandler();
-
-            physicsHandler.AddItem(obstacle.RigidBody);
-            physicsHandler.AddItem(myPlayer.RigidBody);
-            physicsHandler.AddItem(myTeammate.RigidBody);
-
-            PhysicsHandler.RaycastHitInfo collider = physicsHandler.RayCast(myPlayer.Position, Vector2.Normalize(new Vector2(1, 1)), myPlayer.RigidBody);
-            Assert.That(collider.Collider, Is.EqualTo(null));
-        }
-
-        [Test]
-        public void RaycastDiagonalSuccessfull()
         {
             Obstacle obstacle = new Obstacle(null, 5, 5);
             Player myPlayer = new Player(null, 1, 1);

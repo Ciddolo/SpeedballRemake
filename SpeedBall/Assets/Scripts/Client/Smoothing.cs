@@ -56,11 +56,11 @@ public class Smoothing : MonoBehaviour
         if (!isStarted)
             return;
 
-        Debug.Log("------------------------------------------------------------");
-        Debug.Log("GRADIENT:[" + gradient + "]");
-        Debug.Log("INFO PER SECOND:[" + infoPerSecond + "]");
-        Debug.Log("TIME BETWEEN INFO:[" + timeBetweenTwoInfo + "]");
-        Debug.Log("------------------------------------------------------------");
+        //Debug.Log("------------------------------------------------------------");
+        //Debug.Log("GRADIENT:[" + gradient + "]");
+        //Debug.Log("INFO PER SECOND:[" + infoPerSecond + "]");
+        //Debug.Log("TIME BETWEEN INFO:[" + timeBetweenTwoInfo + "]");
+        //Debug.Log("------------------------------------------------------------");
 
         if (timer < 1.0f)
             timer += Time.deltaTime;

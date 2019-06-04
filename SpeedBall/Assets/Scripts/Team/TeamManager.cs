@@ -149,7 +149,7 @@ public class TeamManager : MonoBehaviour
     {
         if (++Index > myPlayers.Length - 1)
             Index = 1;
-        Debug.Log("[N] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+        //Debug.Log("[N] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
         return myPlayers[Index].GetComponent<PlayerManager>().NetId;
     }
 
@@ -157,7 +157,7 @@ public class TeamManager : MonoBehaviour
     {
         if (--Index < 1)
             Index = 4;
-        Debug.Log("[P] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
+        //Debug.Log("[P] MY PLAYERS LEN:[" + myPlayers.Length + "] INDEX:[" + Index + "] PLAYER NAME:[" + CurrentPlayer.name + "]");
         return myPlayers[Index].GetComponent<PlayerManager>().NetId;
     }
 

@@ -23,7 +23,7 @@ namespace SpeedBallServer
 
         public override void OnCollide(Collision collisionInfo)
         {
-            throw new NotImplementedException();
+            throw new Exception("Net on collide is not intended to be called.");
         }
     }
 }

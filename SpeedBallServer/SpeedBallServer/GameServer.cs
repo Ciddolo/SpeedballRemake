@@ -38,16 +38,6 @@ namespace SpeedBallServer
             return GameLogic.GameStatus;
         }
 
-        private int maxPlayers;
-
-        public int MaxPlayers
-        {
-            get
-            {
-                return maxPlayers;
-            }
-        }
-
         public float UpdateFrequency;
         public float LastServerTickTimestamp;
 
@@ -129,7 +119,6 @@ namespace SpeedBallServer
             gameObjectsTable = new Dictionary<uint, GameObject>();
 
             UpdateFrequency = 1f/ticksAmount;
-            maxPlayers = 2;
             MaxAttemptsForPacket = 3;
             SendAfterTimeForPackets = .1f;
 
@@ -141,8 +130,7 @@ namespace SpeedBallServer
             commandsTable[(byte)PacketsCommands.Pong] = Pong;
             commandsTable[(byte)PacketsCommands.Input] = Input;
 
-            GameLogic = new GameLogic(this);
-            GameLogic.SpawnLevel(startingLevel);
+            GameLogic = new GameLogic(this, startingLevel);
 
             gameLogicTimer = new Timer(UpdateFrequency, GameLogicTick, true);
             gameLogicTimer.Start();
@@ -287,23 +275,24 @@ namespace SpeedBallServer
                 return;
             }
 
-            if (ClientsAmount >= maxPlayers)
-                return;
-
             GameClient newClient = new GameClient(this, sender);
-            clientsTable[sender] = newClient;
 
             uint controlledPlayerId;
-            uint clientId = GameLogic.AddClient(newClient,out controlledPlayerId);
+            uint? clientId = GameLogic.AddClient(newClient,out controlledPlayerId);
 
-            Packet welcome = new Packet((byte)PacketsCommands.Welcome, true,clientId, controlledPlayerId);
-            newClient.Enqueue(welcome);
-            newClient.Ping();
-
-            foreach (GameObject gameObject in gameObjectsTable.Values)
+            if(clientId!=null)
             {
-                newClient.Enqueue(gameObject.GetSpawnPacket());
+                clientsTable[sender] = newClient;
+                Packet welcome = new Packet((byte)PacketsCommands.Welcome, true,clientId.Value, controlledPlayerId);
+                newClient.Enqueue(welcome);
+                newClient.Ping();
+
+                foreach (GameObject gameObject in gameObjectsTable.Values)
+                {
+                    newClient.Enqueue(gameObject.GetSpawnPacket());
+                }
             }
+
         }
 
         private void Update(byte[] data, EndPoint sender)

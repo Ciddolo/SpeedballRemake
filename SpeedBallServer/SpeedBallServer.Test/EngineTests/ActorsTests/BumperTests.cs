@@ -20,21 +20,18 @@ namespace SpeedBallServer.Test.EngineTests
         }
 
         [Test]
-        public void InternalObjId()
+        public void DefaultValues()
         {
             Assert.That(myBumper.ObjectType, Is.EqualTo((uint)InternalObjectsId.Bumper));
-        }
-
-        [Test]
-        public void RigidBodyType()
-        {
             Assert.That(myBumper.RigidBody.Type, Is.EqualTo((uint)ColliderType.Obstacle));
+            Assert.That(myBumper.RigidBody.CollisionMask, Is.EqualTo(0));
         }
 
         [Test]
-        public void RigidBodyCollisionMask()
+        public void OnCollideThrowException()
         {
-            Assert.That(myBumper.RigidBody.CollisionMask, Is.EqualTo(0));
+            //since collision mask is 0, the on collide function should never be called
+            Assert.That(() => myBumper.OnCollide(new Collision()), Throws.InstanceOf<Exception>());
         }
 
         [Test]
