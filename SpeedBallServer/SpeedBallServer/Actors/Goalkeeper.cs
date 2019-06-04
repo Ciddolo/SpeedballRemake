@@ -117,7 +117,7 @@ namespace SpeedBallServer
         public Packet GetUpdatePacket()
         {
             return new Packet((byte)PacketsCommands.Update, false,
-                Id, X, Y, (uint)State);
+                Id, X, Y, (uint)State, velocity);
         }
 
         public override void OnCollide(Collision collisionInfo)

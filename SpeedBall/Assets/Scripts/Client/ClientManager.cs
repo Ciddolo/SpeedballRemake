@@ -294,10 +294,12 @@ public class ClientManager : MonoBehaviour
                     uint id = BitConverter.ToUInt32(data, 5);
                     float x = BitConverter.ToSingle(data, 9);
                     float y = BitConverter.ToSingle(data, 13);
+                    float speed = BitConverter.ToSingle(data, 21);
 
                     Vector2 newPosition = new Vector2(x, y);
                     spawnedObjects[id].transform.position = newPosition;
-                    spawnedObjects[id].GetComponent<SmoothingManager>().GetNextUpdate(newPosition);
+                    if (spawnedObjects[id].GetComponent<Smoothing>() != null)
+                        spawnedObjects[id].GetComponent<Smoothing>().GetNextUpdate(newPosition, speed);
 
                     if (spawnedObjects[id].GetComponent<BallBehaviour>() != null)
                     {
@@ -370,7 +372,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<PlayerManager>().NetId = id;
         objectToSpawn.GetComponent<PlayerManager>().Team = team;
         objectToSpawn.GetComponent<SpriteRenderer>().color = color;
-        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
+        objectToSpawn.GetComponent<Smoothing>().ClientMng = this;
 
         if (teamId == teamNetId)
         {
@@ -420,7 +422,7 @@ public class ClientManager : MonoBehaviour
         objectToSpawn.GetComponent<PlayerManager>().NetId = id;
         objectToSpawn.GetComponent<PlayerManager>().Team = team;
         objectToSpawn.GetComponent<SpriteRenderer>().color = color;
-        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
+        objectToSpawn.GetComponent<Smoothing>().ClientMng = this;
 
         if (teamId == teamNetId)
             teamManager.AddMyPlayer(objectToSpawn);
@@ -479,7 +481,7 @@ public class ClientManager : MonoBehaviour
         float width = BitConverter.ToSingle(data, 25);
 
         GameObject objectToSpawn = Instantiate(BallPrefab);
-        objectToSpawn.GetComponent<SmoothingManager>().ClientMng = this;
+        objectToSpawn.GetComponent<Smoothing>().ClientMng = this;
         objectToSpawn.name = "BALL";
         objectToSpawn.transform.position = new Vector2(x, y);
         objectToSpawn.transform.localScale = new Vector2(width, height);
